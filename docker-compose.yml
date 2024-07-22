@@ -1,0 +1,59 @@
+version: '3.3'
+
+services:
+  db:
+    container_name: db
+    image: mysql:8
+    restart: unless-stopped
+    volumes:
+      - ./.mysql-data/db:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_matcha
+      MYSQL_USER: intra
+      MYSQL_PASSWORD: net
+  back:
+    container_name: back
+    build:
+      context: ./back/
+    command: npm run dev
+    volumes:
+      - ./back/src:/app/src
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    tty: true
+    links:
+      - db
+    depends_on:
+      - db
+  front:
+    container_name: front
+    build:
+      context: ./front
+    command: npm run dev
+    volumes:
+      - ./front/src:/app/src
+      - /app/node_modules
+    ports:
+      - 8080:8080
+    stdin_open: true
+    links:
+      - back
+    depends_on:
+      - back
+  phpMyAdmin:
+    container_name: MyAdmin
+    image: phpmyadmin:latest
+    logging:
+        driver: none
+    depends_on:
+      - db
+    environment:
+    # Necessaire pour se connecter à phpMyAdmin
+      PHP_MY_ADMIN_DEFAULT_EMAIL: intra # admin@admin.com
+      PHP_MY_ADMIN_DEFAULT_PASSWORD: net # mysql
+    ports:
+      - 4000:80
