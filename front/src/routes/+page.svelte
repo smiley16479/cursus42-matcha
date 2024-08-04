@@ -1,8 +1,7 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
 	import Signin from '$lib/component/sign-in/signin.svelte';
+	import CoreApp from '$lib/section/core-app.svelte';
+	let loggedIn = false
 </script>
 
 <svelte:head>
@@ -11,23 +10,11 @@
 </svelte:head>
 
 <section>
-	<Signin/>
-<!-- 	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter /> -->
+	{#if !loggedIn}
+		<Signin bind:loggedIn/>
+	{:else}
+		<CoreApp/>
+	{/if}
 </section>
 
 <style>
