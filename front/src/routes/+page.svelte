@@ -2,6 +2,7 @@
 	import Counter from './Counter.svelte';
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import Signin from '$lib/component/sign-in/signin.svelte';
 </script>
 
 <svelte:head>
@@ -10,7 +11,8 @@
 </svelte:head>
 
 <section>
-	<h1>
+	<Signin/>
+<!-- 	<h1>
 		<span class="welcome">
 			<picture>
 				<source srcset={welcome} type="image/webp" />
@@ -25,11 +27,11 @@
 		try editing <strong>src/routes/+page.svelte</strong>
 	</h2>
 
-	<Counter />
+	<Counter /> -->
 </section>
 
 <style>
-	section {
+/* 	section {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -55,5 +57,5 @@
 		height: 100%;
 		top: 0;
 		display: block;
-	}
+	} */
 </style>
