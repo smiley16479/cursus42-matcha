@@ -14,7 +14,7 @@ div {
   height: 100vh;
   background-image: url({{imgUrl}}); /* Ne marche pas  */
   background-size: cover; 
-  overflow: hidden;  /* Empêche le défilement dû à l'image ( !! mais cache ce qui en est en dehors !! )*/
+  /* overflow: hidden; */  /* Empêche le défilement dû à l'image ( !! mais cache ce qui en est en dehors !! )*/
 }
 
 </style>

@@ -1,18 +1,19 @@
 <script lang="ts">
 import Background from "../background/background.svelte";
-export let user = {mail: "", mdp: ""};
+import { goto } from "$app/navigation";
+export let user = {mail: "", mdp: "", name: "", firstname: "", lastname: ""};
 export let loggedIn
 </script>
 
 <Background>
-  <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg">
-    <div class="backdrop-blur bg-white/50 shadow-lg rounded-lg p-8">
+  <div class="flex h-full flex-col justify-center px-6 py-12 lg:px-8 bg">
+    <div class="backdrop-blur bg-white/50 shadow-lg rounded-lg">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-        <h2 class="mt-10 text-center text-4xl text-white font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
+        <img class="mx-auto h-50 w-auto" src="/icon.svg" alt="Your Company">
+        <h2 class="text-center text-4xl text-indigo-600 font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
       </div>
 
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm">
         <form class="space-y-6" action="#" method="POST">
           <div>
             <label for="email" class="block text-md font-bold leading-6 text-gray-900">Email address</label>
@@ -21,6 +22,27 @@ export let loggedIn
             </div>
           </div>
         
+          <div>
+            <label for="username" class="block text-md font-bold leading-6 text-gray-900">username</label>
+            <div class="mt-2">
+            <input bind:value={user.name} id="username" name="username" type="username" autocomplete="username" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            </div>
+          </div>
+
+          <div>
+            <label for="firstname" class="block text-md font-bold leading-6 text-gray-900">firstname</label>
+            <div class="mt-2">
+            <input bind:value={user.firstname} id="firstname" name="firstname" type="text" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            </div>
+          </div>
+
+          <div>
+            <label for="lastname" class="block text-md font-bold leading-6 text-gray-900">lastname</label>
+            <div class="mt-2">
+            <input bind:value={user.lastname} id="lastname" name="lastname" type="text" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            </div>
+          </div>
+
           <div>
             <div class="flex items-center justify-between">
             <label for="password" class="block text-md font-bold leading-6 text-gray-900" >Password</label>
@@ -34,7 +56,7 @@ export let loggedIn
           </div>
 
           <div>
-            <button type="submit" on:click={()=> {if (user.mail === "test" && user.mdp === "test") loggedIn = true}} class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+            <button type="submit" on:click={()=> {if (user.mail === "test" && user.mdp === "test") {loggedIn = true; /* goto("/app") */}}} class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
           </div>
         </form>
       
@@ -45,8 +67,18 @@ export let loggedIn
       </div>
     </div>
   </div>
+  <footer class="flex">
+    <p class="flex justify-end">Developped with love 💟 of Matcha's Team</p>
+  </footer>
 </Background>
 
 <style>
-
+footer {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+    
+		align-items: center;
+		padding: 12px;
+	}
 </style>

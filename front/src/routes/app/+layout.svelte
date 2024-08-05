@@ -1,18 +1,21 @@
 <script>
-	import Header from './Header.svelte';
-	import '../app.css';
+	// import Header from '../Header.svelte';
+	import Tab from '$lib/component/tabs/tab.svelte';
+	import '../../app.css';
 </script>
 
 <div class="app">
-	<Header />
+	<!-- <Header /> -->
 
 	<main>
 		<slot />
 	</main>
 
-	<footer>
-		<p>Developped with love 💟 of Matcha's Team</p>
-	</footer>
+	<div class="w-full fixed bottom-0 text-white p-4">
+		<footer>
+			<Tab/>
+		</footer>
+	</div>
 </div>
 
 <style>
