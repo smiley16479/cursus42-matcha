@@ -2,34 +2,29 @@
   "name": "back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./server.ts",
   "scripts": {
-    "start": "npm run build && node ./dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "npm run build && node ./dist/server.ts",
     "build": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon ./server.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
-    "mysql2": "^3.10.2",
-    "winston": "^3.13.1"
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv-flow": "^4.1.0",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "mysql2": "^3.11.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.6",
     "@types/morgan": "^1.9.9",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "dotenv-flow": "^4.1.0",
-    "express-validator": "^7.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
     "nodemon": "^3.1.4",
-    "sequelize": "^6.37.3",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }

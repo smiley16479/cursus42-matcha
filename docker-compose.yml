@@ -20,7 +20,7 @@ services:
       context: ./back/
     command: npm run dev
     volumes:
-      - ./back/src:/app/src
+      - ./back/app:/app/app
       - /app/node_modules
     ports:
       - 3000:3000
