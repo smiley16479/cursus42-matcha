@@ -1,6 +1,9 @@
-import connection from './connect';
+import pool from './pool';
 
-export default function initDb() {
+export default async function initDb() {
+
+    const connection = await pool.getConnection();
+
     const sqlQuery = `
     CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,10 +22,5 @@ export default function initDb() {
     );
     `;
 
-    connection.query(sqlQuery, (err: Error, results: Request, fields: any) => {
-        if (err) {
-            console.log('An error occurred while creating the table');
-            throw err;
-        }
-    });
+    const [results, fields] = await connection.query(sqlQuery);
 }

@@ -1,4 +1,4 @@
-import insertUser from "../db/insertUser";
+import { insertUser } from "../db/users";
 import bcrypt from 'bcrypt';
 import { User, string2Gender, string2SexualPref } from "../types/user";
 

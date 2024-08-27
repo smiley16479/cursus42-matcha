@@ -1,8 +1,10 @@
-import connection from './connect';
+import pool from './pool';
 import { Gender, SexualPref, User } from '../types/user';
 
 
-export default function insertUser(user: User) {
+export async function insertUser(user: User) {
+
+    const connection = await pool.getConnection();
 
     const sqlQuery = `INSERT INTO users (
     email,
@@ -44,10 +46,16 @@ export default function insertUser(user: User) {
         new Date(user.lastConnection)
     ];
 
-    connection.query(sqlQuery, userAttrs, (err: any, results: any, fields: any) => {
-        if (err) {
-            console.log('An error occurred while inserting user in database');
-            throw err;
-        }
-    });
+    const [results, fields] = await connection.query(sqlQuery, userAttrs);
+}
+
+export async function retrieveUserFromId(id: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = `SELECT * FROM users WHERE id = ?`;
+
+    const [results, fields] = await connection.query(sqlQuery, [id]);
+
+    console.log(results);
+    return results;
 }
