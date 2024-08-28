@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { createUser } from '../services/users';
+import { createUser, getUser } from '../services/users';
 import { retrieveUserFromId } from '../db/users';
+import { IUser } from '../types/user';
 
 var router = express.Router();
 
@@ -17,10 +18,9 @@ router.post('/create', function (req: Request, res: Response, next: NextFunction
     });
 });
 
-router.get('/get/:id', (req: Request, res: Response) => {
+router.get('/:id', (req: Request, res: Response) => {
 
-    retrieveUserFromId(parseInt(req.params.id)).then((user) => {
-        console.log(user);
+    getUser(parseInt(req.params.id)).then((user: IUser) => {
         res.status(200).json(user);
     })
 })

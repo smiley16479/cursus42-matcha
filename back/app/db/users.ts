@@ -1,8 +1,8 @@
 import pool from './pool';
-import { Gender, SexualPref, User } from '../types/user';
+import { IDbUser, IUser } from '../types/user';
 
 
-export async function insertUser(user: User) {
+export async function insertUser(user: IUser) {
 
     const connection = await pool.getConnection();
 
@@ -47,15 +47,15 @@ export async function insertUser(user: User) {
     ];
 
     const [results, fields] = await connection.query(sqlQuery, userAttrs);
+    connection.release();
 }
 
-export async function retrieveUserFromId(id: number) {
+export async function retrieveUserFromId(id: number): Promise<IDbUser> {
     const connection = await pool.getConnection();
 
     const sqlQuery = `SELECT * FROM users WHERE id = ?`;
+    const [rows] = await connection.query<IDbUser[]>(sqlQuery, [id]);
 
-    const [results, fields] = await connection.query(sqlQuery, [id]);
-
-    console.log(results);
-    return results;
+    connection.release();
+    return rows[0];
 }

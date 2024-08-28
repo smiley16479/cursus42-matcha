@@ -23,4 +23,5 @@ export default async function initDb() {
     `;
 
     const [results, fields] = await connection.query(sqlQuery);
+    connection.release();
 }
