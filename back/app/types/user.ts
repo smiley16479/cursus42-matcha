@@ -25,7 +25,6 @@ export interface IUser {
     longitude?: number,
     lastConnection: Date,
     created_at?: Date
-
 }
 
 export interface IDbUser extends RowDataPacket {

@@ -59,3 +59,12 @@ export async function retrieveUserFromId(id: number): Promise<IDbUser> {
     connection.release();
     return rows[0];
 }
+
+export async function deleteUser(id: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = 'DELETE FROM users WHERE id = ?';
+    const [results, fields] = await connection.query(sqlQuery, id);
+
+    connection.release();
+}

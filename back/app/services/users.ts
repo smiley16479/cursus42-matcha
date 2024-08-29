@@ -1,6 +1,6 @@
-import { insertUser, retrieveUserFromId } from "../db/users";
+import { deleteUser, insertUser, retrieveUserFromId } from "../db/users";
 import bcrypt from 'bcrypt';
-import { IDbUser, IUser, string2Gender, string2SexualPref } from "../types/user";
+import { IUser, string2Gender, string2SexualPref } from "../types/user";
 
 async function convertValues(rawUser: any): Promise<[string, number, number]> {
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
@@ -43,6 +43,10 @@ export async function getUser(id: number): Promise<IUser> {
     const user: IUser = await retrieveUserFromId(id);
     delete user.created_at;
     delete user.password;
-    
+
     return user;
+}
+
+export async function removeUser(id: number) {
+    await deleteUser(id);
 }
