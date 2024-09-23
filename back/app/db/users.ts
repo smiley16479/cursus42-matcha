@@ -1,13 +1,14 @@
-import pool from './pool';
-import { IDbUser, IUser } from '../types/user';
+import pool, { sql } from './pool';
+import { IUserDb, IUserInput } from '../types/user';
 
 
-export async function insertUser(user: IUser) {
+export async function insertUser(inputuser: IUserInput): Promise<number> {
 
     const connection = await pool.getConnection();
 
-    const sqlQuery = `INSERT INTO users (
+    const sqlQuery = sql`INSERT INTO users (
     email,
+    emailVerified,
     firstName,
     lastName,
     password,
@@ -19,42 +20,31 @@ export async function insertUser(user: IUser) {
     longitude,
     lastConnection)
     VALUES (
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?
+    ${inputuser.email},
+    ${inputuser.emailVerified},
+    ${inputuser.firstName},
+    ${inputuser.lastName},
+    ${inputuser.password},
+    ${inputuser.gender},
+    ${inputuser.sexualPref},
+    ${inputuser.biography},
+    ${inputuser.fameRate},
+    ${inputuser.longitude},
+    ${inputuser.latitude},
+    ${new Date(inputuser.lastConnection)}
     )`;
 
-    const userAttrs = [
-        user.email,
-        user.firstName,
-        user.lastName,
-        user.password,
-        user.gender,
-        user.sexualPref,
-        user.biography,
-        user.fameRate,
-        user.longitude,
-        user.latitude,
-        new Date(user.lastConnection)
-    ];
-
-    const [results, fields] = await connection.query(sqlQuery, userAttrs);
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    return result.insertId;
 }
 
-export async function retrieveUserFromId(id: number): Promise<IDbUser> {
+export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
     const sqlQuery = `SELECT * FROM users WHERE id = ?`;
-    const [rows] = await connection.query<IDbUser[]>(sqlQuery, [id]);
+    const [rows] = await connection.query<IUserDb[]>(sqlQuery, [id]);
 
     connection.release();
     return rows[0];
@@ -64,29 +54,29 @@ export async function deleteUser(id: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = 'DELETE FROM users WHERE id = ?';
-    const [results, fields] = await connection.query(sqlQuery, id);
+    await connection.query(sqlQuery, id);
 
     connection.release();
 }
 
-export async function updateUser(id: number, user: IUser) {
+export async function updateUser(id: number, rawUser: any) {
     const connection = await pool.getConnection();
 
     let sqlQuery = 'UPDATE users SET ';
     let userAttrs: any[] = [];
 
-    Object.keys(user).forEach((key: string, index: number) => {
+    Object.keys(rawUser).forEach((key: string, index: number) => {
         if (index != 0) {
             sqlQuery = sqlQuery + ', '
         }
         sqlQuery = sqlQuery + key + ' = ?';
-        userAttrs.push(Object.values(user)[index]);
+        userAttrs.push(Object.values(rawUser)[index]);
     });
 
-    sqlQuery = sqlQuery  + 'WHERE id = ?;';
+    sqlQuery = sqlQuery + 'WHERE id = ?;';
     userAttrs.push(id);
 
-    const [results, fields] = await connection.query(sqlQuery, userAttrs);
+    await connection.query(sqlQuery, userAttrs);
 
     connection.release();
 }

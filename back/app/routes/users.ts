@@ -1,6 +1,6 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { createUser, removeUser, getUser, patchUser } from '../services/users';
-import { IUser } from '../types/user';
+import { IUserOutput } from '../types/user';
 
 var router = express.Router();
 
@@ -13,7 +13,7 @@ router.post('/create', function (req: Request, res: Response) {
 
 router.get('/:id', (req: Request, res: Response) => {
 
-    getUser(parseInt(req.params.id)).then((user: IUser) => {
+    getUser(parseInt(req.params.id)).then((user: IUserOutput) => {
         res.status(200).json(user);
     })
 })

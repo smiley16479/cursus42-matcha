@@ -1,8 +1,6 @@
 import mysql from 'mysql2';
 import dotenvFlow from 'dotenv-flow';
 
-// let connection: mysql.Connection = {} as mysql.Connection;
-
 /* Copy .env variables to process.env */
 const envConfig = dotenvFlow.config().parsed;
 if (envConfig) {
@@ -10,6 +8,8 @@ if (envConfig) {
         process.env[key] = envConfig[key];
     });
 }
+
+await new Promise(resolve => setTimeout(resolve, 5000));
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -19,3 +19,4 @@ const pool = mysql.createPool({
 }).promise();
 
 export default pool;
+export { default as sql } from 'sql-template-tag';

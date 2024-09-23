@@ -1,5 +1,7 @@
 import { RowDataPacket } from "mysql2";
 
+// Enums
+
 export enum Gender {
     Female = "Female",
     Male = "Male"
@@ -11,37 +13,35 @@ export enum SexualPref {
     Both = "Both"
 }
 
-export interface IUser {
-    id?: number,
-    email?: string,
-    firstName: string,
-    lastName: string,
-    password?: string,
-    gender: Gender,
-    sexualPref: SexualPref,
-    biography: string,
-    fameRate: number,
-    latitude?: number,
-    longitude?: number,
-    lastConnection: Date,
-    created_at?: Date
-}
+// Interfaces
 
-export interface IDbUser extends RowDataPacket {
-    id: number,
-    email: string,
+export interface IMinimalUser {
     firstName: string,
     lastName: string,
-    password: string,
     gender: Gender,
     sexualPref: SexualPref,
     biography: string,
     fameRate: number,
     latitude: number,
     longitude: number,
-    lastConnection: Date,
-    created_at: Date
+    lastConnection: Date
 }
+
+export interface IUserInput extends IMinimalUser {
+    email: string,
+    emailVerified: boolean,
+    password: string
+}
+
+export interface IUserOutput extends IMinimalUser {
+    id: number,
+}
+
+export interface IUserDb extends RowDataPacket, IUserInput, IUserOutput {
+    createdAt: Date
+}
+
+// Helpers
 
 export function string2Gender(genderString: string): Gender {
     switch (genderString) {
