@@ -68,3 +68,25 @@ export async function deleteUser(id: number) {
 
     connection.release();
 }
+
+export async function updateUser(id: number, user: IUser) {
+    const connection = await pool.getConnection();
+
+    let sqlQuery = 'UPDATE users SET ';
+    let userAttrs: any[] = [];
+
+    Object.keys(user).forEach((key: string, index: number) => {
+        if (index != 0) {
+            sqlQuery = sqlQuery + ', '
+        }
+        sqlQuery = sqlQuery + key + ' = ?';
+        userAttrs.push(Object.values(user)[index]);
+    });
+
+    sqlQuery = sqlQuery  + 'WHERE id = ?;';
+    userAttrs.push(id);
+
+    const [results, fields] = await connection.query(sqlQuery, userAttrs);
+
+    connection.release();
+}

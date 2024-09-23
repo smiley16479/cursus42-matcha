@@ -1,4 +1,4 @@
-import { deleteUser, insertUser, retrieveUserFromId } from "../db/users";
+import { deleteUser, insertUser, retrieveUserFromId, updateUser } from "../db/users";
 import bcrypt from 'bcrypt';
 import { IUser, string2Gender, string2SexualPref } from "../types/user";
 
@@ -41,12 +41,17 @@ export async function createUser(rawUser: any) {
 
 export async function getUser(id: number): Promise<IUser> {
     const user: IUser = await retrieveUserFromId(id);
+    delete user.email;
     delete user.created_at;
     delete user.password;
-
     return user;
 }
 
 export async function removeUser(id: number) {
     await deleteUser(id);
+}
+
+export async function patchUser(id: number, rawUser: any) {
+
+    await updateUser(id, rawUser);
 }
