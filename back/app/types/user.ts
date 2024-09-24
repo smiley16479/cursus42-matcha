@@ -41,6 +41,13 @@ export interface IUserDb extends RowDataPacket, IUserInput, IUserOutput {
     createdAt: Date
 }
 
+export interface IEmailConfirmToken extends RowDataPacket {
+    id: number,
+    user: number,
+    confirmToken: string,
+    createdAt: Date
+}
+
 // Helpers
 
 export function string2Gender(genderString: string): Gender {

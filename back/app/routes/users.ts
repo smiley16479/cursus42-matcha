@@ -1,11 +1,18 @@
 import express, { Request, Response } from 'express';
-import { createUser, removeUser, getUser, patchUser } from '../services/users';
+import { createUser, removeUser, getUser, patchUser, verifyEmail } from '../services/users';
 import { IUserOutput } from '../types/user';
 
 var router = express.Router();
 
 router.post('/create', function (req: Request, res: Response) {
-    createUser(req.body)
+    createUser(req.body);
+    res.status(200).json({
+        "status": "200"
+    });
+});
+
+router.get('/confirmemail/:token', function (req: Request, res: Response) {
+    verifyEmail(req.params.token);
     res.status(200).json({
         "status": "200"
     });

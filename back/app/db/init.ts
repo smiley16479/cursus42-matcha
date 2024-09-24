@@ -4,7 +4,8 @@ export default async function initDb() {
 
     const connection = await pool.getConnection();
 
-    const sqlQuery = `
+    // Create user table
+    const userTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
@@ -19,10 +20,25 @@ export default async function initDb() {
     latitude DECIMAL(15, 10),
     longitude DECIMAL(15, 10),
     lastConnection TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     `;
 
-    await connection.query(sqlQuery);
+    await connection.query(userTableQuery);
+
+    // Create emailConfirmToken table
+    const emailConfirmTokenTableQuery = `
+    CREATE TABLE IF NOT EXISTS emailConfirmTokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user INT NOT NULL,
+    confirmToken VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    `;
+
+    await connection.query(emailConfirmTokenTableQuery);
+
+    // TODO : remove old confirmTokens
+
     connection.release();
 }
