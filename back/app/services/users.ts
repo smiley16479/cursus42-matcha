@@ -24,32 +24,64 @@ export async function createUser(rawUser: any) {
         lastConnection: new Date(),
     };
 
-    const id = await insertUser(user);
-    sendVerificationEmail(id);
+    let id: number | null;
+
+    try {
+        id = await insertUser(user);
+    } catch (error) {
+        throw error;
+    }
+
+    if (id) {
+        await sendVerificationEmail(id);
+    } else {
+        throw new Error();
+    }
 }
 
-export async function getUser(id: number): Promise<IUserOutput> {
+export async function getUser(id: number): Promise<IUserOutput | null> {
     const user: IUserOutput = await retrieveUserFromId(id);
+    if (!user) {
+        return null;
+    }
+
+    delete user['email'];
+    delete user['emailVerified'];
+    delete user['password'];
+    delete user['createdAt'];
+
     return user;
 }
 
 export async function removeUser(id: number) {
-    await deleteUser(id);
+    try {
+        await deleteUser(id);
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function patchUser(id: number, rawUser: any) {
-    await updateUser(id, rawUser);
+    try {
+        await updateUser(id, rawUser);
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function verifyEmail(token: string) {
     const emailConfirmToken: IEmailConfirmToken = await retrieveEmailConfirmationTokenFromToken(token);
-    if (emailConfirmToken.confirmToken) {
-        let hours = moment().diff(moment(emailConfirmToken.createdAt), 'hours');
-        if (hours <= 24) {
-            updateUser(emailConfirmToken.user, {emailVerified: true});
-            deleteEmailConfirmationToken(emailConfirmToken.id);
-        }
+    if (!emailConfirmToken || !emailConfirmToken.confirmToken) {
+        throw new Error();
     }
+
+    let hours = moment().diff(moment(emailConfirmToken.createdAt), 'hours');
+    if (hours >= 24) {
+        throw new Error();
+    }
+
+    updateUser(emailConfirmToken.user, {emailVerified: true});
+    deleteEmailConfirmationToken(emailConfirmToken.id);
 }
 
 // Helpers

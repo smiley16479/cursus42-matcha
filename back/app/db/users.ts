@@ -1,8 +1,9 @@
 import pool, { sql } from './pool';
 import { IEmailConfirmToken, IUserDb, IUserInput } from '../types/user';
+import { QueryResult, FieldPacket } from 'mysql2';
 
 
-export async function insertUser(inputuser: IUserInput): Promise<number> {
+export async function insertUser(inputuser: IUserInput): Promise<number | null> {
 
     const connection = await pool.getConnection();
 
@@ -32,13 +33,24 @@ export async function insertUser(inputuser: IUserInput): Promise<number> {
         ${inputuser.fameRate},
         ${inputuser.longitude},
         ${inputuser.latitude},
-        ${new Date(inputuser.lastConnection)}
+        ${inputuser.lastConnection}
     )`;
 
-    const [result] = await connection.query(sqlQuery);
-    connection.release();
+    let result: [QueryResult, FieldPacket[]];
 
-    return result.insertId;
+    try {
+        result = await connection.query(sqlQuery);
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+
+    if (!result[0]) {
+        return null;
+    } else {
+        return result[0].insertId;
+    }
 }
 
 export async function retrieveUserFromId(id: number): Promise<IUserDb> {
@@ -55,7 +67,9 @@ export async function deleteUser(id: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`DELETE FROM users WHERE id = ${id}`;
-    await connection.query(sqlQuery);
+    const [result] = await connection.query(sqlQuery);
+    if (result.affectedRows == 0)
+        throw new Error();
 
     connection.release();
 }
@@ -77,7 +91,9 @@ export async function updateUser(id: number, rawUser: any) {
     sqlQuery = sqlQuery + ' WHERE id = ?;';
     userAttrs.push(id);
 
-    await connection.query(sqlQuery, userAttrs);
+    const [result] = await connection.query(sqlQuery, userAttrs);
+    if (result.affectedRows == 0)
+        throw new Error();
 
     connection.release();
 }
