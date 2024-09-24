@@ -4,7 +4,8 @@ import { RowDataPacket } from "mysql2";
 
 export enum Gender {
     Female = "Female",
-    Male = "Male"
+    Male = "Male",
+    Unknown = "Unknown"
 }
 
 export enum SexualPref {
@@ -70,6 +71,8 @@ export function string2Gender(genderString: string): Gender {
             return Gender.Female;
         case "Male":
             return Gender.Male;
+        case "Unknown":
+            return Gender.Unknown;
         default:
             throw new TypeError;
     } 

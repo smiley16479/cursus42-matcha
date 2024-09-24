@@ -1,6 +1,7 @@
 import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, updateUser } from "../db/users";
+import { Gender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, SexualPref, string2Gender, string2SexualPref } from "../types/user";
 import bcrypt from 'bcrypt';
-import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, string2Gender, string2SexualPref } from "../types/user";
+import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';
 import * as crypto from "node:crypto";
 import moment from 'moment';
@@ -12,7 +13,9 @@ import moment from 'moment';
 
 export async function createUser(rawUser: any) {
 
-    const [hashedPassword, latitude, longitude] = await convertValues(rawUser);
+    checkPasswordStrength(rawUser.password);
+
+    const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(rawUser);
 
     const user: IUserInput = {
         email: rawUser.email,
@@ -21,9 +24,9 @@ export async function createUser(rawUser: any) {
         firstName: rawUser.firstName,
         lastName: rawUser.lastName,
         password: hashedPassword,
-        gender: string2Gender(rawUser.gender),
-        sexualPref: string2SexualPref(rawUser.sexualPref),
-        biography: rawUser.biography,
+        gender: gender,
+        sexualPref: sexualPref,
+        biography: biography,
         fameRate: 0,
         latitude: latitude,
         longitude: longitude,
@@ -77,8 +80,18 @@ export async function patchUser(id: number, rawUser: any) {
 
 // Helpers
 
-async function convertValues(rawUser: any): Promise<[string, number, number]> {
+function checkPasswordStrength(password: string) {
+    const strength = passwordStrength(password);
+
+    if (strength.id < 2)
+        throw new Error();
+}
+
+async function convertValues(rawUser: any): Promise<[string, Gender, SexualPref, string, number, number]> {
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
+    let gender: Gender;
+    let sexualPref: SexualPref;
+    let biography: string;
     let latitude: number;
     let longitude: number;
 
@@ -90,7 +103,22 @@ async function convertValues(rawUser: any): Promise<[string, number, number]> {
         longitude = 0;
     }
 
-    return [hashedPassword, latitude, longitude];
+    if ('gender' in rawUser)
+        gender = string2Gender(rawUser.gender);
+    else
+        gender = Gender.Unknown;
+
+    if ('sexualPref' in rawUser)
+        sexualPref = string2SexualPref(rawUser.sexualPref);
+    else
+        sexualPref = SexualPref.Both;
+
+    if ('biography' in rawUser)
+        biography = rawUser.biography;
+    else
+        biography = "";
+
+    return [hashedPassword, gender, sexualPref, biography, latitude, longitude];
 }
 
 /*********************************************************
@@ -176,6 +204,8 @@ export async function sendResetPasswordEmail(email: string) {
 }
 
 export async function resetPassword(token: string, rawUser: any) {
+    checkPasswordStrength(rawUser.password);
+
     const resetPasswordToken: IResetPasswordToken = await retrieveResetPasswordTokenFromToken(token);
     if (!resetPasswordToken || !resetPasswordToken.resetToken) {
         throw new Error();
