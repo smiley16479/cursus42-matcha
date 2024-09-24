@@ -40,5 +40,19 @@ export default async function initDb() {
 
     // TODO : remove old confirmTokens
 
+    // Create resetPasswordToken table
+    const resetPasswordTokenTableQuery = `
+    CREATE TABLE IF NOT EXISTS resetPasswordTokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user INT NOT NULL,
+    resetToken VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    `;
+
+    await connection.query(resetPasswordTokenTableQuery);
+
+    // TODO : remove old resetPasswordTokens
+
     connection.release();
 }

@@ -1,7 +1,11 @@
 import express, { Request, Response } from 'express';
-import { createUser, removeUser, getUser, patchUser, verifyEmail } from '../services/users';
+import { createUser, removeUser, getUser, patchUser, verifyEmail, sendResetPasswordEmail, resetPassword } from '../services/users';
 
 var router = express.Router();
+
+/*********************************************************
+ * ================== USER MANAGEMENT ====================
+ *********************************************************/
 
 router.post('/create', async function(req: Request, res: Response) {
     try {
@@ -12,19 +16,6 @@ router.post('/create', async function(req: Request, res: Response) {
     } catch (error) {
         res.status(400).json({
             "status": "400"
-        });
-    }
-});
-
-router.get('/confirmemail/:token', async function(req: Request, res: Response) {
-    try {
-        await verifyEmail(req.params.token);
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        res.status(403).json({
-            "status": "403"
         });
     }
 });
@@ -66,5 +57,53 @@ router.patch('/patch/:id', async function(req: Request, res: Response) {
         });
     }
 })
+
+/*********************************************************
+ * =========== EMAIL VERIFICATION MANAGEMENT =============
+ *********************************************************/
+
+router.get('/confirmemail/:token', async function(req: Request, res: Response) {
+    try {
+        await verifyEmail(req.params.token);
+        res.status(200).json({
+            "status": "200"
+        });
+    } catch (error) {
+        res.status(403).json({
+            "status": "403"
+        });
+    }
+});
+
+/*********************************************************
+ * ============== PASSWORD RESET MANAGEMENT ==============
+ *********************************************************/
+
+router.get('/askresetpassword/:email', async function (req: Request, res: Response) {
+    try {
+        await sendResetPasswordEmail(req.params.email);
+        res.status(200).json({
+            "status": "200"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(403).json({
+            "status": "403"
+        });
+    }
+});
+
+router.patch('/resetpassword/:token', async function(req: Request, res: Response) {
+    try {
+        await resetPassword(req.params.token, req.body);
+        res.status(200).json({
+            "status": "200"
+        });
+    } catch (error) {
+        res.status(403).json({
+            "status": "403"
+        });
+    }
+});
 
 export default router;

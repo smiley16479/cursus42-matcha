@@ -1,7 +1,11 @@
 import pool, { sql } from './pool';
-import { IEmailConfirmToken, IUserDb, IUserInput } from '../types/user';
+import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput } from '../types/user';
 import { QueryResult, FieldPacket } from 'mysql2';
 
+
+/*********************************************************
+ * =================== USER MANAGEMENT ===================
+ *********************************************************/
 
 export async function insertUser(inputuser: IUserInput): Promise<number | null> {
 
@@ -63,6 +67,16 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     return rows[0];
 }
 
+export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`SELECT * FROM users WHERE email = ${email}`;
+    const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
 export async function deleteUser(id: number) {
     const connection = await pool.getConnection();
 
@@ -98,6 +112,10 @@ export async function updateUser(id: number, rawUser: any) {
     connection.release();
 }
 
+/*********************************************************
+ * =========== EMAIL VERIFICATION MANAGEMENT =============
+ *********************************************************/
+
 export async function insertEmailConfirmToken(userId: number, confirmToken: string) {
     const connection = await pool.getConnection();
 
@@ -129,6 +147,46 @@ export async function deleteEmailConfirmationToken(id: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`DELETE FROM emailConfirmTokens WHERE id = ${id}`;
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+/*********************************************************
+ * ============== PASSWORD RESET MANAGEMENT ==============
+ *********************************************************/
+
+export async function insertResetPasswordToken(userId: number, resetToken: string) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO resetPasswordTokens (
+        user,
+        resetToken
+    )
+    VALUES (
+        ${userId},
+        ${resetToken}
+    )`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function retrieveResetPasswordTokenFromToken(token: string): Promise<IResetPasswordToken> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`SELECT * FROM resetPasswordTokens WHERE resetToken = ${token}`;
+    const [rows] = await connection.query<IResetPasswordToken[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function deleteResetPasswordToken(id: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM resetPasswordTokens WHERE id = ${id}`;
     await connection.query(sqlQuery);
 
     connection.release();

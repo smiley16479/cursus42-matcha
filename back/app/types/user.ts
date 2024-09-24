@@ -48,6 +48,13 @@ export interface IEmailConfirmToken extends RowDataPacket {
     createdAt: Date
 }
 
+export interface IResetPasswordToken extends RowDataPacket {
+    id: number,
+    user: number,
+    resetToken: string,
+    createdAt: Date
+}
+
 // Helpers
 
 export function string2Gender(genderString: string): Gender {
