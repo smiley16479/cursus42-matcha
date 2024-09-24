@@ -16,6 +16,7 @@ export enum SexualPref {
 // Interfaces
 
 export interface IMinimalUser {
+    username: string,
     firstName: string,
     lastName: string,
     gender: Gender,
@@ -52,6 +53,12 @@ export interface IResetPasswordToken extends RowDataPacket {
     id: number,
     user: number,
     resetToken: string,
+    createdAt: Date
+}
+
+export interface IInterest extends RowDataPacket {
+    id: number,
+    name: string,
     createdAt: Date
 }
 

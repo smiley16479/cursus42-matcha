@@ -14,6 +14,7 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
     const sqlQuery = sql`INSERT INTO users (
         email,
         emailVerified,
+        username,
         firstName,
         lastName,
         password,
@@ -28,6 +29,7 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
     VALUES (
         ${inputuser.email},
         ${inputuser.emailVerified},
+        ${inputuser.username},
         ${inputuser.firstName},
         ${inputuser.lastName},
         ${inputuser.password},

@@ -17,6 +17,7 @@ export async function createUser(rawUser: any) {
     const user: IUserInput = {
         email: rawUser.email,
         emailVerified: false,
+        username: rawUser.username,
         firstName: rawUser.firstName,
         lastName: rawUser.lastName,
         password: hashedPassword,
