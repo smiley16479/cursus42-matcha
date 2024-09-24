@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import 'dotenv/config';
 
 import initDb from './db/init';
 
@@ -14,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 /* Init database if not already done */
-initDb();
+await initDb();
 
 /* Add here next routeurs */
 app.use('/api/user', usersRouter);

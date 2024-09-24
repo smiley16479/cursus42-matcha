@@ -39,7 +39,6 @@ export async function createUser(rawUser: any) {
     };
 
     const id = await insertUser(user);
-    console.log(id);
     sendVerificationEmail(id);
 }
 
