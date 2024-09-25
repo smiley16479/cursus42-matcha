@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { EInterest, IEmailConfirmToken, IInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest } from '../types/user';
+import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput } from '../types/user';
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -243,7 +243,7 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     AND interest = ${interest};
     `;
 
-    const [rows] = await connection.query<IInterest[]>(retrieveUserInterestSqlQuery);
+    const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestSqlQuery);
     if (rows.length != 0)
         return;
 
@@ -259,4 +259,26 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     await connection.query(insertUserInterestSqlQuery);
 
     connection.release();
+}
+
+/*********************************************************
+ * ================ PICTURE MANAGEMENT ===================
+ *********************************************************/
+
+export async function insertUserPicture(inputPicture: IUserPictureInput) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO userPictures (
+    user,
+    filename,
+    isProfilePicture
+    )
+    VALUES (
+        ${inputPicture.user},
+        ${inputPicture.filename},
+        ${inputPicture.isProfilePicture}
+    );`;
+
+        await connection.query(sqlQuery);
+        connection.release();
 }

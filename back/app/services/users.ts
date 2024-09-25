@@ -1,11 +1,12 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, updateUser, updateUserInterests } from "../db/users";
-import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref } from "../types/user";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, updateUser, updateUserInterests } from "../db/users";
+import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPicture, IUserPictureInput } from "../types/user";
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';
 import * as crypto from "node:crypto";
 import moment from 'moment';
 import jwt from 'jsonwebtoken';
+import { Request, Response } from "express";
 
 
 /*********************************************************
@@ -245,3 +246,41 @@ export async function resetPassword(token: string, rawUser: any) {
     updateUser(resetPasswordToken.user, {password: hashedPassword});
     deleteResetPasswordToken(resetPasswordToken.id);
 }
+
+/*********************************************************
+ * ================ PICTURE MANAGEMENT ===================
+ *********************************************************/
+
+export async function manageUploadedPictures(req: Request, res: Response) {
+    const userId = res.locals.user.id;
+
+    if ("profilePic" in req.files) {
+        manageUploadedPicture(userId, req.files.profilePic[0]);
+    }
+
+    if ("pictures" in req.files) {
+        req.files.pictures.forEach((picture) => {
+            manageUploadedPicture(userId, picture)
+        })
+    }
+}
+
+async function manageUploadedPicture(userId: number, picture: any) {
+    let isProfilePicture: boolean;
+
+    if (picture.fieldName == 'profilePic')
+        isProfilePicture = true;
+    else {
+        isProfilePicture = false;
+    }
+
+    console.log('pic : ', picture)
+    const userPicture: IUserPictureInput = {
+        user: userId,
+        filename: picture.filename,
+        isProfilePicture: isProfilePicture
+    };
+
+    await insertUserPicture(userPicture);
+}
+

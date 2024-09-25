@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
-import { createUser, removeUser, getUser, patchUser, verifyEmail, sendResetPasswordEmail, resetPassword, loginUser } from '../services/users';
+import multer from 'multer';
+import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
+import { createUser, getUser, loginUser, manageUploadedPictures, patchUser, removeUser, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+
 
 var router = express.Router();
 
@@ -135,5 +138,38 @@ router.patch('/resetpassword/:token', async function(req: Request, res: Response
         });
     }
 });
+
+/*********************************************************
+ * ================ PICTURE MANAGEMENT ===================
+ *********************************************************/
+
+const uploadDir = process.env.UPLOAD_DIR;
+
+if (!uploadDir)
+    throw new Error();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const newFilename = crypto.randomBytes(20).toString('hex');
+      cb(null, newFilename);
+    }
+  });
+
+  const upload = multer({ storage });
+
+const uploadMiddleware = upload.fields([{ name: 'profilePic', maxCount: 1 }, { name: 'pictures', maxCount: 4 }]);
+
+router.post('/picture/upload',jwtAuthCheck, uploadMiddleware, async function(req: Request, res: Response) {
+    console.log(req.files);
+    await manageUploadedPictures(req, res);
+    res.status(200).json({
+        "status": "200"
+    })
+});
+
+// Pictures are served as static files in index.ts
 
 export default router;

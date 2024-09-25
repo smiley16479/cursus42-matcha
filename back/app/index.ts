@@ -2,10 +2,13 @@ import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import 'dotenv/config';
+import multer from 'multer';
+
 
 import initDb from './db/init';
 
 import usersRouter from './routes/users'
+import { jwtAuthCheck } from './middleware/auth';
 
 var app = express();
 
@@ -16,6 +19,13 @@ app.use(cookieParser());
 
 /* Init database if not already done */
 await initDb();
+
+/* Serve static file (pictures) */
+const uploadDir = process.env.UPLOAD_DIR;
+if (!uploadDir)
+    throw new Error();
+
+app.use('/api/picture', jwtAuthCheck, express.static(uploadDir));
 
 /* Add here next routeurs */
 app.use('/api/user', usersRouter);

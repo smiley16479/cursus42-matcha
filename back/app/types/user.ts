@@ -92,9 +92,20 @@ export interface IResetPasswordToken extends RowDataPacket {
     createdAt: Date
 }
 
-export interface IInterest extends RowDataPacket {
+export interface IUserInterest extends RowDataPacket {
     id: number,
     name: string,
+    createdAt: Date
+}
+
+export interface IUserPictureInput {
+    user: number,
+    filename: string,
+    isProfilePicture: boolean,
+}
+
+export interface IUserPicture extends RowDataPacket, IUserPictureInput {
+    id: number,
     createdAt: Date
 }
 
