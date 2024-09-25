@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput } from '../types/user';
+import { EInterest, IEmailConfirmToken, IInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest } from '../types/user';
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -62,7 +62,13 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
 export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE id = ${id}`;
+    const sqlQuery = sql`
+    SELECT u.*, JSON_ARRAYAGG(ui.interest) AS interests
+    FROM users u
+    JOIN userInterests ui ON u.id = ui.user
+    WHERE u.id = ${id}
+    `;
+
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();
@@ -97,6 +103,8 @@ export async function updateUser(id: number, rawUser: any) {
     let userAttrs: any[] = [];
 
     Object.keys(rawUser).forEach((key: string, index: number) => {
+        if (key == "interests")
+            return;
         if (index != 0) {
             sqlQuery = sqlQuery + ', '
         }
@@ -190,6 +198,45 @@ export async function deleteResetPasswordToken(id: number) {
 
     const sqlQuery = sql`DELETE FROM resetPasswordTokens WHERE id = ${id}`;
     await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+/*********************************************************
+ * ============== USER INTERESTS MANAGEMENT ==============
+ *********************************************************/
+
+export async function updateUserInterests(userId: number, interests: string[]) {
+    interests.forEach((interest) => {
+        insertUserInterest(userId, string2EInterest(interest));
+    });
+}
+
+// Helpers
+
+async function insertUserInterest(userId: number, interest: EInterest) {
+    const connection = await pool.getConnection();
+
+    const retrieveUserInterestSqlQuery = sql`
+    SELECT id FROM userInterests WHERE
+    user = ${userId}
+    AND interest = ${interest}
+    `;
+
+    const [rows] = await connection.query<IInterest[]>(retrieveUserInterestSqlQuery);
+    if (rows.length != 0)
+        return;
+
+    const insertUserInterestSqlQuery = sql`INSERT INTO userInterests (
+        user,
+        interest
+    )
+    VALUES (
+        ${userId},
+        ${interest}
+    )`;
+
+    await connection.query(insertUserInterestSqlQuery);
 
     connection.release();
 }

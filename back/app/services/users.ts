@@ -1,5 +1,5 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, updateUser } from "../db/users";
-import { Gender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, SexualPref, string2Gender, string2SexualPref } from "../types/user";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, updateUser, updateUserInterests } from "../db/users";
+import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref } from "../types/user";
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';
@@ -73,6 +73,9 @@ export async function removeUser(id: number) {
 export async function patchUser(id: number, rawUser: any) {
     try {
         await updateUser(id, rawUser);
+        if ('interests' in rawUser) {
+            await updateUserInterests(id, rawUser.interests);
+        }
     } catch (error) {
         throw error;
     }
@@ -87,10 +90,10 @@ function checkPasswordStrength(password: string) {
         throw new Error();
 }
 
-async function convertValues(rawUser: any): Promise<[string, Gender, SexualPref, string, number, number]> {
+async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number]> {
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
-    let gender: Gender;
-    let sexualPref: SexualPref;
+    let gender: EGender;
+    let sexualPref: ESexualPref;
     let biography: string;
     let latitude: number;
     let longitude: number;
@@ -104,14 +107,14 @@ async function convertValues(rawUser: any): Promise<[string, Gender, SexualPref,
     }
 
     if ('gender' in rawUser)
-        gender = string2Gender(rawUser.gender);
+        gender = string2EGender(rawUser.gender);
     else
-        gender = Gender.Unknown;
+        gender = EGender.Unknown;
 
     if ('sexualPref' in rawUser)
-        sexualPref = string2SexualPref(rawUser.sexualPref);
+        sexualPref = string2ESexualPref(rawUser.sexualPref);
     else
-        sexualPref = SexualPref.Both;
+        sexualPref = ESexualPref.Both;
 
     if ('biography' in rawUser)
         biography = rawUser.biography;

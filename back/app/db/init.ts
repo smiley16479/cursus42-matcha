@@ -55,5 +55,19 @@ export default async function initDb() {
 
     // TODO : remove old resetPasswordTokens
 
+
+    // Create userInterests table
+
+    const userInterestsTableQuery = `
+    CREATE TABLE IF NOT EXISTS userInterests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user INT NOT NULL,
+    interest VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    `;
+
+    await connection.query(userInterestsTableQuery);
+
     connection.release();
 }

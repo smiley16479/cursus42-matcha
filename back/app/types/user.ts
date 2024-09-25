@@ -2,16 +2,50 @@ import { RowDataPacket } from "mysql2";
 
 // Enums
 
-export enum Gender {
+export enum EGender {
     Female = "Female",
     Male = "Male",
     Unknown = "Unknown"
 }
 
-export enum SexualPref {
+export enum ESexualPref {
     Female = "Female",
     Male = "Male",
     Both = "Both"
+}
+
+export enum EInterest {
+    Books = "Books",
+    Blogging = "Blogging",
+    Dancing = "Dancing",
+    Singing = "Singing",
+    Music = "Music",
+    Languages = "Languages",
+    Shopping = "Shopping",
+    Traveling = "Traveling",
+    Hiking = "Hiking",
+    Cycling = "Cycling",
+    Exercising = "Exercising",
+    Drawing = "Drawing",
+    Painting = "Painting",
+    Collection = "Collection",
+    VideoGames = "VideoGames",
+    Cooking = "Cooking",
+    Baking = "Baking",
+    Gardening = "Gardening",
+    Embroidering = "Embroidering",
+    Sewing = "Sewing",
+    Knitting = "Knitting",
+    BoardGames = "BoardGames",
+    Walking = "Walking",
+    Writing = "Writing",
+    Fishing = "Fishing",
+    Photography = "Photography",
+    Skydiving = "Skydiving",
+    Skating = "Skating",
+    Skiing = "Skiing",
+    Longboarding = "Longboarding",
+    Surfing = "Surfing"
 }
 
 // Interfaces
@@ -20,8 +54,8 @@ export interface IMinimalUser {
     username: string,
     firstName: string,
     lastName: string,
-    gender: Gender,
-    sexualPref: SexualPref,
+    gender: EGender,
+    sexualPref: ESexualPref,
     biography: string,
     fameRate: number,
     latitude: number,
@@ -37,6 +71,7 @@ export interface IUserInput extends IMinimalUser {
 
 export interface IUserOutput extends IMinimalUser {
     id: number,
+    interests: string[],
 }
 
 export interface IUserDb extends RowDataPacket, IUserInput, IUserOutput {
@@ -65,27 +100,34 @@ export interface IInterest extends RowDataPacket {
 
 // Helpers
 
-export function string2Gender(genderString: string): Gender {
+export function string2EInterest(interestString: string): EInterest {
+    const interest =  Object.values(EInterest).find(entry => entry === interestString);
+    if (!interest)
+        throw new TypeError;
+    return interest;
+}
+
+export function string2EGender(genderString: string): EGender {
     switch (genderString) {
         case "Female":
-            return Gender.Female;
+            return EGender.Female;
         case "Male":
-            return Gender.Male;
+            return EGender.Male;
         case "Unknown":
-            return Gender.Unknown;
+            return EGender.Unknown;
         default:
             throw new TypeError;
     } 
 }
 
-export function string2SexualPref(sexualPrefString: string): SexualPref {
+export function string2ESexualPref(sexualPrefString: string): ESexualPref {
     switch (sexualPrefString) {
         case "Female":
-            return SexualPref.Female;
+            return ESexualPref.Female;
         case "Male":
-            return SexualPref.Male;
+            return ESexualPref.Male;
         case "Both":
-            return SexualPref.Both;
+            return ESexualPref.Both;
         default:
             throw new TypeError;
     } 
