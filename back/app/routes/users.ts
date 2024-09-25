@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { createUser, removeUser, getUser, patchUser, verifyEmail, sendResetPasswordEmail, resetPassword } from '../services/users';
+import { createUser, removeUser, getUser, patchUser, verifyEmail, sendResetPasswordEmail, resetPassword, loginUser } from '../services/users';
+import { jwtAuthCheck } from '../middleware/auth';
 
 var router = express.Router();
 
@@ -14,13 +15,32 @@ router.post('/create', async function(req: Request, res: Response) {
             "status": "200"
         });
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             "status": "400"
         });
     }
 });
 
-router.get('/:id', async function(req: Request, res: Response) {
+router.post('/login', async function(req: Request, res:Response) {
+    try {
+        const token = await loginUser(req.body);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+        }).status(200).json({
+            "status": "200"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(403).json({
+            "status": "403"
+        });
+    }
+});
+
+
+router.get('/:id', jwtAuthCheck, async function(req: Request, res: Response) {
     const user = await getUser(parseInt(req.params.id));
 
     if (!user) {
@@ -32,26 +52,28 @@ router.get('/:id', async function(req: Request, res: Response) {
     }
 })
 
-router.delete('/delete/:id', async function(req: Request, res: Response) {
+router.delete('/delete', jwtAuthCheck, async function(req: Request, res: Response) {
     try {
-        await removeUser(parseInt(req.params.id))
+        await removeUser(res.locals.user.id);
         res.status(200).json({
             "status": "200"
         });
     } catch (error) {
+        console.log(error);
         res.status(404).json({
             "status": "404"
         });
     }
 })
 
-router.patch('/patch/:id', async function(req: Request, res: Response) {
+router.patch('/patch', jwtAuthCheck, async function(req: Request, res: Response) {
     try {
-        await patchUser(parseInt(req.params.id), req.body);
+        await patchUser(res.locals.user.id, req.body);
         res.status(200).json({
             "status": "200"
         });
     } catch (error) {
+        console.log(error);
         res.status(404).json({
             "status": "404"
         });
@@ -69,6 +91,7 @@ router.get('/confirmemail/:token', async function(req: Request, res: Response) {
             "status": "200"
         });
     } catch (error) {
+        console.log(error);
         res.status(403).json({
             "status": "403"
         });
@@ -100,6 +123,7 @@ router.patch('/resetpassword/:token', async function(req: Request, res: Response
             "status": "200"
         });
     } catch (error) {
+        console.log(error);
         res.status(403).json({
             "status": "403"
         });

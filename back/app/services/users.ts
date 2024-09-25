@@ -1,10 +1,11 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, insertEmailConfirmToken, insertResetPasswordToken, insertUser, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, updateUser, updateUserInterests } from "../db/users";
 import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref } from "../types/user";
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';
 import * as crypto from "node:crypto";
 import moment from 'moment';
+import jwt from 'jsonwebtoken';
 
 
 /*********************************************************
@@ -48,6 +49,23 @@ export async function createUser(rawUser: any) {
     }
 }
 
+export async function loginUser(credentials: any) {
+    const user = await retrieveUserFromUsername(credentials.username);
+
+    const result = await bcrypt.compare(credentials.password, user.password);
+    if (result == false)
+        throw new Error();
+
+    delete credentials.password;
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret)
+        throw new Error();
+    const token = jwt.sign({id: user.id}, secret, { expiresIn: process.env.JWT_EXP });
+
+    return token;
+}
+
 export async function getUser(id: number): Promise<IUserOutput | null> {
     const user: IUserOutput = await retrieveUserFromId(id);
     if (!user) {
@@ -65,6 +83,7 @@ export async function getUser(id: number): Promise<IUserOutput | null> {
 export async function removeUser(id: number) {
     try {
         await deleteUser(id);
+        await deleteUserInterests(id);
     } catch (error) {
         throw error;
     }

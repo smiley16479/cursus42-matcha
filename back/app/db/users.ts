@@ -40,7 +40,7 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
         ${inputuser.longitude},
         ${inputuser.latitude},
         ${inputuser.lastConnection}
-    )`;
+    );`;
 
     let result: [QueryResult, FieldPacket[]];
 
@@ -65,8 +65,8 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const sqlQuery = sql`
     SELECT u.*, JSON_ARRAYAGG(ui.interest) AS interests
     FROM users u
-    JOIN userInterests ui ON u.id = ui.user
-    WHERE u.id = ${id}
+    LEFT JOIN userInterests ui ON u.id = ui.user
+    WHERE u.id = ${id};
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
@@ -78,7 +78,17 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE email = ${email}`;
+    const sqlQuery = sql`SELECT * FROM users WHERE email = ${email};`;
+    const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function retrieveUserFromUsername(username: string): Promise<IUserDb> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`SELECT * FROM users WHERE username = ${username};`;
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();
@@ -88,7 +98,7 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 export async function deleteUser(id: number) {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`DELETE FROM users WHERE id = ${id}`;
+    const sqlQuery = sql`DELETE FROM users WHERE id = ${id};`;
     const [result] = await connection.query(sqlQuery);
     if (result.affectedRows == 0)
         throw new Error();
@@ -136,7 +146,7 @@ export async function insertEmailConfirmToken(userId: number, confirmToken: stri
     VALUES (
         ${userId},
         ${confirmToken}
-    )`;
+    );`;
 
     await connection.query(sqlQuery);
 
@@ -146,7 +156,7 @@ export async function insertEmailConfirmToken(userId: number, confirmToken: stri
 export async function retrieveEmailConfirmationTokenFromToken(token: string): Promise<IEmailConfirmToken> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM emailConfirmTokens WHERE confirmToken = ${token}`;
+    const sqlQuery = sql`SELECT * FROM emailConfirmTokens WHERE confirmToken = ${token};`;
     const [rows] = await connection.query<IEmailConfirmToken[]>(sqlQuery);
 
     connection.release();
@@ -156,7 +166,7 @@ export async function retrieveEmailConfirmationTokenFromToken(token: string): Pr
 export async function deleteEmailConfirmationToken(id: number) {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`DELETE FROM emailConfirmTokens WHERE id = ${id}`;
+    const sqlQuery = sql`DELETE FROM emailConfirmTokens WHERE id = ${id};`;
     await connection.query(sqlQuery);
 
     connection.release();
@@ -176,7 +186,7 @@ export async function insertResetPasswordToken(userId: number, resetToken: strin
     VALUES (
         ${userId},
         ${resetToken}
-    )`;
+    );`;
 
     await connection.query(sqlQuery);
 
@@ -186,7 +196,7 @@ export async function insertResetPasswordToken(userId: number, resetToken: strin
 export async function retrieveResetPasswordTokenFromToken(token: string): Promise<IResetPasswordToken> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM resetPasswordTokens WHERE resetToken = ${token}`;
+    const sqlQuery = sql`SELECT * FROM resetPasswordTokens WHERE resetToken = ${token};`;
     const [rows] = await connection.query<IResetPasswordToken[]>(sqlQuery);
 
     connection.release();
@@ -196,7 +206,7 @@ export async function retrieveResetPasswordTokenFromToken(token: string): Promis
 export async function deleteResetPasswordToken(id: number) {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`DELETE FROM resetPasswordTokens WHERE id = ${id}`;
+    const sqlQuery = sql`DELETE FROM resetPasswordTokens WHERE id = ${id};`;
     await connection.query(sqlQuery);
 
     connection.release();
@@ -212,6 +222,16 @@ export async function updateUserInterests(userId: number, interests: string[]) {
     });
 }
 
+export async function deleteUserInterests(userId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM userInterests WHERE user = ${userId};`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
 // Helpers
 
 async function insertUserInterest(userId: number, interest: EInterest) {
@@ -220,7 +240,7 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     const retrieveUserInterestSqlQuery = sql`
     SELECT id FROM userInterests WHERE
     user = ${userId}
-    AND interest = ${interest}
+    AND interest = ${interest};
     `;
 
     const [rows] = await connection.query<IInterest[]>(retrieveUserInterestSqlQuery);
@@ -234,7 +254,7 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     VALUES (
         ${userId},
         ${interest}
-    )`;
+    );`;
 
     await connection.query(insertUserInterestSqlQuery);
 
