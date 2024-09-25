@@ -88,7 +88,7 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 export async function retrieveUserFromUsername(username: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE username = ${username};`;
+    const sqlQuery = sql`SELECT * FROM users WHERE BINARY username = ${username};`;
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();

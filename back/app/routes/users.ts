@@ -39,6 +39,12 @@ router.post('/login', async function(req: Request, res:Response) {
     }
 });
 
+router.get('/logout', jwtAuthCheck, async function(req: Request, res: Response) {
+    res.clearCookie("token").status(200).json({
+        "status": "200"
+    });
+});
+
 
 router.get('/:id', jwtAuthCheck, async function(req: Request, res: Response) {
     const user = await getUser(parseInt(req.params.id));
@@ -50,7 +56,7 @@ router.get('/:id', jwtAuthCheck, async function(req: Request, res: Response) {
     } else {
         res.status(200).json(user);
     }
-})
+});
 
 router.delete('/delete', jwtAuthCheck, async function(req: Request, res: Response) {
     try {
@@ -64,7 +70,7 @@ router.delete('/delete', jwtAuthCheck, async function(req: Request, res: Respons
             "status": "404"
         });
     }
-})
+});
 
 router.patch('/patch', jwtAuthCheck, async function(req: Request, res: Response) {
     try {
@@ -78,7 +84,7 @@ router.patch('/patch', jwtAuthCheck, async function(req: Request, res: Response)
             "status": "404"
         });
     }
-})
+});
 
 /*********************************************************
  * =========== EMAIL VERIFICATION MANAGEMENT =============

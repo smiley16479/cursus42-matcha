@@ -52,6 +52,8 @@ export async function createUser(rawUser: any) {
 export async function loginUser(credentials: any) {
     const user = await retrieveUserFromUsername(credentials.username);
 
+    if (user.emailVerified == false)
+        throw new Error();
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
         throw new Error();

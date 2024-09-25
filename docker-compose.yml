@@ -14,6 +14,8 @@ services:
       MYSQL_DATABASE: db_matcha
       MYSQL_USER: intra
       MYSQL_PASSWORD: net
+      LANG: C.UTF_8
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
   back:
     container_name: back
     build:
