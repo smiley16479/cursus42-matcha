@@ -158,16 +158,26 @@ const storage = multer.diskStorage({
     }
 });
 
-const uploadMiddleware = multer({ storage }).single("picture");
+const upload = multer({
+    storage,
+    limits: { fileSize: 10000000 }, // 10 Mo
+    fileFilter: function (req, file, cb) {
+        const filetypes = /jpeg|jpg|png|gif/;
+        if (filetypes.test(file.mimetype))
+            cb(null, true);
+        else
+            cb(null, false);
+    }
+});
+const uploadMiddleware = upload.single("picture");
 
 router.post('/picture/upload', jwtAuthCheck, async function (req: Request, res: Response) {
-    uploadMiddleware(req, res, async function(error) {
-        if (error) {
-            console.log(error);
+    uploadMiddleware(req, res, async function (error) {
+        if (error || !req.file) {
             res.status(400).json({
                 "status": "400"
             });
-            return;
+            return res.end;
         }
         try {
             await manageUploadedPicture(req, res);
