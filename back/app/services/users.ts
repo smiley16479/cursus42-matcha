@@ -64,7 +64,7 @@ export async function loginUser(credentials: any) {
     const secret = process.env.JWT_SECRET;
     if (!secret)
         throw new Error();
-    const token = jwt.sign({id: user.id}, secret, { expiresIn: process.env.JWT_EXP });
+    const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
 
     return token;
 }
@@ -93,8 +93,33 @@ export async function removeUser(id: number) {
 }
 
 export async function patchUser(id: number, rawUser: any) {
+    
+    for (const key of Object.keys(rawUser)) {
+        switch (key.toLowerCase()) {
+            case "id":
+                delete rawUser[key];
+                break;
+            case "emailverified":
+                delete rawUser[key];
+                break;
+            case "password":
+                delete rawUser[key];
+                break;
+            case "famerate":
+                delete rawUser[key];
+                break;
+            case "lastconnection":
+                delete rawUser[key];
+                break;
+            case "createdat":
+                delete rawUser[key];
+                break;
+        }
+    }
+
     try {
         await updateUser(id, rawUser);
+
         if ('interests' in rawUser) {
             await updateUserInterests(id, rawUser.interests);
         }
@@ -161,7 +186,7 @@ export async function verifyEmail(token: string) {
         throw new Error();
     }
 
-    updateUser(emailConfirmToken.user, {emailVerified: true});
+    updateUser(emailConfirmToken.user, { emailVerified: true });
     deleteEmailConfirmationToken(emailConfirmToken.id);
 }
 
@@ -243,7 +268,7 @@ export async function resetPassword(token: string, rawUser: any) {
 
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
 
-    updateUser(resetPasswordToken.user, {password: hashedPassword});
+    updateUser(resetPasswordToken.user, { password: hashedPassword });
     deleteResetPasswordToken(resetPasswordToken.id);
 }
 
