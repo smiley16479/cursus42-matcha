@@ -1,4 +1,4 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
 import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPicture, IUserPictureInput } from "../types/user";
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
@@ -7,6 +7,8 @@ import * as crypto from "node:crypto";
 import moment from 'moment';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from "express";
+import fs from 'fs';
+import path from "node:path";
 
 
 /*********************************************************
@@ -80,20 +82,23 @@ export async function getUser(id: number): Promise<IUserOutput | null> {
     delete user['password'];
     delete user['createdAt'];
 
+    console.log(user);
+
     return user;
 }
 
 export async function removeUser(id: number) {
     try {
-        await deleteUser(id);
-        await deleteUserInterests(id);
+        deleteUser(id);
+        deleteUserInterests(id);
+        removeUserPictures(id);
     } catch (error) {
         throw error;
     }
 }
 
 export async function patchUser(id: number, rawUser: any) {
-    
+
     for (const key of Object.keys(rawUser)) {
         switch (key.toLowerCase()) {
             case "id":
@@ -276,36 +281,41 @@ export async function resetPassword(token: string, rawUser: any) {
  * ================ PICTURE MANAGEMENT ===================
  *********************************************************/
 
-export async function manageUploadedPictures(req: Request, res: Response) {
+export async function manageUploadedPicture(req: Request, res: Response) {
     const userId = res.locals.user.id;
+    const pictureIndex = parseInt(req.body.index);
 
-    if ("profilePic" in req.files) {
-        manageUploadedPicture(userId, req.files.profilePic[0]);
+    if (pictureIndex < 1 || pictureIndex > 5)
+        throw new Error();
+
+    const oldPicture = await retrieveUserPicture(userId, req.body.index);
+    if (oldPicture) {
+        fs.unlink(path.join(process.env.UPLOAD_DIR, oldPicture.filename), () => {});
+        deleteUserPictureById(oldPicture.id);
     }
 
-    if ("pictures" in req.files) {
-        req.files.pictures.forEach((picture) => {
-            manageUploadedPicture(userId, picture)
-        })
-    }
-}
-
-async function manageUploadedPicture(userId: number, picture: any) {
-    let isProfilePicture: boolean;
-
-    if (picture.fieldName == 'profilePic')
-        isProfilePicture = true;
-    else {
-        isProfilePicture = false;
-    }
-
-    console.log('pic : ', picture)
     const userPicture: IUserPictureInput = {
         user: userId,
-        filename: picture.filename,
-        isProfilePicture: isProfilePicture
+        filename: req.file.filename,
+        pictureIndex: pictureIndex
     };
 
     await insertUserPicture(userPicture);
 }
 
+export async function removeUserPicture(userId: number, pictureIndex: number) {
+    const userPicture = await retrieveUserPicture(userId, pictureIndex);
+    fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => {});
+    await deleteUserPictureById(userPicture.id);
+}
+
+//Helpers
+
+async function removeUserPictures(userId: number) {
+    const userPictures = await retrieveUserPictures(userId);
+
+    userPictures.forEach((userPicture) => {
+        fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => {});
+    });
+    deleteUserPictures(userId);
+}

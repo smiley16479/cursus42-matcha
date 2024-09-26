@@ -76,7 +76,7 @@ export default async function initDb() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         user INT NOT NULL,
         filename VARCHAR(255) NOT NULL,
-        isProfilePicture BOOLEAN NOT NULL,
+        pictureIndex INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         `;

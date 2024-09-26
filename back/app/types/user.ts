@@ -101,7 +101,7 @@ export interface IUserInterest extends RowDataPacket {
 export interface IUserPictureInput {
     user: number,
     filename: string,
-    isProfilePicture: boolean,
+    pictureIndex: number,
 }
 
 export interface IUserPicture extends RowDataPacket, IUserPictureInput {

@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import 'dotenv/config';
-import multer from 'multer';
 
 
 import initDb from './db/init';
@@ -25,7 +24,7 @@ const uploadDir = process.env.UPLOAD_DIR;
 if (!uploadDir)
     throw new Error();
 
-app.use('/api/picture', jwtAuthCheck, express.static(uploadDir));
+app.use('/api/user/picture', jwtAuthCheck, express.static(uploadDir));
 
 /* Add here next routeurs */
 app.use('/api/user', usersRouter);

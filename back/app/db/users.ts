@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput } from '../types/user';
+import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput, IUserPicture } from '../types/user';
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -63,13 +63,18 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`
-    SELECT u.*, JSON_ARRAYAGG(ui.interest) AS interests
+    SELECT u.*,
+        JSON_ARRAYAGG(ui.interest) AS interests,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        FROM userPictures up
+        WHERE up.user = u.id) AS pictures
     FROM users u
     LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE u.id = ${id};
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+    console.log(rows);
 
     connection.release();
     return rows[0];
@@ -292,14 +297,60 @@ export async function insertUserPicture(inputPicture: IUserPictureInput) {
     const sqlQuery = sql`INSERT INTO userPictures (
     user,
     filename,
-    isProfilePicture
+    pictureIndex
     )
     VALUES (
         ${inputPicture.user},
         ${inputPicture.filename},
-        ${inputPicture.isProfilePicture}
+        ${inputPicture.pictureIndex}
     );`;
 
         await connection.query(sqlQuery);
         connection.release();
+}
+
+export async function retrieveUserPictures(userId: number): Promise<IUserPicture[]> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`SELECT * FROM userPictures WHERE user = ${userId};`;
+
+    const [rows] = await connection.query<IUserPicture[]>(sqlQuery);
+
+    connection.release();
+    return rows;
+}
+
+export async function retrieveUserPicture(userId: number, pictureIndex: number): Promise<IUserPicture> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT * FROM userPictures
+        WHERE user = ${userId}
+        AND pictureIndex = ${pictureIndex};
+    `;
+
+    const [rows] = await connection.query<IUserPicture[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function deleteUserPictureById(userPictureId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM userPictures WHERE id = ${userPictureId};`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function deleteUserPictures(userId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM userPictures WHERE user = ${userId};`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
 }

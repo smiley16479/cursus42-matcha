@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import multer from 'multer';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { createUser, getUser, loginUser, manageUploadedPictures, patchUser, removeUser, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 
 
 var router = express.Router();
@@ -11,7 +11,7 @@ var router = express.Router();
  * ================== USER MANAGEMENT ====================
  *********************************************************/
 
-router.post('/create', async function(req: Request, res: Response) {
+router.post('/create', async function (req: Request, res: Response) {
     try {
         await createUser(req.body);
         res.status(200).json({
@@ -25,7 +25,7 @@ router.post('/create', async function(req: Request, res: Response) {
     }
 });
 
-router.post('/login', async function(req: Request, res:Response) {
+router.post('/login', async function (req: Request, res: Response) {
     try {
         const token = await loginUser(req.body);
         res.cookie("token", token, {
@@ -42,14 +42,14 @@ router.post('/login', async function(req: Request, res:Response) {
     }
 });
 
-router.get('/logout', jwtAuthCheck, async function(req: Request, res: Response) {
+router.get('/logout', jwtAuthCheck, async function (req: Request, res: Response) {
     res.clearCookie("token").status(200).json({
         "status": "200"
     });
 });
 
 
-router.get('/:id', jwtAuthCheck, async function(req: Request, res: Response) {
+router.get('/:id', jwtAuthCheck, async function (req: Request, res: Response) {
     const user = await getUser(parseInt(req.params.id));
 
     if (!user) {
@@ -61,7 +61,7 @@ router.get('/:id', jwtAuthCheck, async function(req: Request, res: Response) {
     }
 });
 
-router.delete('/delete', jwtAuthCheck, async function(req: Request, res: Response) {
+router.delete('/delete', jwtAuthCheck, async function (req: Request, res: Response) {
     try {
         await removeUser(res.locals.user.id);
         res.status(200).json({
@@ -75,7 +75,7 @@ router.delete('/delete', jwtAuthCheck, async function(req: Request, res: Respons
     }
 });
 
-router.patch('/patch', jwtAuthCheck, async function(req: Request, res: Response) {
+router.patch('/patch', jwtAuthCheck, async function (req: Request, res: Response) {
     try {
         await patchUser(res.locals.user.id, req.body);
         res.status(200).json({
@@ -93,7 +93,7 @@ router.patch('/patch', jwtAuthCheck, async function(req: Request, res: Response)
  * =========== EMAIL VERIFICATION MANAGEMENT =============
  *********************************************************/
 
-router.get('/confirmemail/:token', async function(req: Request, res: Response) {
+router.get('/confirmemail/:token', async function (req: Request, res: Response) {
     try {
         await verifyEmail(req.params.token);
         res.status(200).json({
@@ -125,7 +125,7 @@ router.get('/askresetpassword/:email', async function (req: Request, res: Respon
     }
 });
 
-router.patch('/resetpassword/:token', async function(req: Request, res: Response) {
+router.patch('/resetpassword/:token', async function (req: Request, res: Response) {
     try {
         await resetPassword(req.params.token, req.body);
         res.status(200).json({
@@ -150,25 +150,53 @@ if (!uploadDir)
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, uploadDir);
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-      const newFilename = crypto.randomBytes(20).toString('hex');
-      cb(null, newFilename);
+        const newFilename = crypto.randomBytes(20).toString('hex');
+        cb(null, newFilename);
     }
-  });
-
-  const upload = multer({ storage });
-
-const uploadMiddleware = upload.fields([{ name: 'profilePic', maxCount: 1 }, { name: 'pictures', maxCount: 4 }]);
-
-router.post('/picture/upload',jwtAuthCheck, uploadMiddleware, async function(req: Request, res: Response) {
-    console.log(req.files);
-    await manageUploadedPictures(req, res);
-    res.status(200).json({
-        "status": "200"
-    })
 });
+
+const uploadMiddleware = multer({ storage }).single("picture");
+
+router.post('/picture/upload', jwtAuthCheck, async function (req: Request, res: Response) {
+    uploadMiddleware(req, res, async function(error) {
+        if (error) {
+            console.log(error);
+            res.status(400).json({
+                "status": "400"
+            });
+            return;
+        }
+        try {
+            await manageUploadedPicture(req, res);
+            res.status(200).json({
+                "status": "200"
+            })
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({
+                "status": "400"
+            })
+        }
+
+    });
+});
+
+router.get('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req: Request, res: Response) {
+    try {
+        await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
+        res.status(200).json({
+            "status": "200"
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            "status": "400"
+        })
+    }
+})
 
 // Pictures are served as static files in index.ts
 
