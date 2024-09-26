@@ -73,18 +73,17 @@ export async function loginUser(credentials: any) {
     return token;
 }
 
-export async function getUser(id: number): Promise<IUserOutput | null> {
+export async function getUser(id: number, self: boolean): Promise<IUserOutput | null> {
     const user: IUserOutput = await retrieveUserFromId(id);
-    if (!user) {
+    if (!user || !user.id) {
         return null;
     }
 
-    delete user['email'];
+    if (self)
+        delete user['email'];
     delete user['emailVerified'];
     delete user['password'];
     delete user['createdAt'];
-
-    console.log(user);
 
     return user;
 }
@@ -128,7 +127,20 @@ export async function patchUser(id: number, rawUser: any) {
     }
 
     try {
+        let isEmailUpdated: boolean = false;
+
+        if ('email' in rawUser) {
+            const oldUser = await retrieveUserFromId(id);
+
+            if (oldUser.email !== rawUser.email) {
+                isEmailUpdated = true;
+                rawUser.emailVerified = false;
+            }
+        }
         await updateUser(id, rawUser);
+
+        if (isEmailUpdated)
+            sendVerificationEmail(id);
 
         if ('interests' in rawUser) {
             await updateUserInterests(id, rawUser.interests);
@@ -301,7 +313,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
 
     const oldPicture = await retrieveUserPicture(userId, req.body.index);
     if (oldPicture) {
-        fs.unlink(path.join(process.env.UPLOAD_DIR, oldPicture.filename), () => {});
+        fs.unlink(path.join(process.env.UPLOAD_DIR, oldPicture.filename), () => { });
         deleteUserPictureById(oldPicture.id);
     }
 
@@ -316,7 +328,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
 
 export async function removeUserPicture(userId: number, pictureIndex: number) {
     const userPicture = await retrieveUserPicture(userId, pictureIndex);
-    fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => {});
+    fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => { });
     await deleteUserPictureById(userPicture.id);
 }
 
@@ -326,7 +338,7 @@ async function removeUserPictures(userId: number) {
     const userPictures = await retrieveUserPictures(userId);
 
     userPictures.forEach((userPicture) => {
-        fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => {});
+        fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => { });
     });
     deleteUserPictures(userId);
 }

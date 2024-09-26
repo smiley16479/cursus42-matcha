@@ -49,22 +49,42 @@ router.get('/logout', jwtAuthCheck, async function (req: Request, res: Response)
 });
 
 
-router.get('/:id', jwtAuthCheck, async function (req: Request, res: Response) {
-    const user = await getUser(parseInt(req.params.id));
-
-    if (!user) {
+router.get('/me', jwtAuthCheck, async function (req: Request, res: Response) {
+    try {
+        const user = await getUser(parseInt(res.locals.user.id), true);
+        if (!user) {
+            throw new Error();
+        } else {
+            res.status(200).json(user);
+        }
+    } catch (error) {
+        console.log(error);
         res.status(404).json({
             "status": "404"
         });
-    } else {
-        res.status(200).json(user);
+    }
+})
+
+router.get('/:id', jwtAuthCheck, async function (req: Request, res: Response) {
+    try {
+        const user = await getUser(parseInt(req.params.id), false);
+        if (!user) {
+            throw new Error();
+        } else {
+            res.status(200).json(user);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({
+            "status": "404"
+        });
     }
 });
 
 router.delete('/delete', jwtAuthCheck, async function (req: Request, res: Response) {
     try {
         await removeUser(res.locals.user.id);
-        res.status(200).json({
+        res.clearCookie("token").status(200).json({
             "status": "200"
         });
     } catch (error) {
