@@ -97,22 +97,6 @@ les interests étant  visibles ici  : https://github.com/smiley16479/cursus42-ma
 ```
 Le champ caché `index` donne l'index de l'image que tu envoies, il doit être > 0 et < 6. Si une image avec cet index pour cet utilisateur existait déja, elle est supprimée
 
-- Uploader une image avec POST à `/api/user/picture/upload` et un form de ce genre :
-```html
-<body>
-  <form action="http://localhost:3000/api/user/picture/upload" method="POST" enctype="multipart/form-data">  
-
-    <label for="picture">Choose Picture:</label>
-    <input type="file" name="picture">
-
-    <input type="hidden" name="index" value="1"/>
-
-    <button type="submit">Upload</button>
-  </form>
-</body>
-```
-Le champ caché `index` donne l'index de l'image que tu envoies, il doit être > 0 et < 6. Si une image avec cet index pour cet utilisateur existait déja, elle est supprimée
-
 - Supprimer une image avec un GET à `/api/user/picture/delete/:pictureId`.
 pictureId étant l'index entre 1 et 5 pour cet utilisateur
 
