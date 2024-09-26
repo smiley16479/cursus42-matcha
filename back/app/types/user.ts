@@ -94,7 +94,7 @@ export interface IResetPasswordToken extends RowDataPacket {
 
 export interface IUserInterest extends RowDataPacket {
     id: number,
-    name: string,
+    interest: string,
     createdAt: Date
 }
 

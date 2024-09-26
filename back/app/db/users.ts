@@ -217,9 +217,30 @@ export async function deleteResetPasswordToken(id: number) {
  *********************************************************/
 
 export async function updateUserInterests(userId: number, interests: string[]) {
+    const connection = await pool.getConnection();
+
+    const retrieveUserInterestsSqlQuery = sql`
+    SELECT * FROM userInterests WHERE
+    user = ${userId};
+    `;
+
+    const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestsSqlQuery);
+
     interests.forEach((interest) => {
+        const interestsFromDb = rows.find(elem => elem.interest === interest);
+        if (interestsFromDb) {
+            interestsFromDb.id = -1;
+            return;
+        }
         insertUserInterest(userId, string2EInterest(interest));
     });
+
+    rows.forEach((interest) => {
+        if ( interest.id != -1)
+            deleteUserInterest(interest.id);
+    })
+
+    connection.release();
 }
 
 export async function deleteUserInterests(userId: number) {
@@ -237,16 +258,6 @@ export async function deleteUserInterests(userId: number) {
 async function insertUserInterest(userId: number, interest: EInterest) {
     const connection = await pool.getConnection();
 
-    const retrieveUserInterestSqlQuery = sql`
-    SELECT id FROM userInterests WHERE
-    user = ${userId}
-    AND interest = ${interest};
-    `;
-
-    const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestSqlQuery);
-    if (rows.length != 0)
-        return;
-
     const insertUserInterestSqlQuery = sql`INSERT INTO userInterests (
         user,
         interest
@@ -257,6 +268,16 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     );`;
 
     await connection.query(insertUserInterestSqlQuery);
+
+    connection.release();
+}
+
+async function deleteUserInterest(interestId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM userInterests WHERE id = ${interestId};`
+
+    await connection.query(sqlQuery);
 
     connection.release();
 }
