@@ -74,7 +74,6 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
-    console.log(rows);
 
     connection.release();
     return rows[0];

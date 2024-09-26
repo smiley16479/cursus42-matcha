@@ -17,6 +17,8 @@ import path from "node:path";
 
 export async function createUser(rawUser: any) {
 
+    await checkUsernameUniqueness(rawUser.username);
+
     checkPasswordStrength(rawUser.password);
 
     const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(rawUser);
@@ -142,6 +144,12 @@ function checkPasswordStrength(password: string) {
     const strength = passwordStrength(password);
 
     if (strength.id < 2)
+        throw new Error();
+}
+
+async function checkUsernameUniqueness(username: string) {
+    const userWithSameUsername = await retrieveUserFromUsername(username);
+    if (userWithSameUsername)
         throw new Error();
 }
 
