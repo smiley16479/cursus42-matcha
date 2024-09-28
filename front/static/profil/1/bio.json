@@ -3,5 +3,6 @@
 "age" : "35",
 "profession" : "Peintre muraliste",
 "interests" : ["Art", "politique", "culture mexicaine", "voyages"],
-"description" : "Passionné par la vie et l'art, je cherche quelqu'un avec qui partager des discussions profondes et des aventures créatives. J'apprécie les esprits libres et les âmes courageuses."
+"description" : "Passionné par la vie et l'art, je cherche quelqu'un avec qui partager des discussions profondes et des aventures créatives. J'apprécie les esprits libres et les âmes courageuses.",
+"photo": 3
 }

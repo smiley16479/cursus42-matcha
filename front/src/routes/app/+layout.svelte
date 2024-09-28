@@ -11,7 +11,7 @@
 		<slot />
 	</main>
 
-	<div class="w-full fixed bottom-0 text-white p-4">
+	<div class="w-full fixed bottom-0 text-white backdrop-blur">
 		<footer>
 			<Tab/>
 		</footer>

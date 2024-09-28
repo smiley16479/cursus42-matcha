@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { writable } from "svelte/store";
 	import { onMount } from "svelte";
-  
+	import { SexOrientation } from "../../type/user";
+  import SliderRange from "../component/sliderRange.svelte";
+	import PhotoUpload from "$lib/component/photoUpload.svelte";
+
 	// Variables réactives pour les réglages de l'utilisateur
 	let fullName = writable("");
 	let email = writable("");
 	let password = writable("");
 	let bio = writable("");
 	let profileVisibility = writable("Public");
+	let sexOrientation: SexOrientation = SexOrientation.Straight;
 	let emailNotifications = writable(false);
 	let maxDistance = writable(50); // Distance en kilomètres
   
@@ -37,19 +41,28 @@
 	  });
 	  alert("Modifications enregistrées avec succès !");
 	}
-  
+
+		// Fonction pour suspendre le compte
+	function suspendAccount() {
+	  if (confirm("Êtes-vous sûr de vouloir suspendre votre compte ?")) {
+			// Logique pour suspendre le compte utilisateur
+			console.log("Compte suspendu");
+			alert("Votre compte a été suspendu.");
+	  }
+	}
+
 	// Fonction pour supprimer le compte
 	function deleteAccount() {
 	  if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
-		// Logique pour supprimer le compte utilisateur
-		console.log("Compte supprimé");
-		alert("Votre compte a été supprimé.");
+			// Logique pour supprimer le compte utilisateur
+			console.log("Compte supprimé");
+			alert("Votre compte a été supprimé.");
 	  }
 	}
   </script>
   
-  <style>
-/* 	.bg-custom { background-color: #f9fafb; }
+<!--   <style>
+	.bg-custom { background-color: #f9fafb; }
 	.slider::-webkit-slider-thumb {
 	  appearance: none;
 	  width: 16px;
@@ -64,8 +77,8 @@
 	  border-radius: 50%;
 	  background: #4f46e5;
 	  cursor: pointer;
-	} */
-  </style>
+	}
+  </style>  -->
   
   <div class="h-full flex flex-col items-center justify-center py-12 px-6 lg:px-8 bg-custom">
 	<div class="max-w-md w-full space-y-8">
@@ -113,8 +126,15 @@
 			<select bind:value={$profileVisibility} id="profile-visibility" name="profile-visibility"
 			  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 			  <option>Public</option>
-			  <option>Privé</option>
-			  <option>Amis uniquement</option>
+			  <option>Uniquement profils likés</option>
+			</select>
+			<label for="profile-sex-orientation" class="block text-sm font-medium text-gray-700">Orientation sexuelle</label>
+			<select bind:value={sexOrientation} id="profile-sex-orientation" name="profile-sex-orientation"
+			  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+				<option>Straight</option>
+				<option>Gay</option>
+				<option>Bisexual</option>
+				<option>Other</option>
 			</select>
 		  </div>
 		  <div class="mt-6 flex items-center">
@@ -132,15 +152,34 @@
 		  <input type="range" id="max-distance" min="1" max="200" bind:value={$maxDistance}
 			class="slider mt-1 block w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
 		  <div class="flex justify-between text-sm text-gray-500">
-			<span>1 km</span>
-			<span>{$maxDistance} km</span>
-			<span>200 km</span>
+				<span>1 km</span>
+				<span>{$maxDistance} km</span>
+				<span>200 km</span>
 		  </div>
 		</div>
-  
+
+		<SliderRange/>
+		<PhotoUpload/>
+
+		<!-- Bouton de Sauvegarde -->
+		<div class="mt-6">
+		  <button type="submit"
+			class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+			Enregistrer les modifications
+		  </button>
+		</div>
+
 		<!-- Gestion du Compte -->
 		<div class="mt-6 space-y-6">
-		  <div>
+		  <div class="">
+				<label for="suspend-account" class="block text-sm font-medium text-gray-700">Suppression du compte</label>
+				<div class="mt-1">
+					<button id="suspend-account" type="button"
+					class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+					on:click={suspendAccount}>
+					suspendre mon compte
+					</button>
+				</div>
 			<label for="delete-account" class="block text-sm font-medium text-gray-700">Suppression du compte</label>
 			<div class="mt-1">
 			  <button id="delete-account" type="button"
@@ -154,16 +193,7 @@
 			</p>
 		  </div>
 		</div>
-  
-		<!-- Bouton de Sauvegarde -->
-		<div class="mt-6">
-		  <button type="submit"
-			class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-			Enregistrer les modifications
-		  </button>
-		</div>
 	  </form>
 	</div>
   </div>
-  
   

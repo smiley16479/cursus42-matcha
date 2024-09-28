@@ -11,7 +11,7 @@
       .then(response => response.json()) // Convertir la réponse en JSON
       .then(data => {
         // Manipuler les données JSON
-        console.log(data.description);
+        // console.log(data.description);
         // description.push(data.description);
         description.update(currentItems => {
       // Créer une nouvelle copie du tableau avec l'élément ajouté
@@ -26,6 +26,7 @@
 
   data1 =  (index: number) => {
           return {
+          id: index,
           image: `/profil/${index}/1.webp`,
           title: 'Card ' + index,
           description: 'Description :' + $description?.[index]

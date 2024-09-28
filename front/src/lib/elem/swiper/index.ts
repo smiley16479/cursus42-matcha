@@ -1,6 +1,7 @@
 // Lien de la lib: https://sveltethemes.dev/flo-bit/svelte-swiper-cards
 
 export type CardData = {
+	id?: number;
 	title?: string;
 	color?: string;
 	description?: string;
