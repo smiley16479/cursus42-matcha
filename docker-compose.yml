@@ -22,8 +22,9 @@ services:
       context: ./back/
     command: npm run dev
     volumes:
-      - ./back/app:/app/app
+      - ./back/src:/app/src
       - /app/node_modules
+      - ./back/src/types/shared_type:/app/src/types/shared_type
     ports:
       - 3000:3000
     tty: true
@@ -39,6 +40,7 @@ services:
     volumes:
       - ./front/src:/app/src
       - /app/node_modules
+      - ./back/src/types/shared_type:/app/src/type/shared_type
     ports:
       - 8080:8080
     stdin_open: true
@@ -59,3 +61,6 @@ services:
       PHP_MY_ADMIN_DEFAULT_PASSWORD: net # mysql
     ports:
       - 4000:80
+volumes:
+  shared_type:
+    driver: local
