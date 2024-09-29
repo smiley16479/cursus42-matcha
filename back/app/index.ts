@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import logger from 'morgan';
 import 'dotenv/config';
 
@@ -11,6 +12,10 @@ import { jwtAuthCheck } from './middleware/auth';
 
 var app = express();
 
+app.use(cors({
+    origin: 'http://localhost:8080', // Ne pas mettre '*' avec credentials: true
+    credentials: true // permet au serveur d'accepter les requêtes avec des cookies, des sessions, ou des en-têtes d'authentification
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

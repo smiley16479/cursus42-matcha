@@ -57,11 +57,13 @@ export async function createUser(rawUser: any) {
 export async function loginUser(credentials: any) {
     const user = await retrieveUserFromUsername(credentials.username);
 
+    if (!user)
+        throw new Error('User not found');
     if (user.emailVerified == false)
         throw new Error();
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
-        throw new Error();
+        throw new Error('Wrong Password');
 
     delete credentials.password;
 

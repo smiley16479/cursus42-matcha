@@ -48,6 +48,33 @@ router.get('/logout', jwtAuthCheck, async function (req: Request, res: Response)
     });
 });
 
+router.get('/seed', async function (_req: Request, res: Response) {
+    try {
+        await createUser({
+            username: "test",
+            firstName: "test",
+            lastName: "test",
+            gender: 'Female',
+            sexualPref: 'Female',
+            biography: "test",
+            fameRate: 0,
+            latitude: 0,
+            longitude: 0,
+            lastConnection: Date(),
+            email: "test",
+            emailVerified: true,
+            password: "test"
+        });
+        res.status(200).json({
+            "status": "200"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            "status": "400"
+        });
+    }
+});
 
 router.get('/me', jwtAuthCheck, async function (req: Request, res: Response) {
     try {
