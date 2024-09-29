@@ -10,7 +10,7 @@ export default async function initDb() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     emailVerified BOOLEAN NOT NULL,
-    username VARCHAR(255) NOT NULL UNIQUE,
+    userName VARCHAR(255) NOT NULL UNIQUE,
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -21,7 +21,12 @@ export default async function initDb() {
     latitude DECIMAL(15, 10),
     longitude DECIMAL(15, 10),
     lastConnection TIMESTAMP NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profileVisibility BOOLEAN NOT NULL DEFAULT TRUE,
+    emailNotifications BOOLEAN NOT NULL DEFAULT FALSE,
+    maxDistance INT NOT NULL DEFAULT 50,
+    matchAgeMin INT NOT NULL DEFAULT 18,
+    matchAgeMax INT NOT NULL DEFAULT 30 
     );
     `;
 

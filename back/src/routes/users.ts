@@ -30,12 +30,14 @@ router.post('/create', async function (req: Request, res: Response) {
 
 router.post('/login', async function (req: Request, res: Response) {
     try {
-        const token = await loginUser(req.body);
-        res.cookie("token", token, {
+        const data = await loginUser(req.body);
+        const user = data.user;
+        res.cookie("token", data.token, {
             httpOnly: true,
             secure: true,
         }).status(200).json({
-            "status": "200"
+            "status": "200",
+            user
         });
     } catch (error) {
         console.log(error);
@@ -64,7 +66,7 @@ router.get('/seed', async function (_req: Request, res: Response) {
                     s.push({key, value})
                 const name = e + i.toString() + idx.toString();
                 await insertUser({
-                    username: e + "_" + s[idx].value,
+                    userName: e + "_" + s[idx].value,
                     firstName: name,
                     lastName: name,
                     gender: g[i].value,
@@ -76,6 +78,7 @@ router.get('/seed', async function (_req: Request, res: Response) {
                     lastConnection: new Date(),
                     email: "email",
                     emailVerified: true,
+                    profileVisibility: true,
                     password: await bcrypt.hash("test", 10)
                 });
             }

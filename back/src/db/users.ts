@@ -1,5 +1,6 @@
 import pool, { sql } from './pool';
-import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput, IUserPicture } from '../types/shared_type/user';
+import { EInterest, IUserInput, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
+import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -14,7 +15,7 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
     const sqlQuery = sql`INSERT INTO users (
         email,
         emailVerified,
-        username,
+        userName,
         firstName,
         lastName,
         password,
@@ -29,7 +30,7 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
     VALUES (
         ${inputuser.email},
         ${inputuser.emailVerified},
-        ${inputuser.username},
+        ${inputuser.userName},
         ${inputuser.firstName},
         ${inputuser.lastName},
         ${inputuser.password},
@@ -89,10 +90,10 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
     return rows[0];
 }
 
-export async function retrieveUserFromUsername(username: string): Promise<IUserDb> {
+export async function retrieveUserFromuserName(userName: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE BINARY username = ${username};`;
+    const sqlQuery = sql`SELECT * FROM users WHERE BINARY userName = ${userName};`;
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();

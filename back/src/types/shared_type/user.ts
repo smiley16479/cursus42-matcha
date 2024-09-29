@@ -1,6 +1,4 @@
-import { RowDataPacket } from "mysql2";
-
-// Enums AA
+// Enums
 
 export enum EGender {
     Female = "Female",
@@ -51,7 +49,7 @@ export enum EInterest {
 // Interfaces
 
 export interface IMinimalUser {
-    username: string,
+    userName: string,
     firstName: string,
     lastName: string,
     gender: EGender,
@@ -60,7 +58,7 @@ export interface IMinimalUser {
     fameRate: number,
     latitude: number,
     longitude: number,
-    lastConnection: Date
+    lastConnection: Date,
 }
 
 export interface IUserInput extends IMinimalUser {
@@ -74,27 +72,15 @@ export interface IUserOutput extends IMinimalUser {
     interests: string[],
 }
 
-export interface IUserDb extends RowDataPacket, IUserInput, IUserOutput {
-    createdAt: Date
+export interface ITotalUser extends IMinimalUser, IUserInput, IUserOutput {
+    profileVisibility: boolean
+    emailNotifications: boolean
+    maxDistance: number
+    matchAgeMin: number
+    matchAgeMax: number
 }
 
-export interface IEmailConfirmToken extends RowDataPacket {
-    id: number,
-    user: number,
-    confirmToken: string,
-    createdAt: Date
-}
-
-export interface IResetPasswordToken extends RowDataPacket {
-    id: number,
-    user: number,
-    resetToken: string,
-    createdAt: Date
-}
-
-export interface IUserInterest extends RowDataPacket {
-    id: number,
-    interest: string,
+export interface IUserDb extends IUserInput, IUserOutput {
     createdAt: Date
 }
 
@@ -102,11 +88,6 @@ export interface IUserPictureInput {
     user: number,
     filename: string,
     pictureIndex: number,
-}
-
-export interface IUserPicture extends RowDataPacket, IUserPictureInput {
-    id: number,
-    createdAt: Date
 }
 
 // Helpers

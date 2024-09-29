@@ -1,5 +1,6 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
-import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPicture, IUserPictureInput } from "../types/shared_type/user";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromuserName, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
+import { EGender, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
+import {IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user';
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';
@@ -17,7 +18,7 @@ import path from "node:path";
 
 export async function createUser(rawUser: any) {
 
-    await checkUsernameUniqueness(rawUser.username);
+    await checkuserNameUniqueness(rawUser.userName);
 
     checkPasswordStrength(rawUser.password);
 
@@ -26,7 +27,7 @@ export async function createUser(rawUser: any) {
     const user: IUserInput = {
         email: rawUser.email,
         emailVerified: false,
-        username: rawUser.username,
+        userName: rawUser.userName,
         firstName: rawUser.firstName,
         lastName: rawUser.lastName,
         password: hashedPassword,
@@ -55,7 +56,7 @@ export async function createUser(rawUser: any) {
 }
 
 export async function loginUser(credentials: any) {
-    const user = await retrieveUserFromUsername(credentials.username);
+    const user = await retrieveUserFromuserName(credentials.userName);
 
     if (!user)
         throw new Error('User not found');
@@ -72,7 +73,7 @@ export async function loginUser(credentials: any) {
         throw new Error();
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
 
-    return token;
+    return {token, user};
 }
 
 export async function getUser(id: number, self: boolean): Promise<IUserOutput | null> {
@@ -122,7 +123,7 @@ export async function patchUser(id: number, rawUser: any) {
             case "createdat":
                 delete rawUser[key];
                 break;
-            case "username":
+            case "userName":
                 delete rawUser[key];
                 break;
         }
@@ -161,9 +162,9 @@ function checkPasswordStrength(password: string) {
         throw new Error();
 }
 
-async function checkUsernameUniqueness(username: string) {
-    const userWithSameUsername = await retrieveUserFromUsername(username);
-    if (userWithSameUsername)
+async function checkuserNameUniqueness(userName: string) {
+    const userWithSameuserName = await retrieveUserFromuserName(userName);
+    if (userWithSameuserName)
         throw new Error();
 }
 
