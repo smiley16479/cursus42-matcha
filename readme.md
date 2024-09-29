@@ -1,4 +1,8 @@
 
+# Reste à faire: 
+* Mettre les socket dans le back   <span style="float: right;">- [ ]</span>
+* faire la logique socket du Chat front & back   <span style="float: right;">- [ ]</span>
+* faire la table de settings   <span style="float: right;">- [ ]</span>
 
 # Registration and Signing-in:
 requesting of at least their:
@@ -9,22 +13,22 @@ requesting of at least their:
 * and a password (that is somehow protected)    <span style="float: right;">- [X]</span>
 
 The user must be able to login using their:
-* username    <span style="float: right;">- [ ]</span>
-* password    <span style="float: right;">- [ ]</span>
+* username    <span style="float: right;">- [X]</span>
+* password    <span style="float: right;">- [X]</span>
 and also receive an email allowing them to reset their password if they forget it. 
 
 # Sign-out:
-the user must be able to log out with just one click from any page on the site.
+the user must be able to log out with just one click from any page on the site.    <span style="float: right;">- [X]</span>
 
 # Profil:
 • Once a user is connected, they must fill out their profile by providing the following
 information:
-* The gender.   <span style="float: right;">- [ ]</span>
-* Sexual preferences.   <span style="float: right;">- [ ]</span>
-* A biography.    <span style="float: right;">- [ ]</span>
+* The gender.   <span style="float: right;">- [X]</span>
+* Sexual preferences.   <span style="float: right;">- [X]</span>
+* A biography.    <span style="float: right;">- [X]</span>
 * A list of interests with tags (e.g. #vegan, #geek, #piercing, etc.), which must be reusable   <span style="float: right;">- [ ]</span>
 * Up to 5 pictures, including one to be used as a profile picture.    <span style="float: right;">- [ ]</span>
-* At any time, the user must be able to modify this information, as well as their last name, first name, and email address.   <span style="float: right;">- [ ]</span>
+* At any time, the user must be able to modify this information, as well as their last name, first name, and email address.   <span style="float: right;">- [X]</span>
 * The user must be able to check who has viewed their profile,    <span style="float: right;">- [ ]</span>
 * as well as who has “liked” them.    <span style="float: right;">- [ ]</span>
 * The user must have a public “fame rating” (Up to you to define what “fame rating” means)    <span style="float: right;">- [ ]</span>
