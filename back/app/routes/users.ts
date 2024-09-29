@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import multer from 'multer';
+import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
 import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { insertUser } from '../db/users';
+import { EGender, ESexualPref } from '../types/user';
 
 
 var router = express.Router();
@@ -50,21 +53,33 @@ router.get('/logout', jwtAuthCheck, async function (req: Request, res: Response)
 
 router.get('/seed', async function (_req: Request, res: Response) {
     try {
-        await createUser({
-            username: "test",
-            firstName: "test",
-            lastName: "test",
-            gender: 'Female',
-            sexualPref: 'Female',
-            biography: "test",
-            fameRate: 0,
-            latitude: 0,
-            longitude: 0,
-            lastConnection: Date(),
-            email: "test",
-            emailVerified: true,
-            password: "test"
-        });
+        let tab = ['f', 'm'];
+        tab.forEach(async (e, i, E)=> {
+            for (let idx = 0; idx < 3; idx++) {
+                let g: {key: string, value : EGender}[] = []
+                for (const [key, value] of Object.entries(EGender))
+                    g.push({key, value})
+                let s: {key: string, value : ESexualPref}[] = []
+                for (const [key, value] of Object.entries(ESexualPref))
+                    s.push({key, value})
+                const name = e + i.toString() + idx.toString();
+                await insertUser({
+                    username: e + "_" + s[idx].value,
+                    firstName: name,
+                    lastName: name,
+                    gender: g[i].value,
+                    sexualPref: s[idx].value,
+                    biography: "biography",
+                    fameRate: 0,
+                    latitude: 0,
+                    longitude: 0,
+                    lastConnection: new Date(),
+                    email: "email",
+                    emailVerified: true,
+                    password: await bcrypt.hash("test", 10)
+                });
+            }
+        })
         res.status(200).json({
             "status": "200"
         });
