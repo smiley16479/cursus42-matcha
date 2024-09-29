@@ -5,7 +5,7 @@ import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
 import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 import { insertUser } from '../db/users';
-import { EGender, ESexualPref } from '../types/user';
+import { EGender, ESexualPref } from '../types/shared_type/user';
 
 
 var router = express.Router();

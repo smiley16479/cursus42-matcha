@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 
-// Enums
+// Enums AA
 
 export enum EGender {
     Female = "Female",

@@ -1,5 +1,5 @@
 import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUsername, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
-import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPicture, IUserPictureInput } from "../types/user";
+import { EGender, IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPicture, IUserPictureInput } from "../types/shared_type/user";
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
 import nodemailer from 'nodemailer';

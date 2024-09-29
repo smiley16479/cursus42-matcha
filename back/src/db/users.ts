@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput, IUserPicture } from '../types/user';
+import { EInterest, IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserInput, string2EInterest, IUserPictureInput, IUserPicture } from '../types/shared_type/user';
 import { QueryResult, FieldPacket } from 'mysql2';
 
 

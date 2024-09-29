@@ -1,4 +1,4 @@
-import app from './app/index';
+import app from './src/index';
 import http from 'http';
 
 const port = '3000';
