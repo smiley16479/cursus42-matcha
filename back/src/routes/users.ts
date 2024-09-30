@@ -66,9 +66,12 @@ router.get('/seed', async function (_req: Request, res: Response) {
                     s.push({key, value})
                 const name = e + i.toString() + idx.toString();
                 await insertUser({
+                    email: "email",
+                    emailVerified: true,
                     userName: e + "_" + s[idx].value,
                     firstName: name,
                     lastName: name,
+                    password: await bcrypt.hash("test", 10),
                     gender: g[i].value,
                     sexualPref: s[idx].value,
                     biography: "biography",
@@ -76,10 +79,11 @@ router.get('/seed', async function (_req: Request, res: Response) {
                     latitude: 0,
                     longitude: 0,
                     lastConnection: new Date(),
-                    email: "email",
-                    emailVerified: true,
                     profileVisibility: true,
-                    password: await bcrypt.hash("test", 10)
+                    emailNotifications: false,
+                    maxDistance: 50,
+                    matchAgeMin: 18,
+                    matchAgeMax: 30 
                 });
             }
         })
@@ -242,7 +246,8 @@ router.post('/picture/upload', jwtAuthCheck, async function (req: Request, res: 
             res.status(400).json({
                 "status": "400"
             });
-            return res.end;
+            console.log(`error || !req.file`, error || !req.file);
+            return res.end();
         }
         try {
             await manageUploadedPicture(req, res);

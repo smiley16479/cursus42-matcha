@@ -22,11 +22,11 @@ export default async function initDb() {
     longitude DECIMAL(15, 10),
     lastConnection TIMESTAMP NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    profileVisibility BOOLEAN NOT NULL DEFAULT TRUE,
-    emailNotifications BOOLEAN NOT NULL DEFAULT FALSE,
-    maxDistance INT NOT NULL DEFAULT 50,
-    matchAgeMin INT NOT NULL DEFAULT 18,
-    matchAgeMax INT NOT NULL DEFAULT 30 
+    profileVisibility BOOLEAN NOT NULL,
+    emailNotifications BOOLEAN NOT NULL,
+    maxDistance INT NOT NULL,
+    matchAgeMin INT NOT NULL,
+    matchAgeMax INT NOT NULL 
     );
     `;
 

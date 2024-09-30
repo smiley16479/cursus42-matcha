@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { EInterest, IUserInput, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
+import { EInterest, IUserInput, string2EInterest, IUserPictureInput, ITotalUser } from '../types/shared_type/user';
 import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
@@ -8,10 +8,10 @@ import { QueryResult, FieldPacket } from 'mysql2';
  * =================== USER MANAGEMENT ===================
  *********************************************************/
 
-export async function insertUser(inputuser: IUserInput): Promise<number | null> {
+export async function insertUser(inputuser: ITotalUser): Promise<number | null> {
 
     const connection = await pool.getConnection();
-
+    console.log(`inputuser`, inputuser);
     const sqlQuery = sql`INSERT INTO users (
         email,
         emailVerified,
@@ -25,7 +25,12 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
         fameRate,
         latitude,
         longitude,
-        lastConnection
+        lastConnection,
+        profileVisibility,
+        emailNotifications,
+        maxDistance,
+        matchAgeMin,
+        matchAgeMax 
     )
     VALUES (
         ${inputuser.email},
@@ -40,7 +45,12 @@ export async function insertUser(inputuser: IUserInput): Promise<number | null> 
         ${inputuser.fameRate},
         ${inputuser.longitude},
         ${inputuser.latitude},
-        ${inputuser.lastConnection}
+        ${inputuser.lastConnection},
+        ${inputuser.profileVisibility},
+        ${inputuser.emailNotifications},
+        ${inputuser.maxDistance},
+        ${inputuser.matchAgeMin},
+        ${inputuser.matchAgeMax} 
     );`;
 
     let result: [QueryResult, FieldPacket[]];
@@ -294,6 +304,7 @@ async function deleteUserInterest(interestId: number) {
 export async function insertUserPicture(inputPicture: IUserPictureInput) {
     const connection = await pool.getConnection();
 
+    console.log(`inputPicture`, inputPicture);
     const sqlQuery = sql`INSERT INTO userPictures (
     user,
     filename,

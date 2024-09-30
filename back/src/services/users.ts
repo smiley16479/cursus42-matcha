@@ -1,5 +1,5 @@
 import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromuserName, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
-import { EGender, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
+import { EGender, ITotalUser, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
 import {IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user';
 import bcrypt from 'bcrypt';
 import { passwordStrength } from 'check-password-strength'
@@ -24,7 +24,7 @@ export async function createUser(rawUser: any) {
 
     const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(rawUser);
 
-    const user: IUserInput = {
+    const user: ITotalUser = {
         email: rawUser.email,
         emailVerified: false,
         userName: rawUser.userName,
@@ -38,6 +38,12 @@ export async function createUser(rawUser: any) {
         latitude: latitude,
         longitude: longitude,
         lastConnection: new Date(),
+        profileVisibility: true,
+        emailNotifications: false,
+        maxDistance: 50,
+        matchAgeMin: 18,
+        matchAgeMax: 30
+      /*  interests: [] */
     };
 
     let id: number | null;
