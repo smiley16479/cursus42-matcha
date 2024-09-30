@@ -1,16 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
+import http from 'http';
+import { Server } from 'socket.io'
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import logger from 'morgan';
 import 'dotenv/config';
 
-
 import initDb from './db/init';
 
 import usersRouter from './routes/users'
 import { jwtAuthCheck } from './middleware/auth';
+import { initSocketEvents } from './gateway/io';
 
-var app = express();
+const port = 3000
+const app = express();
 
 app.use(cors({
     origin: 'http://localhost:8080', // Ne pas mettre '*' avec credentials: true
@@ -40,5 +43,20 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
         status: 404
     });
 });
+
+const server = http.createServer(app);
+export const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:8080',
+    methods: ["GET", "POST"],
+    credentials: true,
+  }
+});
+// Initialiser les événements Socket.IO
+initSocketEvents(io);
+
+server.listen(port, ()=> {
+    console.log(`App listening on port ${port}`)
+})
 
 export default app;
