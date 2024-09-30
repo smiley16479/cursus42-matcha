@@ -72,7 +72,7 @@ export interface IUserOutput extends IMinimalUser {
     interests: string[],
 }
 
-export interface ITotalUser extends IMinimalUser, IUserInput, IUserOutput {
+export interface ITotalUser extends IMinimalUser, IUserInput {
     profileVisibility: boolean
     emailNotifications: boolean
     maxDistance: number
