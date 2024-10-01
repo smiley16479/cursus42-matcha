@@ -50,7 +50,7 @@
 	}
   </script>
 
-	{JSON.stringify($us.user, null, 2)}
+	<!-- {JSON.stringify($us.user, null, 2)} -->
 
 <div class="h-full flex flex-col items-center justify-center pb-12 px-6 lg:px-8 bg-custom">
 	<div class="max-w-md w-full space-y-8">
@@ -164,14 +164,14 @@
 					Déconnexion
 					</button>
 				</div>
-				<label for="suspend-account" class="block text-sm font-medium text-gray-700">Suspendre mon compte</label>
+<!-- 				<label for="suspend-account" class="block text-sm font-medium text-gray-700">Suspendre mon compte</label>
 				<div class="mt-1">
 					<button id="suspend-account" type="button"
 					class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 					on:click={suspendAccount}>
 					Suspendre mon compte
 					</button>
-				</div>
+				</div> -->
 				<label for="delete-account" class="block text-sm font-medium text-gray-700">Suppression du compte</label>
 				<div class="mt-1">
 					<button id="delete-account" type="button"
