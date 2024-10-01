@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { app } from "../../../store/appStore";
   import { onMount, afterUpdate } from "svelte";
   import { writable } from "svelte/store";
   
   // Propriétés du composant
-  export let activeIdx = 0;
   export let content: { title: string, icon: string, href: string }[] = [
     { title: "Acceuil", icon: "" , href: "/accueil"},
     { title: "Matcha", icon: "" , href: "/matcha"},
@@ -17,12 +17,12 @@
   
   // Positionne le surlignage lors de la première montée du composant
   onMount(() => {
-    setActiveTab(activeIdx);
+    setActiveTab($app.tabIdx);
   });
   
-  // Met à jour la position du surlignage lorsque `activeIdx` change
+  // Met à jour la position du surlignage lorsque `$app.tabIdx` change
   afterUpdate(() => {
-    setActiveTab(activeIdx);
+    setActiveTab($app.tabIdx);
   });
   
   function setActiveTab(index: number) {
@@ -40,7 +40,8 @@
   }
   
   function handleTabClick(index: number) {
-    activeIdx = index;
+    const idx = content.findIndex(e => e.href.includes(content[index].href))
+    $app.tabIdx = idx //index;
     goto("/app" + content[index].href);
   }
 </script>
@@ -65,7 +66,7 @@
         class="flex items-center justify-center w-full px-0 py-1 mb-0 transition-all ease-in-out border-0 rounded-lg cursor-pointer text-slate-700 bg-inherit"
         role="tab"
         on:click={() => handleTabClick(index)}
-        aria-selected={index === activeIdx}
+        aria-selected={index === $app.tabIdx}
       >
         <span class="ml-1">{item.title}</span>
       </button>

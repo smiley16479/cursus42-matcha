@@ -29,7 +29,7 @@ class="inline-block px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray
 
 <a 
   href={href}
-  class="inline-block px-4 py-2 bg-gray-200 text-gray-800 rounded-lg no-underline hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+  class="inline-block px-4 py-2 bg-gray-200 text-gray-800 text-3xl font-semibold rounded-lg no-underline hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
   role="button" 
   aria-disabled={disabled ? 'true' : 'false'} 
   tabindex={disabled ? -1 : 0} 

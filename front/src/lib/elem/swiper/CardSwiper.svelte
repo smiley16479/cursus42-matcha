@@ -1,9 +1,15 @@
+<!-- <script type="module">
+
+</script> -->
+
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { DragGesture, type FullGestureState } from '@use-gesture/vanilla';
 	import type { CardData, Direction } from './';
 	import Card from './Card.svelte';
-
+	import Like from "$lib/component/animation/like.svelte";
+	import Nope from "$lib/component/animation/nope.svelte";
+	import { app } from '../../../store/appStore';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
@@ -13,13 +19,16 @@
 	let card1: HTMLElement, card2: HTMLElement;
 	let card1Data: CardData, card2Data: CardData;
 
-	let cardIndex = 0;
+	// let $app.cardIndex = 0;
 	let topCard: HTMLElement;
 	let currentZ = 100000;
 
+	let showBox = false;
+  let showNopeBox = false;
+
 	onMount(async () => {
-		card1Data = cardData(cardIndex++);
-		card2Data = cardData(cardIndex++);
+		card1Data = cardData($app.cardIndex);
+		card2Data = cardData(($app.cardIndex + 1));
 
 		[card1, card2].forEach(function (el) {
 			el.style.zIndex = currentZ.toString();
@@ -40,7 +49,7 @@
 
 		let direction: Direction = movement[0] > 0 ? 'right' : 'left';
 		let data = el === card1 ? card1Data : card2Data;
-		dispatch('swiped', { direction, element: el, data, index: cardIndex - 2 });
+		dispatch('swiped', { direction, element: el, data, index: $app.cardIndex - 2 });
 		thresholdPassed = movement[0] > 0 ? 1 : -1;
 
 		let moveOutWidth = document.body.clientWidth;
@@ -60,11 +69,11 @@
 			// move card back to start position at bottom of stack and update data
 			if (el === card1) {
 				card1Data = {};
-				card1Data = cardData(cardIndex++);
+				card1Data = cardData(($app.cardIndex = $app.cardIndex + 1));
 				topCard = card2;
 			} else {
 				card2Data = {};
-				card2Data = cardData(cardIndex++);
+				card2Data = cardData(($app.cardIndex = $app.cardIndex + 1));
 				topCard = card1;
 			}
 
@@ -157,3 +166,17 @@
 		<svelte:component this={Card} bind:element={card2} {...card2Data} />
 	</div>
 </div>
+
+<!-- SVG avec animation pour LIKE -->
+{#if showBox}
+<div class="z-10">
+	<Like/>
+</div>
+{/if}
+
+<!-- SVG avec animation pour "NOPE" -->
+{#if showNopeBox}
+<div class="z-10">
+	<Nope/>
+</div>
+{/if}

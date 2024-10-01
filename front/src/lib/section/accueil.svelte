@@ -1,13 +1,16 @@
 <script lang="ts">
-
+function accept() {
+  if (!confirm("Vous devez accepter les CGV pour continuer"))
+    window.history.back()
+}
 </script>
 
 <header class="bg-white shadow-md py-4">
     <div class="container mx-auto flex justify-between items-center px-4">
       <h1 class="text-2xl font-bold text-gray-800">MatchaFrida</h1>
       <nav>
-        <a href="#" class="text-blue-500 font-semibold px-3">Connexion</a>
-        <a href="#" class="text-blue-500 font-semibold px-3">Inscription</a>
+        <button on:click={accept} class="text-blue-500 font-semibold px-3">Connexion</button>
+        <button on:click={accept} class="text-blue-500 font-semibold px-3">Inscription</button>
       </nav>
     </div>
   </header>

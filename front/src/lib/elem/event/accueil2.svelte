@@ -1,36 +1,60 @@
 <script lang="ts">
-	// Exemples de données pour les sections de la page d'accueil
+	const date = new Date();
+	import EventModal from "../../component/modal/eventModal.svelte";
+	import { events } from "./eventList";
+  let showModal = false;
+	let selectedEvent: {
+    image: string;
+    title: string;
+    description: string;
+    txt: string;
+    date: string;
+    location: string;
+    time: string;
+  } = {
+		image: '',
+    title: '',
+    description: '',
+    txt: '',
+    date: '',
+    location: '',
+    time: ''
+  };
+
 	export let featuredEvent = {
 	  title: "Atelier de Peinture Inspiré de Frida Kahlo",
 	  description: "Rejoignez-nous pour un atelier de peinture où nous explorerons le style unique de Frida Kahlo.",
-	  image: "https://via.placeholder.com/600x400",
-	  date: "2024-08-15",
+		txt: "Un atelier pratique où vous pourrez explorer votre créativité en vous inspirant de l'univers de Frida Kahlo.",
+	  image: "/event/art_workshop_600x400.png", //"https://via.placeholder.com/600x400",
+	  date: (() => { date.setDate(date.getDate() + 1); return date.toLocaleDateString('fr-FR')})(),
 	};
   
 	export let upcomingEvents = [
 	  {
 		id: 1,
 		title: "Exposition d'Art Latino",
-		date: "2024-09-01",
+		date: (() => { date.setDate(date.getDate() + 2); return date.toLocaleDateString('fr-FR')})(),
 	  },
 	  {
 		id: 2,
 		title: "Soirée Cinéma : Films de Frida Kahlo",
-		date: "2024-09-15",
+		date: (() => { date.setDate(date.getDate() + 3); return date.toLocaleDateString('fr-FR')})(),
 	  },
 	  {
 		id: 3,
 		title: "Discussion sur l'Art et la Résilience",
-		date: "2024-09-20",
+		date: (() => { date.setDate(date.getDate() + 5); return date.toLocaleDateString('fr-FR')})(),
 	  },
 	];
+
+	function viewEventDetails(event: any, id: number = 0) {
+		selectedEvent = id ? events[id] : event;
+    showModal = true;
+	}
+
   </script>
-  
-  <style>
-	/* Styles supplémentaires, le cas échéant */
-  </style>
-  
-  <div class="bg-gray-50 min-h-screen">
+
+<div class="bg-gray-50 min-h-screen">
 	<!-- Hero Section -->
 	<section class="bg-white py-12">
 	  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +78,7 @@
 			<h3 class="text-2xl font-bold text-gray-900">{featuredEvent.title}</h3>
 			<p class="mt-4 text-gray-700">{featuredEvent.description}</p>
 			<p class="mt-2 text-sm text-gray-600">Date: {featuredEvent.date}</p>
-			<button class="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+			<button on:click={() => viewEventDetails(featuredEvent)} class="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 			  En savoir plus
 			</button>
 		  </div>
@@ -76,7 +100,7 @@
 				<h4 class="text-lg font-bold text-gray-900">{event.title}</h4>
 				<p class="mt-1 text-sm text-gray-600">Date: {event.date}</p>
 			  </div>
-			  <button class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+			  <button on:click={() => viewEventDetails(null, event.id)} class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 				Détails
 			  </button>
 			</li>
@@ -84,4 +108,5 @@
 		</ul>
 	  </div>
 	</section>
-  </div>
+	<EventModal bind:showModal eventDetails={selectedEvent} />
+</div>

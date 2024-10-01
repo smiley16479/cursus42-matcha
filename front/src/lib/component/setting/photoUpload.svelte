@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 	import { writable, type Stores } from 'svelte/store';
+  import { picUpload } from '@/service/user';
 
-  // Initialisation d'un tableau pour stocker les photos
+  // Initialisation d'un tableau pour stocker les photos (À CHANGER POULES VRAIS PHOTO)
   let photos: File[] = [];
   let photoUrls = writable<string[]>([
     "https://via.placeholder.com/400x300",
@@ -12,7 +13,7 @@
   ]);
 
   // Fonction pour gérer l'upload des photos
-  function handleFileUpload(event: Event) {
+  async function handleFileUpload(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       for (let i = 0; i < input.files.length; i++) {
@@ -21,19 +22,17 @@
         // Créer une URL pour prévisualiser l'image
         const url = URL.createObjectURL(file);
         $photoUrls.push(url);
+        $photoUrls = $photoUrls;
 
         // Préparer les données pour l'envoi au backend
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('picture', file);
+        formData.append('index', $photoUrls.length.toString()); 
 
         try {
           // Envoyer l'image au backend
-/*           const response = await axios.post(API_URL, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-          });
-          console.log('Image uploadée avec succès :', response.data); */
+          const response = await picUpload(formData);
+          console.log('Image uploadée avec succès :', response.data);
         } catch (error) {
           console.error('Erreur lors de l\'upload de l\'image :', error);
         }
@@ -70,7 +69,7 @@
     $photoUrls = $photoUrls;
   }
 
-  // Optionnel: Nettoyer les URL à la destruction du composant
+  // Nettoyer les URL à la destruction du composant
   onMount(() => {
       return () => {
           $photoUrls.forEach(url => URL.revokeObjectURL(url));
@@ -82,9 +81,11 @@
   <h2 class="text-2xl font-bold mb-4">Mes Photos</h2>
 
   <!-- Section d'upload des photos -->
-  <input type="file" accept="image/*" multiple on:change={handleFileUpload} class="mb-4 p-2 border rounded" />
-  
-  <div class="grid grid-cols-2 gap-4">      
+  {#if $photoUrls.length < 5}
+    <input type="file" accept="image/*" multiple on:change={handleFileUpload} class="mb-4 p-2 border rounded" />
+  {/if}
+
+  <div class="grid grid-cols-2 gap-4">
     {#each $photoUrls as url, index}
       <div class="relative">
         <img src={url} alt="UploadedPic" class="w-32 h-32 object-cover rounded-md" />
@@ -99,7 +100,3 @@
       <p class="mt-4 text-gray-500">Aucune photo uploadée.</p>
   {/if}
 </div>
-
-<style>
-  /* Style personnalisé (si nécessaire) */
-</style>
