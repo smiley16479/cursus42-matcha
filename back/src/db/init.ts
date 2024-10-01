@@ -14,7 +14,7 @@ export default async function initDb() {
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    gender ENUM('Female', 'Male') NOT NULL,
+    gender ENUM('Female', 'Male', 'Unknown') NOT NULL,
     sexualPref ENUM('Female', 'Male', 'Both') NOT NULL,
     biography TEXT NOT NULL,
     fameRate INT NOT NULL,
