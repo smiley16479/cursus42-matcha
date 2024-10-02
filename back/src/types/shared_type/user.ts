@@ -73,6 +73,7 @@ export interface IUserOutput extends IMinimalUser {
 }
 
 export interface ITotalUser extends IMinimalUser, IUserInput {
+    id?: number
     profileVisibility: boolean
     emailNotifications: boolean
     maxDistance: number
