@@ -103,7 +103,17 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 export async function retrieveUserFromuserName(userName: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE BINARY userName = ${userName};`;
+    // const sqlQuery = sql`SELECT * FROM users WHERE BINARY userName = ${userName};`;
+    const sqlQuery = sql`
+    SELECT u.*,
+        JSON_ARRAYAGG(ui.interest) AS interests,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        FROM userPictures up
+        WHERE up.user = u.id) AS pictures
+    FROM users u
+    LEFT JOIN userInterests ui ON u.id = ui.user
+    WHERE u.userName = ${userName};
+    `;
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();
