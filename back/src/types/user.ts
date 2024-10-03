@@ -28,3 +28,10 @@ export interface IUserPicture extends RowDataPacket, IUserPictureInput {
   id: number,
   createdAt: Date
 }
+
+export interface IUserVisit extends RowDataPacket {
+  id: number,
+  visiter: number,
+  visited: number,
+  createdAt: Date
+}

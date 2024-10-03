@@ -1,4 +1,4 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ITotalUser, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
 import {IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user';
 import bcrypt from 'bcrypt';
@@ -350,4 +350,19 @@ async function removeUserPictures(userId: number) {
         fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => { });
     });
     deleteUserPictures(userId);
+}
+
+/*********************************************************
+ * ================ VISITS MANAGEMENT ====================
+ *********************************************************/
+
+export async function addNewUserVisit(visitedUserId: number, visiterUserId: number) {
+    const existingUserVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
+
+    console.log(existingUserVisit);
+
+    if (existingUserVisit)
+        throw new Error();
+
+    insertUserVisit(visitedUserId, visiterUserId);
 }

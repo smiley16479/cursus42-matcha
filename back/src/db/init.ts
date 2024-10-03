@@ -88,5 +88,18 @@ export default async function initDb() {
 
     await connection.query(userPicturesTableQuery);
 
+    // Create userVisits table
+
+    const userVisitsTableQuery = `
+        CREATE TABLE IF NOT EXISTS userVisits (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        visited INT NOT NULL,
+        visiter INT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        `;
+
+    await connection.query(userVisitsTableQuery);
+
     connection.release();
 }

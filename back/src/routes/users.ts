@@ -3,7 +3,7 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { addNewUserVisit, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 
@@ -279,5 +279,12 @@ router.get('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req: R
 })
 
 // Pictures are served as static files in index.ts
+
+
+/****** Debug routes *******/
+
+// router.post('/addvisit', async function (req: Request, res: Response) {
+//     await addNewUserVisit(req.body.visitedUserId, req.body.visiterUserId);
+// })
 
 export default router;

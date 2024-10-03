@@ -1,6 +1,6 @@
 import pool, { sql } from './pool';
 import { EInterest, IUserInput, string2EInterest, IUserPictureInput, ITotalUser } from '../types/shared_type/user';
-import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user'
+import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit} from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -328,9 +328,9 @@ export async function insertUserPicture(inputPicture: IUserPictureInput) {
 
     console.log(`inputPicture`, inputPicture);
     const sqlQuery = sql`INSERT INTO userPictures (
-    user,
-    filename,
-    pictureIndex
+        user,
+        filename,
+        pictureIndex
     )
     VALUES (
         ${inputPicture.user},
@@ -382,6 +382,42 @@ export async function deleteUserPictures(userId: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`DELETE FROM userPictures WHERE user = ${userId};`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+/*********************************************************
+ * ================ VISITS MANAGEMENT ====================
+ *********************************************************/
+
+export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT * FROM userVisits
+        WHERE visited = ${visitedUserId}
+        AND visiter = ${visiterUserId}
+        ;`
+
+        const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function insertUserVisit(visitedUserId: number, visiterUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO userVisits (
+        visited,
+        visiter
+    )
+    VALUES (
+        ${visitedUserId},
+        ${visiterUserId}
+    );`
 
     await connection.query(sqlQuery);
 
