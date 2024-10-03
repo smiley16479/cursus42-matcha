@@ -1,4 +1,4 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromuserName, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ITotalUser, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
 import {IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user';
 import bcrypt from 'bcrypt';
@@ -62,7 +62,7 @@ export async function createUser(rawUser: any) {
 }
 
 export async function loginUser(credentials: any) {
-    const user = await retrieveUserFromuserName(credentials.userName);
+    const user = await retrieveUserFromUserName(credentials.userName);
 
     if (!user)
         throw new Error('User not found');
@@ -169,7 +169,7 @@ function checkPasswordStrength(password: string) {
 }
 
 async function checkuserNameUniqueness(userName: string) {
-    const userWithSameuserName = await retrieveUserFromuserName(userName);
+    const userWithSameuserName = await retrieveUserFromUserName(userName);
     if (userWithSameuserName)
         throw new Error();
 }

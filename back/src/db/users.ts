@@ -93,17 +93,6 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM users WHERE email = ${email};`;
-    const [rows] = await connection.query<IUserDb[]>(sqlQuery);
-
-    connection.release();
-    return rows[0];
-}
-
-export async function retrieveUserFromuserName(userName: string): Promise<IUserDb> {
-    const connection = await pool.getConnection();
-
-    // const sqlQuery = sql`SELECT * FROM users WHERE BINARY userName = ${userName};`;
     const sqlQuery = sql`
     SELECT u.*,
         JSON_ARRAYAGG(ui.interest) AS interests,
@@ -112,8 +101,31 @@ export async function retrieveUserFromuserName(userName: string): Promise<IUserD
         WHERE up.user = u.id) AS pictures
     FROM users u
     LEFT JOIN userInterests ui ON u.id = ui.user
-    WHERE u.userName = ${userName};
+    WHERE u.email = ${email}
+    GROUP BY u.id;
     `;
+    
+    const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function retrieveUserFromUserName(userName: string): Promise<IUserDb> {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+    SELECT u.*,
+        JSON_ARRAYAGG(ui.interest) AS interests,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        FROM userPictures up
+        WHERE up.user = u.id) AS pictures
+    FROM users u
+    LEFT JOIN userInterests ui ON u.id = ui.user
+    WHERE BINARY u.userName = ${userName}
+    GROUP BY u.id;
+    `;
+
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();
