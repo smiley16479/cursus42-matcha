@@ -5,6 +5,7 @@
 
   const go2Matcha = () => {
     $app.tabIdx = 1;
+    $app.footer = true
     goto("/app/matcha");
   }
 </script>

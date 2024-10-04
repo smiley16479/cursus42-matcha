@@ -1,9 +1,9 @@
 import {writable, get} from 'svelte/store'
-import { type ITotalUser, EGender, ESexualPref } from '../type/shared_type/user';
+import { type IUser, EGender, ESexualPref, type UserPic_t, EGeoPref } from '../type/shared_type/user';
 import { LoggingState } from '@/type/user';
 
 export class UserStore {
-	user: ITotalUser = {
+	user: IUser & {interests : string[], prefGeoloc: EGeoPref} = {
 		// id: 0,
 		userName:  "",
 		firstName:  "",
@@ -19,12 +19,15 @@ export class UserStore {
 		email:  "",
 		emailVerified:  false,
 		password:  "",
-		// interests:  [],
+		interests: [],
 		emailNotifications: false,
 		maxDistance: 0,
 		matchAgeMin: 18,
-		matchAgeMax: 100
+		matchAgeMax: 100,
+		prefGeoloc: EGeoPref.Never
 	}
+	pictures: UserPic_t[] = [];
+	avatar = "";
 	logState: LoggingState = LoggingState.unlogged;
 }
 

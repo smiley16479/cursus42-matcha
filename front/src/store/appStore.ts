@@ -1,7 +1,7 @@
 import {writable, get} from 'svelte/store'
 export class AppStore {
   page = "";
-  footer = true;
+  footer = false;
   cardIndex = 0;
   tabIdx = 0;
 }
