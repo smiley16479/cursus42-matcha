@@ -61,7 +61,7 @@ export async function createUser(inputUser: IUserInput) {
 }
 
 export async function loginUser(credentials: IUserCredentials) {
-    const user = await retrieveUserFromUserName(credentials.userName);
+    const user: IUserDb = await retrieveUserFromUserName(credentials.userName);
 
     if (!user)
         throw new Error('User not found');
@@ -78,30 +78,20 @@ export async function loginUser(credentials: IUserCredentials) {
         throw new Error();
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
 
-    return { token, user };
+    const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
+
+    return [ token, outputUser ];
 }
 
-export async function getUser(id: number, self: boolean): Promise<IUserOutput | null> {
-    const user: IUserOutput = await retrieveUserFromId(id);
+export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput | null> {
+    const user: IUserDb = await retrieveUserFromId(id);
     if (!user || !user.id) {
         return null;
     }
 
-    if (!self) {
-        delete user['email'];
-        delete user['profileVisibility'];
-        delete user['emailNotifications'];
-        delete user['maxDistance'];
-        delete user['matchAgeMin'];
-        delete user['matchAgeMax'];
-        delete user['visits'];
+    const outputUser: IUserOutput = sanitizeUserForOutput(user, isSelf);
 
-    }
-    delete user['emailVerified'];
-    delete user['password'];
-    delete user['createdAt'];
-
-    return user;
+    return outputUser;
 }
 
 export async function removeUser(id: number) {
@@ -167,6 +157,26 @@ export async function patchUser(id: number, rawUser: any) {
 }
 
 // Helpers
+
+function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
+    const outputUser: IUserOutput = user;
+
+    if (!isSelf) {
+        delete outputUser['email'];
+        delete outputUser['profileVisibility'];
+        delete outputUser['emailNotifications'];
+        delete outputUser['maxDistance'];
+        delete outputUser['matchAgeMin'];
+        delete outputUser['matchAgeMax'];
+        delete outputUser['visits'];
+
+    }
+    delete outputUser['emailVerified'];
+    delete outputUser['password'];
+    delete outputUser['createdAt'];
+
+    return outputUser;
+}
 
 function checkPasswordStrength(password: string) {
     const strength = passwordStrength(password);

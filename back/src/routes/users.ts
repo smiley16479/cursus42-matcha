@@ -30,9 +30,8 @@ router.post('/create', async function (req: Request, res: Response) {
 
 router.post('/login', async function (req: Request, res: Response) {
     try {
-        const data = await loginUser(req.body);
-        const user = data.user;
-        res.cookie("token", data.token, {
+        const [token, user] = await loginUser(req.body);
+        res.cookie("token", token, {
             httpOnly: true,
             secure: true,
         }).status(200).json({
