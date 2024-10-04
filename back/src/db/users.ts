@@ -1,6 +1,6 @@
 import pool, { sql } from './pool';
 import { EInterest, IUserInput, string2EInterest, IUserPictureInput, ITotalUser } from '../types/shared_type/user';
-import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit} from '../types/user'
+import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal} from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -8,10 +8,9 @@ import { QueryResult, FieldPacket } from 'mysql2';
  * =================== USER MANAGEMENT ===================
  *********************************************************/
 
-export async function insertUser(inputuser: ITotalUser): Promise<number | null> {
+export async function insertUser(inputuser: IUserInputInternal): Promise<number | null> {
 
     const connection = await pool.getConnection();
-    console.log(`inputuser`, inputuser);
     const sqlQuery = sql`INSERT INTO users (
         email,
         emailVerified,

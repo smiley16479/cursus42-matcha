@@ -1,35 +1,35 @@
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
-import { EGender, ITotalUser, IUserInput, IUserOutput, ESexualPref, string2EGender, string2ESexualPref, IUserPictureInput } from "../types/shared_type/user";
-import {IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserPicture} from '../types/user';
 import bcrypt from 'bcrypt';
-import { passwordStrength } from 'check-password-strength'
-import nodemailer from 'nodemailer';
-import * as crypto from "node:crypto";
-import moment from 'moment';
-import jwt from 'jsonwebtoken';
+import { passwordStrength } from 'check-password-strength';
 import { Request, Response } from "express";
 import fs from 'fs';
+import jwt from 'jsonwebtoken';
+import moment from 'moment';
+import * as crypto from "node:crypto";
 import path from "node:path";
+import nodemailer from 'nodemailer';
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserLogin, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
+import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
 
 
 /*********************************************************
  * ================== USER MANAGEMENT ====================
  *********************************************************/
 
-export async function createUser(rawUser: any) {
+export async function createUser(inputUser: IUserInput) {
 
-    await checkuserNameUniqueness(rawUser.userName);
+    await checkUserNameUniqueness(inputUser.userName);
 
-    checkPasswordStrength(rawUser.password);
+    checkPasswordStrength(inputUser.password);
 
-    const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(rawUser);
+    const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(inputUser);
 
-    const user: ITotalUser = {
-        email: rawUser.email,
+    const user: IUserInputInternal = {
+        email: inputUser.email,
         emailVerified: false,
-        userName: rawUser.userName,
-        firstName: rawUser.firstName,
-        lastName: rawUser.lastName,
+        userName: inputUser.userName,
+        firstName: inputUser.firstName,
+        lastName: inputUser.lastName,
         password: hashedPassword,
         gender: gender,
         sexualPref: sexualPref,
@@ -43,7 +43,6 @@ export async function createUser(rawUser: any) {
         maxDistance: 50,
         matchAgeMin: 18,
         matchAgeMax: 30
-      /*  interests: [] */
     };
 
     let id: number | null;
@@ -61,7 +60,7 @@ export async function createUser(rawUser: any) {
     }
 }
 
-export async function loginUser(credentials: any) {
+export async function loginUser(credentials: IUserCredentials) {
     const user = await retrieveUserFromUserName(credentials.userName);
 
     if (!user)
@@ -72,14 +71,14 @@ export async function loginUser(credentials: any) {
     if (result == false)
         throw new Error('Wrong Password');
 
-    delete credentials.password;
+    credentials.password = "";
 
     const secret = process.env.JWT_SECRET;
     if (!secret)
         throw new Error();
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
 
-    return {token, user};
+    return { token, user };
 }
 
 export async function getUser(id: number, self: boolean): Promise<IUserOutput | null> {
@@ -88,8 +87,16 @@ export async function getUser(id: number, self: boolean): Promise<IUserOutput | 
         return null;
     }
 
-    if (self)
+    if (!self) {
         delete user['email'];
+        delete user['profileVisibility'];
+        delete user['emailNotifications'];
+        delete user['maxDistance'];
+        delete user['matchAgeMin'];
+        delete user['matchAgeMax'];
+        delete user['visits'];
+
+    }
     delete user['emailVerified'];
     delete user['password'];
     delete user['createdAt'];
@@ -168,7 +175,7 @@ function checkPasswordStrength(password: string) {
         throw new Error();
 }
 
-async function checkuserNameUniqueness(userName: string) {
+async function checkUserNameUniqueness(userName: string) {
     const userWithSameuserName = await retrieveUserFromUserName(userName);
     if (userWithSameuserName)
         throw new Error();

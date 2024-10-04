@@ -52,6 +52,15 @@ export interface IMinimalUser {
     userName: string,
     firstName: string,
     lastName: string,
+}
+
+export interface IUserInput extends IMinimalUser {
+    email: string,
+    password: string
+}
+
+export interface IUserOutput extends IMinimalUser {
+    id: number,
     gender: EGender,
     sexualPref: ESexualPref,
     biography: string,
@@ -59,30 +68,23 @@ export interface IMinimalUser {
     latitude: number,
     longitude: number,
     lastConnection: Date,
+    interests: string[]
+    // TODO: Add pictures
+    // TODO: Add visits
 }
 
-export interface IUserInput extends IMinimalUser {
+export interface IUserSelf extends IUserOutput {
     email: string,
-    emailVerified: boolean,
-    password: string
-}
-
-export interface IUserOutput extends IMinimalUser {
-    id: number,
-    interests: string[],
-}
-
-export interface ITotalUser extends IMinimalUser, IUserInput {
-    id?: number
-    profileVisibility: boolean
-    emailNotifications: boolean
-    maxDistance: number
-    matchAgeMin: number
+    profileVisibility: boolean,
+    emailNotifications: boolean,
+    maxDistance: number,
+    matchAgeMin: number,
     matchAgeMax: number
 }
 
-export interface IUserDb extends IUserInput, IUserOutput {
-    createdAt: Date
+export interface IUserCredentials {
+    userName: string,
+    password: string
 }
 
 export interface IUserPictureInput {

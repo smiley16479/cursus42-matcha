@@ -1,8 +1,24 @@
 import { RowDataPacket } from "mysql2";
-import {IUserInput, IUserOutput, IUserPictureInput} from './shared_type/user';
+import { EGender, ESexualPref, IUserInput, IUserPictureInput, IUserSelf } from './shared_type/user';
 
-export interface IUserDb extends RowDataPacket, IUserInput, IUserOutput {
+export interface IUserDb extends RowDataPacket, IUserInput, IUserSelf {
   createdAt: Date
+}
+
+export interface IUserInputInternal extends IUserInput {
+  emailVerified: boolean,
+  gender: EGender,
+  sexualPref: ESexualPref,
+  biography: string,
+  fameRate: number,
+  latitude: number,
+  longitude: number,
+  lastConnection: Date,
+  profileVisibility: boolean,
+  emailNotifications: boolean,
+  maxDistance: number,
+  matchAgeMin: number,
+  matchAgeMax: number
 }
 
 export interface IEmailConfirmToken extends RowDataPacket {
