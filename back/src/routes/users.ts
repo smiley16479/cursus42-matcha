@@ -264,7 +264,7 @@ router.post('/picture/upload', jwtAuthCheck, async function (req: Request, res: 
     });
 });
 
-router.get('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req: Request, res: Response) {
+router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req: Request, res: Response) {
     try {
         await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
         res.status(200).json({
