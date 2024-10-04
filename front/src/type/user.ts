@@ -1,29 +1,3 @@
-
-
-/** type minimal */
-export type User_tm = {
-	id?: number,
-	userName: string,
-	avatar: string,
-	sex: boolean,
-  orient?: SexOrientation,
-}
-
-/** type générique */
-export type User_t = User_tm & {
-	email: string,
-	isEmailConfirmed?: boolean,
-	password: string,
-	bio: string,
-}
-
-export enum SexOrientation {
-  Straight = "Straight",
-  Gay = "Gay",
-  Bisexual = "Bisexual",
-  Other = "Other"
-};
-
 export enum LoggingState {
 	unlogged,
 	logged,

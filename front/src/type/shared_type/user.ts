@@ -12,6 +12,12 @@ export enum ESexualPref {
     Both = "Both"
 }
 
+export enum EGeoPref {
+    Never = "Never",
+    Always = "Always",
+    Match = "Match"
+}
+
 export enum EInterest {
     Books = "Books",
     Blogging = "Blogging",
@@ -80,6 +86,13 @@ export interface ITotalUser extends IMinimalUser, IUserInput {
     matchAgeMin: number
     matchAgeMax: number
 }
+
+export type UserPic_t = {
+	    filename: string,
+	    pictureIndex: number
+}
+
+export interface IUser extends ITotalUser {}
 
 export interface IUserDb extends IUserInput, IUserOutput {
     createdAt: Date

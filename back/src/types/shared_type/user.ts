@@ -12,6 +12,12 @@ export enum ESexualPref {
     Both = "Both"
 }
 
+export enum EGeoPref {
+    Never = "Never",
+    Always = "Always",
+    Match = "Match"
+}
+
 export enum EInterest {
     Books = "Books",
     Blogging = "Blogging",
@@ -85,6 +91,11 @@ export interface IUserSelf extends IUserOutput {
 export interface IUserCredentials {
     userName: string,
     password: string
+}
+
+export type UserPic_t = {
+	    filename: string,
+	    pictureIndex: number
 }
 
 export interface IUserPictureInput {
