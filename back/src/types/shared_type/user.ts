@@ -81,6 +81,7 @@ export interface IUserOutput extends IMinimalUser {
 
 export interface IUserSelf extends IUserOutput {
     email: string,
+    emailVerified: boolean,
     profileVisibility: boolean,
     emailNotifications: boolean,
     maxDistance: number,

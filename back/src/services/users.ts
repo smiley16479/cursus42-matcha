@@ -163,6 +163,7 @@ function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
 
     if (!isSelf) {
         delete outputUser['email'];
+        delete outputUser['emailVerified'];
         delete outputUser['profileVisibility'];
         delete outputUser['emailNotifications'];
         delete outputUser['maxDistance'];
@@ -171,7 +172,6 @@ function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
         delete outputUser['visits'];
 
     }
-    delete outputUser['emailVerified'];
     delete outputUser['password'];
     delete outputUser['createdAt'];
 
