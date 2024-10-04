@@ -52,11 +52,21 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
             "filename": "338b95c7da1057ca585d2ff6f5b4ddd3d0bedd93",
             "pictureIndex": 3
         }
+    ],
+    "visits": [
+        {
+            "date": "2024-10-04 12:42:20.000000",
+            "visiterId": 1
+        },
+        {
+            "date": "2024-10-04 12:45:48.000000",
+            "visiterId": 3
+        }
     ]
 }
 ```
 
-- Supprimer l'utilisateur avec lequel tu es logué avec un GET à `/api/user/delete`
+- Supprimer l'utilisateur avec lequel tu es logué avec un DELETE à `/api/user/delete`
 
 - Modifier les infos de l'utilisateur avec lequel tu es logué avec un PATCH à `/api/user/patch` et n'importe quelle combinaisons de ces champs :
 ```json
@@ -97,7 +107,7 @@ les interests étant  visibles ici  : https://github.com/smiley16479/cursus42-ma
 ```
 Le champ caché `index` donne l'index de l'image que tu envoies, il doit être > 0 et < 6. Si une image avec cet index pour cet utilisateur existait déja, elle est supprimée
 
-- Supprimer une image avec un GET à `/api/user/picture/delete/:pictureId`.
+- Supprimer une image avec un DELETE à `/api/user/picture/delete/:pictureId`.
 pictureId étant l'index entre 1 et 5 pour cet utilisateur
 
 - Récupérer une image avec un GET à `/api/user/picture/:imageName`
