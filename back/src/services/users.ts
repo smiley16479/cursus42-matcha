@@ -366,8 +366,6 @@ async function removeUserPictures(userId: number) {
 export async function addNewUserVisit(visitedUserId: number, visiterUserId: number) {
     const existingUserVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
 
-    console.log(existingUserVisit);
-
     if (existingUserVisit)
         throw new Error();
 

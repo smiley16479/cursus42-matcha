@@ -40,6 +40,7 @@ export interface IUserInterest extends RowDataPacket {
   interest: string,
   createdAt: Date
 }
+
 export interface IUserPicture extends RowDataPacket, IUserPictureInput {
   id: number,
   createdAt: Date

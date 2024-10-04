@@ -1,6 +1,6 @@
 import pool, { sql } from './pool';
 import { EInterest, IUserInput, string2EInterest, IUserPictureInput, ITotalUser } from '../types/shared_type/user';
-import {IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal} from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -75,9 +75,15 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const sqlQuery = sql`
     SELECT u.*,
         JSON_ARRAYAGG(ui.interest) AS interests,
+
         (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
         FROM userPictures up
-        WHERE up.user = u.id) AS pictures
+        WHERE up.user = u.id) AS pictures,
+
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        FROM userVisits uv
+        WHERE uv.visited = u.id) AS visits
+
     FROM users u
     LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE u.id = ${id};
@@ -95,15 +101,21 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
     const sqlQuery = sql`
     SELECT u.*,
         JSON_ARRAYAGG(ui.interest) AS interests,
+
         (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
         FROM userPictures up
-        WHERE up.user = u.id) AS pictures
+        WHERE up.user = u.id) AS pictures,
+
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        FROM userVisits uv
+        WHERE uv.visited = u.id) AS visits
+
     FROM users u
     LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE u.email = ${email}
     GROUP BY u.id;
     `;
-    
+
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
     connection.release();
@@ -118,7 +130,12 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
         JSON_ARRAYAGG(ui.interest) AS interests,
         (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
         FROM userPictures up
-        WHERE up.user = u.id) AS pictures
+        WHERE up.user = u.id) AS pictures,
+
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        FROM userVisits uv
+        WHERE uv.visited = u.id) AS visits
+        
     FROM users u
     LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE BINARY u.userName = ${userName}
@@ -272,7 +289,7 @@ export async function updateUserInterests(userId: number, interests: string[]) {
     });
 
     rows.forEach((interest) => {
-        if ( interest.id != -1)
+        if (interest.id != -1)
             deleteUserInterest(interest.id);
     })
 
@@ -337,8 +354,8 @@ export async function insertUserPicture(inputPicture: IUserPictureInput) {
         ${inputPicture.pictureIndex}
     );`;
 
-        await connection.query(sqlQuery);
-        connection.release();
+    await connection.query(sqlQuery);
+    connection.release();
 }
 
 export async function retrieveUserPictures(userId: number): Promise<IUserPicture[]> {
@@ -400,7 +417,7 @@ export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterU
         AND visiter = ${visiterUserId}
         ;`
 
-        const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
+    const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
 
     connection.release();
     return rows[0];
