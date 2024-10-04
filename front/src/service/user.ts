@@ -1,6 +1,6 @@
 import {axios} from '@/service/interceptor/axios'
-import type { User_t, UserChPw_ce } from '@/type/user';
-import type { ITotalUser } from '@/type/shared_type/user';
+import type { UserChPw_ce } from '@/type/user';
+import type { IMinimalUser, ITotalUser } from '@/type/shared_type/user';
 function deserializeContact(data: any): any {
 	return {
 	  ...data,
@@ -21,8 +21,8 @@ export async function login(param : any) {
 
 export async function logout() {
 	try {
-		const response = await axios.get('user/logout', {withCredentials: true});
 		delete  axios.defaults.headers.common['token'];
+		const response = await axios.get('user/logout', {withCredentials: true});
 	} catch (error) {
 		console.log(`error`, error);
 		throw error;
@@ -43,7 +43,7 @@ export async function getCurrentUser() {
 }
 
 /** get current User */
-export async function getUser(id: number) {
+export async function getUser() {
 	try {
 		const response = (await axios.get(`user/me`, {withCredentials: true})).data;
 		console.log(`getUser n°me service response`, response);
@@ -55,25 +55,33 @@ export async function getUser(id: number) {
 	}
 }
 
-export async function create(userName:string, password:string, email: string) {
+/** get current UserLocation */
+export async function getUserLocation() {
 	try {
-		const response = (await axios.post('user/create', {
-			userName,
-			password,
-			email
-		}));
+		const data = (await axios.get("https://ipinfo.io/json?token=" + import.meta.env.VITE_LOC_SRV, {withCredentials: false})).data;
+		console.log(`getUserLocation service data`, data);
+		return data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+export async function createUser(user: IMinimalUser) {
+	try {
+		console.log('user', user);
+		const response = await axios.post('user/create', user);
 		// console.log('response', response);
 	} catch (error) {
-		// console.log('ERROR Dans le catch service');
+		console.log('ERROR Dans le createUser catch service');
 		throw error;
 	}
 }
 
 /** delete current User */
-export async function deleteUser(id: number) {
+export async function deleteUser() {
 	try {
-		const response = (await axios.get(`user/delete`, {withCredentials: true})).data;
-		console.log(`getUser n°me service response`, response);
+		const response = (await axios.delete(`user/delete`, {withCredentials: true})).data;
+		console.log(`deleteUser service response`, response);
 		if (response.contact)
 			response.contact = deserializeContact(response.contact)
 		return response;
@@ -93,12 +101,12 @@ export async function updateUser(user: ITotalUser) {
 	}
 }
 
-export async function changeUserPassword(changePw: UserChPw_ce) {
+export async function resetUserPassword(email: string) {
 	try {
-		console.log(`changePw service`, changePw);
-		const response = (await axios.patch(`user/change-pw`, changePw, {withCredentials: true}));
+		console.log(`resetPw service email`, email);
+		const response = (await axios.get(`user/askresetpassword/${email}`));
 	} catch (error) {
-		console.log('ERROR change User Password() catch service');
+		console.log('ERROR reset User Password() catch service');
 		throw error;
 	}
 }
@@ -118,9 +126,9 @@ export async function picUpload(formData: FormData) {
 	}
 }
 
-export async function delAvatar() {
+export async function delAvatar(pictureId:number) {
 	try {
-		const response = (await axios.delete(`user/avatar`, {withCredentials: true}));
+		const response = (await axios.delete(`user/picture/delete/${+pictureId}`, {withCredentials: true}));
 		// console.log('response', response);
 		// IMPORTANT PROBLEM : TJRS a faire la partie qui va modifier les info correspondant au user ds la db
 		return response;

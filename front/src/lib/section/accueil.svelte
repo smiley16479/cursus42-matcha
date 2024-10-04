@@ -1,8 +1,21 @@
 <script lang="ts">
+	import { us } from "@/store/userStore";
+  import { login } from "@/service/user";
 function accept() {
-  if (!confirm("Vous devez accepter les CGV pour continuer"))
+  if (!confirm("Vous devez valider votre email puis\nAccepter les CGV pour continuer..."))
     window.history.back()
 }
+
+async function isEmailVerified() {
+  // recup le user et voir si son mail est verifié
+  // pour le faire passer ou non à l'étape d'apres
+  const isNot403 = await login({userName: $us.user.userName, password: $us.user.password});
+  if (isNot403)
+    $us.user.emailVerified = true; // ceci renverra alors vers l'autre
+  else
+    alert(("Vous devez valider votre email puis\nAccepter les CGV pour continuer..."))
+}
+
 </script>
 
 <header class="bg-white shadow-md py-4">
@@ -67,7 +80,7 @@ function accept() {
     <div class="container mx-auto px-4">
       <h2 class="text-3xl font-bold mb-4">Rencontrez des gens, faites de nouvelles connexions</h2>
       <p class="mb-6">Rejoignez notre communauté et commencez à rencontrer de nouvelles personnes dès aujourd'hui!</p>
-      <a href="/app/accueil" class="bg-white text-blue-500 font-semibold py-2 px-4 rounded-full shadow-md hover:bg-gray-200">Accepter les valeurs Matcha & Commencez maintenant</a>
+      <button on:click={isEmailVerified} class="bg-white text-blue-500 font-semibold py-2 px-4 rounded-full shadow-md hover:bg-gray-200">Accepter les valeurs Matcha & Commencez maintenant</button>
     </div>
   </section>
 

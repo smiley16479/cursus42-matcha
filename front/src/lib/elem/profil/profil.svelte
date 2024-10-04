@@ -2,6 +2,7 @@
 	import Like from '$lib/component/animation/like.svelte';
 	import Nope from '$lib/component/animation/nope.svelte';
   import LikeNopeBtn from '$lib/component/btn/like_nopeBtn.svelte';
+	import { app } from '@/store/appStore';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
   let description=  writable<any[]>([]);
@@ -76,14 +77,17 @@
       {/each}
        -->
       {#each Array.from({ length: $description?.[userNum]?.photo }, (_, i) => i + 1) as item}
-      <img src={`/profil/${userNum}/${item}.webp`} alt="User" class="w-full rounded-lg" />
+        <img src={`/profil/${userNum}/${item}.webp`} alt="User" class="w-full rounded-lg" />
       {/each}
     </div>
   </div>
 {/if}
-<div class="fixed bottom-20 left-0 right-0 ">
-  <LikeNopeBtn bind:showBox bind:showNopeBox profil={true}></LikeNopeBtn>
-</div>
+<!-- Si != tab Matcha on peut liker -->
+{#if $app.tabIdx !== 1}
+  <div class="fixed bottom-20 left-0 right-0 ">
+    <LikeNopeBtn bind:showBox bind:showNopeBox profil={true}></LikeNopeBtn>
+  </div>
+{/if}
 
 <!-- SVG avec animation pour LIKE -->
 {#if showBox}

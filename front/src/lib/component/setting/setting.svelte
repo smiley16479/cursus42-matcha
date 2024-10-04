@@ -1,19 +1,20 @@
 <script lang="ts">
-	import { writable } from "svelte/store";
-	import { onMount } from "svelte";
-	import { LoggingState, SexOrientation } from "../../../type/user";
+	import { LoggingState } from "../../../type/user";
   import SliderRange from "./sliderRange.svelte";
 	import PhotoUpload from "@/lib/component/setting/photoUpload.svelte";
-	import { ESexualPref, EGender } from "@/type/shared_type/user";
+	import Location from "./location.svelte";
+	import MapLocation from "../map/mapLocation.svelte";
+	import Interest from "./interest.svelte";
+	import { ESexualPref, EGender, EGeoPref } from "@/type/shared_type/user";
 	import { us } from "@/store/userStore";
-	import { logout, updateUser } from "@/service/user";
+	import { deleteUser, getUser, logout, updateUser } from "@/service/user";
 	import { goto } from "$app/navigation";
 	import { app } from "@/store/appStore";
 
 	/** Fonction pour soumettre les modifications du userAccount */
-	function saveChanges() {
+	async function saveChanges() {
 		try {
-			updateUser($us.user);
+			await updateUser($us.user);
 			alert("Modifications enregistrées avec succès !");
 		} catch (error) {
 			alert("Echec informations non modifiées");
@@ -33,36 +34,51 @@
 		}
 	}
 
-	function suspendAccount() {
+	async function suspendAccount() {
 	  if (confirm("Êtes-vous sûr de vouloir suspendre votre compte ?")) {
 			// Logique pour suspendre le compte utilisateur
-			console.log("Compte suspendu");
+			// TEST RIEN À VOIR
+			const resp = await getUser()
+			console.log("Compte suspendu", resp);
+
 			alert("Votre compte a été suspendu.");
 	  }
 	}
 
-	function deleteAccount() {
+	async function deleteAccount() {
 	  if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
 			// Logique pour supprimer le compte utilisateur
-			console.log("Compte supprimé");
-			alert("Votre compte a été supprimé.");
+			try {
+				await deleteUser();
+				disconnect();
+				console.log("Compte supprimé");
+				alert("Votre compte a été supprimé.");
+			} catch (error) {
+				console.error('Erreur lors de la suppression du compte');
+				alert("Erreur lors de la suppression du compte");
+				throw error;
+			}
 	  }
 	}
   </script>
 
-	<!-- {JSON.stringify($us.user, null, 2)} -->
+	{JSON.stringify($us.user, null, 2)}
 
 <div class="h-full flex flex-col items-center justify-center pb-12 px-6 lg:px-8 bg-custom">
 	<div class="max-w-md w-full space-y-8">
 	  <div class="text-center">
-		<h2 class="mt-6 text-3xl font-extrabold text-gray-900">Réglages</h2>
-		<p class="mt-2 text-sm text-gray-600">
-		  Gérez vos préférences de compte et de confidentialité
-		</p>
+			<h2 class="mt-6 text-3xl font-extrabold text-gray-900">Réglages</h2>
+			<p class="mt-2 text-sm text-gray-600">
+			  Gérez vos préférences de compte et de confidentialité
+			</p>
 	  </div>
+		<PhotoUpload/>
+		<Location/>
+		<MapLocation/>
 	  <form class="mt-8 space-y-6" on:submit|preventDefault={saveChanges} autocomplete="off">
 		<!-- Informations Personnelles -->
 		<div class="rounded-md shadow-sm -space-y-px">
+			<h1 class="text-2xl font-bold mb-4">Mes Informations</h1>
 		  <div>
 				<label for="first-name" class="sr-only">Prénom</label>
 				<input bind:value={$us.user.firstName} id="first-name" name="first-name" type="text" autocomplete="name" required
@@ -99,13 +115,8 @@
   
 		<!-- Paramètres de Confidentialité -->
 		<div class="rounded-md shadow-sm -space-y-px">
+			<h1 class="text-2xl font-bold mb-4">Mes Préférences</h1>
 		  <div class="mt-6">
-				<label for="profile-visibility" class="block text-sm font-medium text-gray-700">Visibilité du profil</label>
-				<select bind:value={$us.user.profileVisibility} id="profile-visibility" name="profile-visibility"
-				  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-				  <option value={1}>Public</option>
-				  <option value={0}>Uniquement profils likés</option>
-				</select>
 				<label for="profile-gender" class="block text-sm font-medium text-gray-700">Genre</label>
 				<select bind:value={$us.user.gender} id="profile-gender" name="profile-gender"
 				  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -113,12 +124,25 @@
 				  <option value={EGender.Male}>Homme</option>
 				  <option value={EGender.Unknown}>Unkown</option>
 				</select>
-				<label for="profile-sex-orientation" class="block text-sm font-medium text-gray-700">Orientation sexuelle</label>
+				<label for="profile-sex-orientation" class="block text-sm font-medium text-gray-700">Orientation</label>
 				<select bind:value={$us.user.sexualPref} id="profile-sex-orientation" name="profile-sex-orientation"
 				  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 					<option value={ESexualPref.Female}>Femme</option>
 					<option value={ESexualPref.Male}>Homme</option>
 					<option value={ESexualPref.Both}>Bisexual</option>
+				</select>
+				<label for="profile-visibility" class="block text-sm font-medium text-gray-700">Visibilité du profil</label>
+				<select bind:value={$us.user.profileVisibility} id="profile-visibility" name="profile-visibility"
+					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+					<option value={1}>Public</option>
+					<option value={0}>Uniquement profils likés</option>
+				</select>
+				<label for="pref-Geoloc" class="block text-sm font-medium text-gray-700">Partager ma position avec</label>
+				<select bind:value={$us.user.prefGeoloc} id="pref-Geoloc" name="pref-Geoloc"
+					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+					<option value={EGeoPref.Never}>Personne</option>
+					<option value={EGeoPref.Always}>Tout le monde</option>
+					<option value={EGeoPref.Match}>Uniquement mes matchs</option>
 				</select>
 		  </div>
 		  <div class="pt-6 flex items-center">
@@ -143,7 +167,7 @@
 		</div>
 
 		<SliderRange fromSlider={$us.user.matchAgeMin} toSlider={$us.user.matchAgeMax}/>
-		<PhotoUpload/>
+		<!-- <Interest/> -->
 
 		<!-- Bouton de Sauvegarde -->
 		<div class="mt-6">
@@ -155,7 +179,9 @@
 
 		<!-- Gestion du Compte -->
 		<div class="mt-6 space-y-6">
-		  <div class="">
+			<hr>
+			<h1 class="text-2xl font-bold mb-4">Gestion du Compte</h1>
+			<div class="">
 				<label for="deconnect" class="block text-sm font-medium text-gray-700">Déconnexion</label>
 				<div class="mt-1">
 					<button id="deconnect" type="button"
@@ -164,14 +190,14 @@
 					Déconnexion
 					</button>
 				</div>
-<!-- 				<label for="suspend-account" class="block text-sm font-medium text-gray-700">Suspendre mon compte</label>
+				<label for="suspend-account" class="block text-sm font-medium text-gray-700">Suspendre mon compte</label>
 				<div class="mt-1">
 					<button id="suspend-account" type="button"
 					class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 					on:click={suspendAccount}>
 					Suspendre mon compte
 					</button>
-				</div> -->
+				</div>
 				<label for="delete-account" class="block text-sm font-medium text-gray-700">Suppression du compte</label>
 				<div class="mt-1">
 					<button id="delete-account" type="button"

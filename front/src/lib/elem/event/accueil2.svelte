@@ -27,6 +27,8 @@
 		txt: "Un atelier pratique où vous pourrez explorer votre créativité en vous inspirant de l'univers de Frida Kahlo.",
 	  image: "/event/art_workshop_600x400.png", //"https://via.placeholder.com/600x400",
 	  date: (() => { date.setDate(date.getDate() + 1); return date.toLocaleDateString('fr-FR')})(),
+		location: "Centre Culturel Beaubourg Paris, Salle 101",
+    time: "14h00 - 17h00"
 	};
   
 	export let upcomingEvents = [

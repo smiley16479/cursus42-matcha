@@ -74,7 +74,7 @@
         fill="#90A4AE"></path>
     </svg>
     <a class="block font-sans text-sm antialiased font-medium leading-normal visited:text-black text-inherit"
-      href="/profil"
+      href="/app/profil"
     >
       Mon Profil
     </a>
