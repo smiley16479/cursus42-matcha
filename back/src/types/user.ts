@@ -9,6 +9,7 @@ export interface IUserInputInternal extends IUserInput {
   emailVerified: boolean,
   gender: EGender,
   sexualPref: ESexualPref,
+  age: number,
   biography: string,
   fameRate: number,
   latitude: number,

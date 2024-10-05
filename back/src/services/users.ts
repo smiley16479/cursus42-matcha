@@ -8,7 +8,7 @@ import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
 import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
-import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserLogin, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
+import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
 
 
@@ -33,6 +33,7 @@ export async function createUser(inputUser: IUserInput) {
         password: hashedPassword,
         gender: gender,
         sexualPref: sexualPref,
+        age: 0,
         biography: biography,
         fameRate: 0,
         latitude: latitude,

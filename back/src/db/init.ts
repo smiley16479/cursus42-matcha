@@ -16,6 +16,7 @@ export default async function initDb() {
     password VARCHAR(255) NOT NULL,
     gender ENUM('Female', 'Male', 'Unknown') NOT NULL,
     sexualPref ENUM('Female', 'Male', 'Both') NOT NULL,
+    age INT NOT NULL,
     biography TEXT NOT NULL,
     fameRate INT NOT NULL,
     latitude DECIMAL(15, 10),

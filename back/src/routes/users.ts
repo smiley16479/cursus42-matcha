@@ -8,7 +8,7 @@ import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 
 
-var router = express.Router();
+let router = express.Router();
 
 /*********************************************************
  * ================== USER MANAGEMENT ====================
@@ -73,6 +73,7 @@ router.get('/seed', async function (_req: Request, res: Response) {
                     password: await bcrypt.hash("test", 10),
                     gender: g[i].value,
                     sexualPref: s[idx].value,
+                    age: 25,
                     biography: "biography",
                     fameRate: 0,
                     latitude: 0,
