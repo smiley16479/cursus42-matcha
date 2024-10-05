@@ -359,7 +359,7 @@ export async function removeUserPicture(userId: number, pictureIndex: number) {
     await deleteUserPictureById(userPicture.id);
 }
 
-//Helpers
+// Helpers
 
 async function removeUserPictures(userId: number) {
     const userPictures = await retrieveUserPictures(userId);

@@ -1,5 +1,5 @@
 import pool, { sql } from './pool';
-import { EInterest, IUserInput, string2EInterest, IUserPictureInput, ITotalUser } from '../types/shared_type/user';
+import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
@@ -76,18 +76,19 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 
     const sqlQuery = sql`
     SELECT u.*,
-        JSON_ARRAYAGG(ui.interest) AS interests,
+        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
+        FROM userInterests ui
+        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
         FROM userPictures up
-        WHERE up.user = u.id) AS pictures,
+        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
 
     FROM users u
-    LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE u.id = ${id};
     `;
 
@@ -102,18 +103,19 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 
     const sqlQuery = sql`
     SELECT u.*,
-        JSON_ARRAYAGG(ui.interest) AS interests,
+        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
+        FROM userInterests ui
+        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
         FROM userPictures up
-        WHERE up.user = u.id) AS pictures,
+        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
 
     FROM users u
-    LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE u.email = ${email}
     GROUP BY u.id;
     `;
@@ -129,17 +131,19 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
 
     const sqlQuery = sql`
     SELECT u.*,
-        JSON_ARRAYAGG(ui.interest) AS interests,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
-        FROM userPictures up
-        WHERE up.user = u.id) AS pictures,
+        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
+        FROM userInterests ui
+        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
+        FROM userPictures up
+        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
         
     FROM users u
-    LEFT JOIN userInterests ui ON u.id = ui.user
     WHERE BINARY u.userName = ${userName}
     GROUP BY u.id;
     `;

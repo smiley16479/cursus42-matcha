@@ -1,4 +1,5 @@
 - Créer un utilisateur avec un POST à  `/api/user/create` et un json minimal de ce genre :
+
 ```json
 {
     "email": "francois@42l.fr",
@@ -7,11 +8,13 @@
     "username": "fdeĉ",
     "password": "tesT666!!!"
 }
-``` 
+```
+
 Le mot de pass doit être 'fort'
 quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas te loguer tant que tu as pas confirmé l'email
 
 - Te login avec un POST à `/api/user/login` et un json :
+
 ```json
 {
     "username": "fdec",
@@ -21,7 +24,8 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
 
 - Te logout avec un GET à `/api/user/logout`
 - Récupérer un profile avec un GET à `/api/user/:id` en étant connecté bien sur.
-ça te donnera un json de ce genre :
+  ça te donnera un json de ce genre :
+
 ```json
 {
     "id": 1,
@@ -66,9 +70,11 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
 }
 ```
 
-- Supprimer l'utilisateur avec lequel tu es logué avec un DELETE à `/api/user/delete`
+Avec des tableaux vides si aucun interest/picture/visits est trouvé
 
+- Supprimer l'utilisateur avec lequel tu es logué avec un DELETE à `/api/user/delete`
 - Modifier les infos de l'utilisateur avec lequel tu es logué avec un PATCH à `/api/user/patch` et n'importe quelle combinaisons de ces champs :
+
 ```json
 {
     "username": "fdec",
@@ -92,6 +98,7 @@ les interests étant  visibles ici  : https://github.com/smiley16479/cursus42-ma
 
 - Demander un reset mot de pass avec un GET à `/api/user/askresetpassword/:email`
 - Uploader une image avec POST à `/api/user/picture/upload` et un form de ce genre :
+
 ```html
 <body>
   <form action="http://localhost:3000/api/user/picture/upload" method="POST" enctype="multipart/form-data">  
@@ -105,10 +112,10 @@ les interests étant  visibles ici  : https://github.com/smiley16479/cursus42-ma
   </form>
 </body>
 ```
+
 Le champ caché `index` donne l'index de l'image que tu envoies, il doit être > 0 et < 6. Si une image avec cet index pour cet utilisateur existait déja, elle est supprimée
 
 - Supprimer une image avec un DELETE à `/api/user/picture/delete/:pictureId`.
-pictureId étant l'index entre 1 et 5 pour cet utilisateur
-
+  pictureId étant l'index entre 1 et 5 pour cet utilisateur
 - Récupérer une image avec un GET à `/api/user/picture/:imageName`
-Tu peux récupérer le imageName dans le tableau `pictures` d'un utilisateur
+  Tu peux récupérer le imageName dans le tableau `pictures` d'un utilisateur
