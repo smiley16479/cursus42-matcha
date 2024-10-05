@@ -119,3 +119,6 @@ Le champ caché `index` donne l'index de l'image que tu envoies, il doit être >
   pictureId étant l'index entre 1 et 5 pour cet utilisateur
 - Récupérer une image avec un GET à `/api/user/picture/:imageName`
   Tu peux récupérer le imageName dans le tableau `pictures` d'un utilisateur
+
+
+- Récupérer une selection de max 20 profils conformes aux préférences de l'utilisateur avec un GET à `/api/match`

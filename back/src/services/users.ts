@@ -157,9 +157,7 @@ export async function patchUser(id: number, rawUser: any) {
     }
 }
 
-// Helpers
-
-function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
+export function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
     const outputUser: IUserOutput = user;
 
     if (!isSelf) {
@@ -178,6 +176,8 @@ function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
 
     return outputUser;
 }
+
+// Helpers
 
 function checkPasswordStrength(password: string) {
     const strength = passwordStrength(password);
