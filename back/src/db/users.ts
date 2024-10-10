@@ -348,7 +348,6 @@ async function deleteUserInterest(interestId: number) {
 export async function insertUserPicture(inputPicture: IUserPictureInput) {
     const connection = await pool.getConnection();
 
-    console.log(`inputPicture`, inputPicture);
     const sqlQuery = sql`INSERT INTO userPictures (
         user,
         filename,

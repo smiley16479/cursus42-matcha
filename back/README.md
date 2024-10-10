@@ -5,7 +5,7 @@
     "email": "francois@42l.fr",
     "firstName": "François",
     "lastName": "Descamps",
-    "username": "fdeĉ",
+    "userName": "fdeĉ",
     "password": "tesT666!!!"
 }
 ```
@@ -119,6 +119,10 @@ Le champ caché `index` donne l'index de l'image que tu envoies, il doit être >
   pictureId étant l'index entre 1 et 5 pour cet utilisateur
 - Récupérer une image avec un GET à `/api/user/picture/:imageName`
   Tu peux récupérer le imageName dans le tableau `pictures` d'un utilisateur
-
-
 - Récupérer une selection de max 20 profils conformes aux préférences de l'utilisateur avec un GET à `/api/match`
+
+
+## Tests
+
+
+Le script de tests `populate_db_for_test.py` peut être utilisé pour générer des profils utilisateur aléatoires et les insérer dans la base de donnée. Le nombre de profils a créer est donné en premier paramètre. Si aucun paramètre n'est donné, 500 profils vont être créés par defaut.

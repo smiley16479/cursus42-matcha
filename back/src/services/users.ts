@@ -22,11 +22,11 @@ export async function createUser(inputUser: IUserInput) {
 
     checkPasswordStrength(inputUser.password);
 
-    const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(inputUser);
+    const [hashedPassword, gender, sexualPref, biography, latitude, longitude, emailVerified] = await convertValues(inputUser);
 
     const user: IUserInputInternal = {
         email: inputUser.email,
-        emailVerified: false,
+        emailVerified: emailVerified,
         userName: inputUser.userName,
         firstName: inputUser.firstName,
         lastName: inputUser.lastName,
@@ -66,7 +66,7 @@ export async function loginUser(credentials: IUserCredentials) {
 
     if (!user)
         throw new Error('User not found');
-    if (user.emailVerified == false)
+    if (user.emailVerified == false && process.env.DEBUG != "true")
         throw new Error();
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
@@ -192,18 +192,19 @@ async function checkUserNameUniqueness(userName: string) {
         throw new Error();
 }
 
-async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number]> {
+async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number, boolean]> {
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
     let gender: EGender;
     let sexualPref: ESexualPref;
     let biography: string;
     let latitude: number;
     let longitude: number;
+    let emailVerified;
 
     if ('latitude' in rawUser) {
         latitude = parseFloat(rawUser.latitude);
         longitude = parseFloat(rawUser.longitude);
-    } else {  // TODO: compute from IP ?
+    } else {
         latitude = 0;
         longitude = 0;
     }
@@ -223,7 +224,12 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
     else
         biography = "";
 
-    return [hashedPassword, gender, sexualPref, biography, latitude, longitude];
+    if (process.env.DEBUG == "true")
+        emailVerified = true;
+    else
+        emailVerified = false;
+
+    return [hashedPassword, gender, sexualPref, biography, latitude, longitude, emailVerified];
 }
 
 /*********************************************************

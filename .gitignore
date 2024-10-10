@@ -130,3 +130,6 @@ dist
 .pnp.*
 
 .mysql-data
+
+# Test pictures
+test_pictures

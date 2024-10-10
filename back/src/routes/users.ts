@@ -33,7 +33,6 @@ router.post('/login', async function (req: Request, res: Response) {
         const [token, user] = await loginUser(req.body);
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
         }).status(200).json({
             "status": "200",
             user
@@ -231,7 +230,7 @@ const upload = multer({
     storage,
     limits: { fileSize: 10000000 }, // 10 Mo
     fileFilter: function (req, file, cb) {
-        const filetypes = /jpeg|jpg|png|gif/;
+        const filetypes = /jpeg|jpg|png|gif|webp/;
         if (filetypes.test(file.mimetype))
             cb(null, true);
         else
