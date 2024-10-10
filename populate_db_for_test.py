@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from randomtimestamp import randomtimestamp
 from datetime import datetime, timedelta
 from pathlib import Path
 from faker import Faker
@@ -124,6 +123,7 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
     response = session.post(API_URL + "user/login", json=signin_json)
     if response.status_code != 200:
         print(response)
+
     # Update
     patch_json = {
         "gender": gender,
@@ -138,6 +138,7 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
     response = session.patch(API_URL + "user/patch", json=patch_json)
     if response.status_code != 200:
         print(response)
+        
     # Upload pictures
     if actual_gender == "Female":
         picture_path = FEMALE_PICTURES_FOLDER + str(nbFemaleProfiles) + "_f.webp"
@@ -145,7 +146,8 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
         picture_path = MALE_PICTURES_FOLDER + str(nbMaleProfiles) + "_m.webp"
     picture = open(picture_path, 'rb').read()
     files = {'picture': (picture_path.split("/")[-1], picture, "image/webp")}
-    data = {'index': 1}
-    response = session.post(API_URL + "user/picture/upload", data=data, files=files)
-    if response.status_code != 200:
-        print(response)
+    for index in range(random.randint(1, 5)):
+        data = {'index': index + 1}
+        response = session.post(API_URL + "user/picture/upload", data=data, files=files)
+        if response.status_code != 200:
+            print(response)
