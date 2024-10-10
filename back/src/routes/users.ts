@@ -3,7 +3,7 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 
@@ -288,6 +288,10 @@ router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req
 
 // router.post('/addlike', async function (req: Request, res: Response) {
 //     await addNewUserLike(req.body.likedUserId, req.body.likerUserId);
+// })
+
+// router.post('/removeLike', async function (req: Request, res: Response) {
+//     await removeUserLike(req.body.likedUserId, req.body.likerUserId);
 // })
 
 export default router;

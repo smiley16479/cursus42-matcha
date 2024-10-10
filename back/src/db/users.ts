@@ -291,8 +291,8 @@ export async function updateUserInterests(userId: number, interests: string[]) {
     const connection = await pool.getConnection();
 
     const retrieveUserInterestsSqlQuery = sql`
-    SELECT * FROM userInterests WHERE
-    user = ${userId};
+        SELECT * FROM userInterests WHERE
+        user = ${userId};
     `;
 
     const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestsSqlQuery);
@@ -432,7 +432,7 @@ export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterU
         SELECT * FROM userVisits
         WHERE visited = ${visitedUserId}
         AND visiter = ${visiterUserId}
-        ;`
+    ;`
 
     const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
 
@@ -468,7 +468,7 @@ export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId
         SELECT * FROM userLikes
         WHERE liked = ${likedUserId}
         AND liker = ${likerUserId}
-        ;`
+    ;`
 
     const [rows] = await connection.query<IUserLike[]>(sqlQuery);
 
@@ -487,6 +487,20 @@ export async function insertUserLike(likedUserId: number, likerUserId: number) {
         ${likedUserId},
         ${likerUserId}
     );`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function deleteUserLike(likedUserId: number, likerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        DELETE FROM userLikes
+        WHERE liked = ${likedUserId}
+        AND liker = ${likerUserId}
+    ;`;
 
     await connection.query(sqlQuery);
 
