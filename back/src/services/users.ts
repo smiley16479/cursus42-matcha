@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserInterests, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
 
@@ -169,7 +169,7 @@ export function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutp
         delete outputUser['matchAgeMin'];
         delete outputUser['matchAgeMax'];
         delete outputUser['visits'];
-
+        delete outputUser['likes'];
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
@@ -387,4 +387,17 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
         throw new Error();
 
     insertUserVisit(visitedUserId, visiterUserId);
+}
+
+/*********************************************************
+ * ================ LIKES MANAGEMENT =====================
+ *********************************************************/
+
+export async function addNewUserLike(likedUserId: number, likerUserId: number) {
+    const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
+
+    if (existingUserLike)
+        throw new Error();
+
+    insertUserLike(likedUserId, likerUserId);
 }

@@ -1,6 +1,6 @@
 import pool, { sql } from './pool';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
-import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal } from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -86,7 +86,11 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
+        FROM userLikes ul
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
 
     FROM users u
     WHERE u.id = ${id};
@@ -113,7 +117,11 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
+        
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
+        FROM userLikes ul
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
 
     FROM users u
     WHERE u.email = ${email}
@@ -141,7 +149,11 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
 
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
         FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
+        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
+        FROM userLikes ul
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
         
     FROM users u
     WHERE BINARY u.userName = ${userName}
@@ -438,6 +450,42 @@ export async function insertUserVisit(visitedUserId: number, visiterUserId: numb
     VALUES (
         ${visitedUserId},
         ${visiterUserId}
+    );`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+/*********************************************************
+ * ================ LIKES MANAGEMENT =====================
+ *********************************************************/
+
+export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT * FROM userLikes
+        WHERE liked = ${likedUserId}
+        AND liker = ${likerUserId}
+        ;`
+
+    const [rows] = await connection.query<IUserLike[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function insertUserLike(likedUserId: number, likerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO userLikes (
+        liked,
+        liker
+    )
+    VALUES (
+        ${likedUserId},
+        ${likerUserId}
     );`
 
     await connection.query(sqlQuery);

@@ -49,7 +49,14 @@ export interface IUserPicture extends RowDataPacket, IUserPictureInput {
 
 export interface IUserVisit extends RowDataPacket {
   id: number,
-  visiter: number,
   visited: number,
+  visiter: number,
+  createdAt: Date
+}
+
+export interface IUserLike extends RowDataPacket {
+  id: number,
+  liked: number,
+  liker: number,
   createdAt: Date
 }
