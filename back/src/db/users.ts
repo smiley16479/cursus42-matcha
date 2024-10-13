@@ -1,6 +1,6 @@
 import pool, { sql } from './pool';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
-import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike } from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 
 
@@ -510,6 +510,21 @@ export async function deleteUserLike(likedUserId: number, likerUserId: number) {
 /*********************************************************
  * ================ BLOCKS MANAGEMENT =====================
  *********************************************************/
+
+export async function retrieveUserBlockFromUsers(blockedUserId: number, blockerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT * FROM userBlocks
+        WHERE blocked = ${blockedUserId}
+        AND blocker = ${blockerUserId}
+    ;`
+
+    const [rows] = await connection.query<IUserBlock[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
 
 export async function insertUserBlock(blockedUserId: number, blockerUserId: number) {
     const connection = await pool.getConnection();

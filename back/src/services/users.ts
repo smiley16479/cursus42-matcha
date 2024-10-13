@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
 
@@ -411,7 +411,7 @@ export async function removeUserLike(likedUserId: number, likerUserId: number) {
  *********************************************************/
 
 export async function addNewBlock(blockedUserId: number, blockerUserId: number) {
-    const existingUserBlock = await retrieveUserLikeFromUsers(blockedUserId, blockerUserId);
+    const existingUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
 
     if (existingUserBlock)
         throw new Error();

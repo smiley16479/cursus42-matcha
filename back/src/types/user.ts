@@ -60,3 +60,10 @@ export interface IUserLike extends RowDataPacket {
   liker: number,
   createdAt: Date
 }
+
+export interface IUserBlock extends RowDataPacket {
+  id: number,
+  blocked: number,
+  bocker: number,
+  createdAt: Date
+}
