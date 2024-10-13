@@ -506,3 +506,38 @@ export async function deleteUserLike(likedUserId: number, likerUserId: number) {
 
     connection.release();
 }
+
+/*********************************************************
+ * ================ BLOCKS MANAGEMENT =====================
+ *********************************************************/
+
+export async function insertUserBlock(blockedUserId: number, blockerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO userBlocks (
+        blocked,
+        blocker
+    )
+    VALUES (
+        ${blockedUserId},
+        ${blockerUserId}
+    );`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function deleteUserBlock(blockedUserId: number, blockerUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        DELETE FROM userBlocks
+        WHERE blocked = ${blockedUserId}
+        AND blocker = ${blockerUserId}
+    ;`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}

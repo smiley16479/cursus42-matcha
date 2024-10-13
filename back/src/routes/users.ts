@@ -3,7 +3,7 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { addNewBlock, addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 
@@ -292,6 +292,14 @@ router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req
 
 // router.post('/removeLike', async function (req: Request, res: Response) {
 //     await removeUserLike(req.body.likedUserId, req.body.likerUserId);
+// })
+
+// router.post('/addBlock', async function (req: Request, res: Response) {
+//     await addNewBlock(req.body.blockedUserId, req.body.blockerUserId);
+// })
+
+// router.post('/removeBlock', async function (req: Request, res: Response) {
+//     await removeUserBlock(req.body.blockedUserId, req.body.blockerUserId);
 // })
 
 export default router;

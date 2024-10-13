@@ -113,7 +113,20 @@ export default async function initDb() {
         );
     `;
 
-    await connection.query(userLikesTableQuery);    
+    await connection.query(userLikesTableQuery);
+
+    // Create userBocked table
+
+    const userBocksTableQuery = `
+        CREATE TABLE IF NOT EXISTS userBlocks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        blocked INT NOT NULL,
+        blocker INT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(userBocksTableQuery);
 
     connection.release();
 }
