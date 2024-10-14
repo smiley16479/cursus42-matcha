@@ -1,4 +1,4 @@
-import pool, { sql } from './pool';
+import pool, { interestsAggregationSubQuery, likesAggregationSubQuery, notificationsAggregationSubQuery, picturesAggregationSubQuery, sql, visitsAggregationSubQuery } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
@@ -77,26 +77,11 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 
     const sqlQuery = sql`
     SELECT u.*,
-        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
-        FROM userInterests ui
-        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
-        FROM userPictures up
-        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
-        FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
-        FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
-        FROM notifications n
-        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
-
+        ${interestsAggregationSubQuery},
+        ${picturesAggregationSubQuery},
+        ${visitsAggregationSubQuery},
+        ${likesAggregationSubQuery},
+        ${notificationsAggregationSubQuery}
     FROM users u
     WHERE u.id = ${id};
     `;
@@ -112,26 +97,11 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 
     const sqlQuery = sql`
     SELECT u.*,
-        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
-        FROM userInterests ui
-        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
-        FROM userPictures up
-        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
-        FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
-        
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
-        FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
-        FROM notifications n
-        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
-
+        ${interestsAggregationSubQuery},
+        ${picturesAggregationSubQuery},
+        ${visitsAggregationSubQuery},
+        ${likesAggregationSubQuery},
+        ${notificationsAggregationSubQuery}
     FROM users u
     WHERE u.email = ${email}
     GROUP BY u.id;
@@ -148,26 +118,11 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
 
     const sqlQuery = sql`
     SELECT u.*,
-        COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
-        FROM userInterests ui
-        WHERE ui.user = u.id), JSON_ARRAY()) AS interests,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
-        FROM userPictures up
-        WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
-        FROM userVisits uv
-        WHERE uv.visited = u.id), JSON_ARRAY()) AS visits,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
-        FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
-
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
-        FROM notifications n
-        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
-        
+        ${interestsAggregationSubQuery},
+        ${picturesAggregationSubQuery},
+        ${visitsAggregationSubQuery},
+        ${likesAggregationSubQuery},
+        ${notificationsAggregationSubQuery}
     FROM users u
     WHERE BINARY u.userName = ${userName}
     GROUP BY u.id;

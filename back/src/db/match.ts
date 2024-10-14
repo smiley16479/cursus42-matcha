@@ -1,7 +1,7 @@
 import { Sql } from "sql-template-tag";
 import { EGender, ESexualPref } from "../types/shared_type/user";
 import { IUserDb } from "../types/user";
-import pool, { sql } from "./pool";
+import pool, { sql } from "./dbUtils";
 
 export async function retrieveMatchingUsers(user: IUserDb): Promise<IUserDb[]> {
     const connection = await pool.getConnection();
@@ -48,7 +48,6 @@ export async function retrieveMatchingUsers(user: IUserDb): Promise<IUserDb[]> {
     `;
     
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
-    console.log(rows);
 
     connection.release();
     return (rows);

@@ -1,4 +1,4 @@
-import pool from './pool';
+import pool from './dbUtils';
 
 export default async function initDb() {
 
