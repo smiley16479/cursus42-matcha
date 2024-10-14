@@ -115,7 +115,7 @@ export default async function initDb() {
 
     await connection.query(userLikesTableQuery);
 
-    // Create userBocked table
+    // Create userBlocks table
 
     const userBocksTableQuery = `
         CREATE TABLE IF NOT EXISTS userBlocks (

@@ -34,14 +34,14 @@ export async function retrieveMatchingUsers(user: IUserDb): Promise<IUserDb[]> {
 
             COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
             FROM userPictures up
-            WHERE up.user = u.id), JSON_ARRAY()) AS pictures,
-
-            COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
-            FROM userVisits uv
-            WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
+            WHERE up.user = u.id), JSON_ARRAY()) AS pictures
 
         FROM users u
-        ${genderFilterSqlQuery} AND u.id != ${user.id}
+        ${genderFilterSqlQuery}
+        AND u.id != ${user.id}
+        AND u.id NOT IN (
+            SELECT blocked FROM userBlocks WHERE blocker = ${user.id}
+        )
         GROUP BY u.id
         ORDER BY score DESC
         LIMIT 20;
