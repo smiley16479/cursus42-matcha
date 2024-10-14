@@ -7,9 +7,10 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
-import { deleteEmailConfirmationToken, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateNotificationRead, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
+import { Notif_t_E } from '../types/shared_type/notification';
 
 
 /*********************************************************
@@ -170,6 +171,7 @@ export function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutp
         delete outputUser['matchAgeMax'];
         delete outputUser['visits'];
         delete outputUser['likes'];
+        delete outputUser['notifications'];
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
@@ -422,4 +424,20 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
 
 export async function removeUserBlock(blockedUserId: number, blockerUserId: number) {
     deleteUserBlock(blockedUserId, blockerUserId);
+}
+
+/*********************************************************
+ * ============ NOTIFICATIONS MANAGEMENT =================
+ *********************************************************/
+
+export async function addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E) {
+    insertNotification(userId, involvedUserId, type, false);
+}
+
+export async function markNotificationRead(notifId: number) {
+    updateNotificationRead(notifId);
+}
+
+export async function removeNotification(notifId: number) {
+    deleteNotification(notifId);
 }

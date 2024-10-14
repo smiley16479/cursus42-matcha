@@ -2,6 +2,7 @@ import pool, { sql } from './pool';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
+import { Notif_t_E } from '../types/shared_type/notification';
 
 
 /*********************************************************
@@ -90,7 +91,11 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
 
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
         FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
+        FROM notifications n
+        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
 
     FROM users u
     WHERE u.id = ${id};
@@ -121,7 +126,11 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
         
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
         FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
+        FROM notifications n
+        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
 
     FROM users u
     WHERE u.email = ${email}
@@ -153,7 +162,11 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
 
         COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
         FROM userLikes ul
-        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
+        WHERE ul.liked = u.id), JSON_ARRAY()) AS likes,
+
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
+        FROM notifications n
+        WHERE n.user = u.id), JSON_ARRAY()) AS notifications
         
     FROM users u
     WHERE BINARY u.userName = ${userName}
@@ -555,4 +568,50 @@ export async function deleteUserBlock(blockedUserId: number, blockerUserId: numb
     await connection.query(sqlQuery);
 
     connection.release();
+}
+
+/*********************************************************
+ * ============ NOTIFICATIONS MANAGEMENT =================
+ *********************************************************/
+
+export async function insertNotification(userId: number, involvedUserId: number, type: Notif_t_E, isRead: boolean) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO notifications (
+        user,
+        involvedUser,
+        type,
+        isRead
+    )
+    VALUES (
+        ${userId},
+        ${involvedUserId},
+        ${type},
+        ${isRead}
+    );`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function updateNotificationRead(notifId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`UPDATE notifications SET isRead = true WHERE id = ${notifId};`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
+export async function deleteNotification(notifId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`DELETE FROM notifications WHERE id = ${notifId};`;
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+
 }

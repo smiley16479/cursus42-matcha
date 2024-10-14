@@ -96,8 +96,8 @@ export interface IUserCredentials {
 }
 
 export type UserPic_t = {
-	    filename: string,
-	    pictureIndex: number
+    filename: string,
+    pictureIndex: number
 }
 
 export interface IUserPictureInput {
@@ -109,7 +109,7 @@ export interface IUserPictureInput {
 // Helpers
 
 export function string2EInterest(interestString: string): EInterest {
-    const interest =  Object.values(EInterest).find(entry => entry === interestString);
+    const interest = Object.values(EInterest).find(entry => entry === interestString);
     if (!interest)
         throw new TypeError;
     return interest;

@@ -22,12 +22,12 @@ export default async function initDb() {
         latitude DECIMAL(15, 10),
         longitude DECIMAL(15, 10),
         lastConnection TIMESTAMP NOT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         profileVisibility BOOLEAN NOT NULL,
         emailNotifications BOOLEAN NOT NULL,
         maxDistance INT NOT NULL,
         matchAgeMin INT NOT NULL,
-        matchAgeMax INT NOT NULL 
+        matchAgeMax INT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
 
@@ -127,6 +127,21 @@ export default async function initDb() {
     `;
 
     await connection.query(userBocksTableQuery);
+
+    // Create notifications table
+
+    const notificationsTableQuery = `
+        CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user INT NOT NULL,
+        involvedUser INT NOT NULL,
+        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
+        isRead BOOLEAN NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(notificationsTableQuery);
 
     connection.release();
 }
