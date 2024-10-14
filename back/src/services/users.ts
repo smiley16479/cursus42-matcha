@@ -9,7 +9,7 @@ import path from "node:path";
 import nodemailer from 'nodemailer';
 import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserVisitFromUsers, updateNotificationRead, updateUser, updateUserInterests } from "../db/users";
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
-import { IEmailConfirmToken, IResetPasswordToken, IUserDb, IUserInputInternal } from '../types/user';
+import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { Notif_t_E } from '../types/shared_type/notification';
 
 
@@ -419,7 +419,15 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
         throw new Error();
 
     insertUserBlock(blockedUserId, blockerUserId);
+}
 
+export async function getUserBlock(blockedUserId: number, blockerUserId: number) {
+    const userBlock: IUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
+    if (!userBlock || !userBlock.id) {
+        return null;
+    }
+
+    return userBlock;
 }
 
 export async function removeUserBlock(blockedUserId: number, blockerUserId: number) {
@@ -431,7 +439,9 @@ export async function removeUserBlock(blockedUserId: number, blockerUserId: numb
  *********************************************************/
 
 export async function addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E) {
-    insertNotification(userId, involvedUserId, type, false);
+    const block = await getUserBlock(involvedUserId, userId);
+    if (!block)
+        insertNotification(userId, involvedUserId, type, false);
 }
 
 export async function markNotificationRead(notifId: number) {
