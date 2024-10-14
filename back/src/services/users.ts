@@ -82,7 +82,7 @@ export async function loginUser(credentials: IUserCredentials) {
 
     const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
 
-    return [ token, outputUser ];
+    return [token, outputUser];
 }
 
 export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput | null> {
@@ -108,29 +108,31 @@ export async function removeUser(id: number) {
 
 export async function patchUser(id: number, rawUser: any) {
 
-    for (const key of Object.keys(rawUser)) {
-        switch (key.toLowerCase()) {
-            case "id":
-                delete rawUser[key];
-                break;
-            case "emailverified":
-                delete rawUser[key];
-                break;
-            case "password":
-                delete rawUser[key];
-                break;
-            case "famerate":
-                delete rawUser[key];
-                break;
-            case "lastconnection":
-                delete rawUser[key];
-                break;
-            case "createdat":
-                delete rawUser[key];
-                break;
-            case "userName":
-                delete rawUser[key];
-                break;
+    if (process.env.DEBUG != "true") {
+        for (const key of Object.keys(rawUser)) {
+            switch (key.toLowerCase()) {
+                case "id":
+                    delete rawUser[key];
+                    break;
+                case "emailverified":
+                    delete rawUser[key];
+                    break;
+                case "password":
+                    delete rawUser[key];
+                    break;
+                case "famerate":
+                    delete rawUser[key];
+                    break;
+                case "lastconnection":
+                    delete rawUser[key];
+                    break;
+                case "createdat":
+                    delete rawUser[key];
+                    break;
+                case "userName":
+                    delete rawUser[key];
+                    break;
+            }
         }
     }
 

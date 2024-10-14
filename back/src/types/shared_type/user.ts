@@ -67,9 +67,9 @@ export interface IUserInput extends IMinimalUser {
 
 export interface IUserOutput extends IMinimalUser {
     id: number,
+    age: number,
     gender: EGender,
     sexualPref: ESexualPref,
-    age: number,
     biography: string,
     fameRate: number,
     latitude: number,

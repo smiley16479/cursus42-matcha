@@ -95,6 +95,8 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
     lastName = names.get_last_name()
     userName = firstName + lastName[:1] + str(random.randint(1000, 2000))
     password = "tesT123!!!"
+    age = random.randint(18, 99)
+    fameRate = random.randint(0, 100)
     sexualPref = random.choice(list(ESexualPref)).value
     biography = lorem.paragraph()
     [latitude, longitude, *_] = fake.local_latlng(country_code='FR')
@@ -126,6 +128,8 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
 
     # Update
     patch_json = {
+        "age": age,
+        "fameRate": fameRate,
         "gender": gender,
         "sexualPref": sexualPref,
         "biography": biography,
