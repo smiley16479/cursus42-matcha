@@ -45,8 +45,8 @@ export async function insertUser(inputuser: IUserInputInternal): Promise<number 
         ${inputuser.age},
         ${inputuser.biography},
         ${inputuser.fameRate},
-        ${inputuser.longitude},
         ${inputuser.latitude},
+        ${inputuser.longitude},
         ${inputuser.lastConnection},
         ${inputuser.profileVisibility},
         ${inputuser.emailNotifications},
@@ -104,7 +104,6 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
         ${notificationsAggregationSubQuery}
     FROM users u
     WHERE u.email = ${email}
-    GROUP BY u.id;
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
@@ -125,7 +124,6 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
         ${notificationsAggregationSubQuery}
     FROM users u
     WHERE BINARY u.userName = ${userName}
-    GROUP BY u.id;
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
