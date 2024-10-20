@@ -101,7 +101,7 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
     biography = lorem.paragraph()
     [latitude, longitude, *_] = fake.local_latlng(country_code='FR')
     lastConnection = str(datetime.now() - timedelta(days=random.uniform(0, 365)))
-    interests = [random.choice(list(EInterest)).value for _ in range(random.randint(0, 20))]
+    interests = random.sample(list(map(lambda c: c.value, EInterest)), random.randint(0, 20))
 
     # Signup
     signup_json = {
