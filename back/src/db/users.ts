@@ -1,4 +1,4 @@
-import pool, { interestsAggregationSubQuery, likesAggregationSubQuery, notificationsAggregationSubQuery, picturesAggregationSubQuery, sql, visitsAggregationSubQuery } from './dbUtils';
+import pool, { cleanUserDb, sql, userInterestsCTE, userLikesCTE, userNotificationsCTE, userPicturesCTE, userVisitsCTE } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
@@ -76,60 +76,99 @@ export async function retrieveUserFromId(id: number): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`
-    SELECT u.*,
-        ${interestsAggregationSubQuery},
-        ${picturesAggregationSubQuery},
-        ${visitsAggregationSubQuery},
-        ${likesAggregationSubQuery},
-        ${notificationsAggregationSubQuery}
-    FROM users u
-    WHERE u.id = ${id};
+        WITH
+            ${userInterestsCTE},
+            ${userPicturesCTE},
+            ${userVisitsCTE},
+            ${userLikesCTE},
+            ${userNotificationsCTE}
+        SELECT u.*,
+            ui.interests AS interests,
+            up.pictures AS pictures,
+            uv.visits AS visits,
+            ul.likes AS likes,
+            n.notifications AS notifications
+        FROM users u
+            LEFT JOIN user_interests ui ON ui.user = u.id
+            LEFT JOIN user_pictures up ON up.user = u.id
+            LEFT JOIN user_visits uv ON uv.visited = u.id
+            LEFT JOIN user_likes ul ON ul.liked = u.id
+            LEFT JOIN user_notifications n ON n.user = u.id
+        WHERE u.id = ${id};
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
+    const user = cleanUserDb(rows[0]);
+
     connection.release();
-    return rows[0];
+    return user;
 }
 
 export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`
-    SELECT u.*,
-        ${interestsAggregationSubQuery},
-        ${picturesAggregationSubQuery},
-        ${visitsAggregationSubQuery},
-        ${likesAggregationSubQuery},
-        ${notificationsAggregationSubQuery}
-    FROM users u
-    WHERE u.email = ${email}
+        WITH
+            ${userInterestsCTE},
+            ${userPicturesCTE},
+            ${userVisitsCTE},
+            ${userLikesCTE},
+            ${userNotificationsCTE}
+        SELECT u.*,
+            ui.interests AS interests,
+            up.pictures AS pictures,
+            uv.visits AS visits,
+            ul.likes AS likes,
+            n.notifications AS notifications
+        FROM users u
+            LEFT JOIN user_interests ui ON ui.user = u.id
+            LEFT JOIN user_pictures up ON up.user = u.id
+            LEFT JOIN user_visits uv ON uv.visited = u.id
+            LEFT JOIN user_likes ul ON ul.liked = u.id
+            LEFT JOIN user_notifications n ON n.user = u.id
+        WHERE u.email = ${email}
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
+    const user = cleanUserDb(rows[0]);
+
     connection.release();
-    return rows[0];
+    return user;
 }
 
 export async function retrieveUserFromUserName(userName: string): Promise<IUserDb> {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`
-    SELECT u.*,
-        ${interestsAggregationSubQuery},
-        ${picturesAggregationSubQuery},
-        ${visitsAggregationSubQuery},
-        ${likesAggregationSubQuery},
-        ${notificationsAggregationSubQuery}
-    FROM users u
-    WHERE BINARY u.userName = ${userName}
+        WITH
+            ${userInterestsCTE},
+            ${userPicturesCTE},
+            ${userVisitsCTE},
+            ${userLikesCTE},
+            ${userNotificationsCTE}
+        SELECT u.*,
+            ui.interests AS interests,
+            up.pictures AS pictures,
+            uv.visits AS visits,
+            ul.likes AS likes,
+            n.notifications AS notifications
+        FROM users u
+            LEFT JOIN user_interests ui ON ui.user = u.id
+            LEFT JOIN user_pictures up ON up.user = u.id
+            LEFT JOIN user_visits uv ON uv.visited = u.id
+            LEFT JOIN user_likes ul ON ul.liked = u.id
+            LEFT JOIN user_notifications n ON n.user = u.id
+        WHERE BINARY u.userName = ${userName}
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
 
+    const user = cleanUserDb(rows[0]);
+
     connection.release();
-    return rows[0];
+    return user;
 }
 
 export async function deleteUser(id: number) {

@@ -1,6 +1,7 @@
 import mysql from 'mysql2';
 import { PoolConnection } from 'mysql2/promise';
 import sql from 'sql-template-tag';
+import { IUserDb } from '../types/user';
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -27,35 +28,54 @@ do {
 
 console.log("Connected to database");
 
-export const interestsAggregationSubQuery = sql`
-    COALESCE((SELECT JSON_ARRAYAGG(ui.interest)
-    FROM userInterests ui
-    WHERE ui.user = u.id), JSON_ARRAY()) AS interests
-`;
-
-export const picturesAggregationSubQuery = sql`
-    COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex))
-    FROM userPictures up
-    WHERE up.user = u.id), JSON_ARRAY()) AS pictures
-`;
-
-export const visitsAggregationSubQuery = sql`
-    COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter))
-    FROM userVisits uv
-    WHERE uv.visited = u.id), JSON_ARRAY()) AS visits
-`;
-
-export const likesAggregationSubQuery = sql`
-    COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker))
-    FROM userLikes ul
-    WHERE ul.liked = u.id), JSON_ARRAY()) AS likes
-`;
-
-export const notificationsAggregationSubQuery = sql`
-    COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead))
-    FROM notifications n
-    WHERE n.user = u.id), JSON_ARRAY()) AS notifications
-`;
-
 export default pool;
+
+export const userInterestsCTE = sql`
+    user_interests AS (
+    SELECT ui.user, JSON_ARRAYAGG(ui.interest) AS interests
+    FROM userInterests ui
+    GROUP BY ui.user
+)`
+
+export const userPicturesCTE = sql`
+    user_pictures AS (
+    SELECT up.user, JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex)) AS pictures
+    FROM userPictures up
+    GROUP BY up.user
+)`
+export const userVisitsCTE = sql`
+    user_visits AS (
+    SELECT uv.visited, JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter)) AS visits
+    FROM userVisits uv
+    GROUP BY uv.visited
+)`
+export const userLikesCTE = sql`
+    user_likes AS (
+    SELECT ul.liked, JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker)) AS likes
+    FROM userLikes ul
+    GROUP BY ul.liked
+)`
+export const userNotificationsCTE = sql`
+    user_notifications AS (
+    SELECT n.user, JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead)) AS notifications
+    FROM notifications n
+    GROUP BY n.user
+)`
+
+export function cleanUserDb(user: IUserDb) {
+    if (!user)
+        return user;
+    if (user.interests === null)
+        user.interests = [];
+    if (user.pictures === null)
+        user.pictures = []
+    if (user.visits === null)
+        user.visits = []
+    if (user.likes === null)
+        user.likes = []
+    if (user.notifications === null)
+        user.notifications = []
+    return user;
+}
+
 export { default as sql } from 'sql-template-tag';
