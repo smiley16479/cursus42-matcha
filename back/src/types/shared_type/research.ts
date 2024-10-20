@@ -1,6 +1,7 @@
-import { EInterest } from "./user";
+import { EGender, EInterest } from "./user";
 
 export interface IResearchCriterias {
+    requiredGender: EGender,
     minAge: number,
     maxAge: number,
     minFameRate: number,
