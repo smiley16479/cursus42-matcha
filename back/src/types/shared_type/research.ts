@@ -8,5 +8,5 @@ export interface IResearchCriterias {
     locationLatitude: number,
     locationLongitude: number,
     maxDistance: number,
-    interest: EInterest[]
+    interests: EInterest[]
 }
