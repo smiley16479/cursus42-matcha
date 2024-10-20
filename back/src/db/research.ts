@@ -5,8 +5,6 @@ import pool, { sql, userInterestsCTE, userPicturesCTE } from "./dbUtils";
 export async function retrieveResearchedUsers(userId: number, criterias: IResearchCriterias): Promise<IUserDb[]> {
     const connection = await pool.getConnection();
 
-    console.log(criterias)
-
     const sqlQuery = sql`
         WITH
             ${userInterestsCTE},
@@ -31,7 +29,9 @@ export async function retrieveResearchedUsers(userId: number, criterias: IResear
             )
             < ${criterias.maxDistance * 1000}
             AND JSON_CONTAINS(ui.interests, JSON_ARRAY(${criterias.interests}))
-        LIMIT 20;
+
+        LIMIT ${criterias.nbRequiredProfiles}
+        OFFSET ${criterias.offset};
     `;
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
