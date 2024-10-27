@@ -1,5 +1,17 @@
 import { EGender, EInterest } from "./user";
 
+export enum ESortOn {
+    FameRate = "fameRate",
+    Distance = "distance",
+    Age = "age",
+    Interests = "interests"
+}
+
+export enum ESortingType {
+    Ascending = "asc",
+    Descending = "desc"
+}
+
 export interface IResearchCriterias {
     requiredGender: EGender,
     minAge: number,
@@ -11,5 +23,7 @@ export interface IResearchCriterias {
     maxDistance: number,
     interests: EInterest[],
     nbRequiredProfiles: number,
-    offset: number
+    offset: number,
+    sortingOn: ESortOn,
+    sortingType: ESortingType
 }
