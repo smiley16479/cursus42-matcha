@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { jwtAuthCheck } from '../middleware/auth';
-import { getMatchCandidates } from '../services/match';
+import { getMatchCandidates } from '../services/browse';
 import { IUserOutput } from '../types/shared_type/user';
 
 

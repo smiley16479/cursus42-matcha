@@ -9,7 +9,7 @@ import 'dotenv/config';
 import initDb from './db/init';
 
 import usersRouter from './routes/users';
-import matchRouter from './routes/match';
+import browseRouter from './routes/browse';
 import researchRouter from './routes/research';
 import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
@@ -38,7 +38,7 @@ app.use('/api/user/picture', jwtAuthCheck, express.static(uploadDir));
 
 /* Add here next routeurs */
 app.use('/api/user', usersRouter);
-app.use('/api/match', matchRouter);
+app.use('/api/browse', browseRouter);
 app.use('/api/research', researchRouter);
 
 /* catch 404 and forward to error handler */

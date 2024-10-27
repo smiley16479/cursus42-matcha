@@ -1,4 +1,4 @@
-import { retrieveMatchingUsers } from "../db/match";
+import { retrieveMatchingUsers } from "../db/browse";
 import { retrieveUserFromId } from "../db/users";
 import { IUserOutput } from "../types/shared_type/user";
 import { IUserDb } from "../types/user";
