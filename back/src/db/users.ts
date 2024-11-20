@@ -1,6 +1,6 @@
 import pool, { cleanUserDb, sql } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
-import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock } from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock, IUserReport } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 import { Notif_t_E } from '../types/shared_type/notification';
 
@@ -513,6 +513,43 @@ export async function deleteUserBlock(blockedUserId: number, blockerUserId: numb
 
     connection.release();
 }
+
+/**********************************************************
+ * ================ REPORTS MANAGEMENT ====================
+ *********************************************************/
+
+export async function retrieveUserReportFromUsers(reportedUserId: number, reporterUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT * FROM userReports
+        WHERE reported = ${reportedUserId}
+        AND reporter = ${reporterUserId}
+    ;`
+
+    const [rows] = await connection.query<IUserReport[]>(sqlQuery);
+
+    connection.release();
+    return rows[0];
+}
+
+export async function insertUserReport(reportedUserId: number, reporterUserId: number) {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`INSERT INTO userReports (
+        reported,
+        reporter
+    )
+    VALUES (
+        ${reportedUserId},
+        ${reporterUserId}
+    );`
+
+    await connection.query(sqlQuery);
+
+    connection.release();
+}
+
 
 /*********************************************************
  * ============ NOTIFICATIONS MANAGEMENT =================

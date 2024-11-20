@@ -64,6 +64,13 @@ export interface IUserLike extends RowDataPacket {
 export interface IUserBlock extends RowDataPacket {
   id: number,
   blocked: number,
-  bocker: number,
+  blocker: number,
+  createdAt: Date
+}
+
+export interface IUserReport extends RowDataPacket {
+  id: number,
+  reported: number,
+  reporter: number,
   createdAt: Date
 }

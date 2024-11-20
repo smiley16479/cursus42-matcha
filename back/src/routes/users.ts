@@ -3,10 +3,9 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { addNewBlock, addNewUserLike, addNewUserVisit, addNewNotification, createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification } from '../services/users';
+import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification, addNewReport } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
-import { string2Notif_t_E } from '../types/shared_type/notification';
 
 
 let router = express.Router();
@@ -301,6 +300,10 @@ router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req
 
 // router.post('/removeBlock', async function (req: Request, res: Response) {
 //     await removeUserBlock(req.body.blockedUserId, req.body.blockerUserId);
+// })
+
+// router.post('/addReport', async function (req: Request, res: Response) {
+//     await addNewReport(req.body.reportedUserId, req.body.reporterUserId);
 // })
 
 // router.post('/addnotification', async function (req: Request, res: Response) {

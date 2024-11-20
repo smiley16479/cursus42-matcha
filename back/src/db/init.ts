@@ -128,6 +128,19 @@ export default async function initDb() {
 
     await connection.query(userBocksTableQuery);
 
+    // Create userBlocks table
+
+    const userReportsTableQuery = `
+        CREATE TABLE IF NOT EXISTS userReports (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        reported INT NOT NULL,
+        reporter INT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(userReportsTableQuery);
+
     // Create notifications table
 
     const notificationsTableQuery = `
