@@ -1,7 +1,7 @@
 import { Sql } from "sql-template-tag";
 import { ESortingType, ESortOn, IResearchCriterias } from "../types/shared_type/research";
 import { IUserDb } from "../types/user";
-import pool, { sql, userInterestsCTE, userPicturesCTE } from "./dbUtils";
+import pool, { sql } from "./dbUtils";
 
 export async function retrieveResearchedUsers(userId: number, criterias: IResearchCriterias): Promise<IUserDb[]> {
     const connection = await pool.getConnection();
@@ -34,32 +34,35 @@ export async function retrieveResearchedUsers(userId: number, criterias: IResear
 
     const sqlQuery = sql`
         WITH
-            ${userInterestsCTE},
-            ${userPicturesCTE}
-        SELECT u.*,
-            ui.interests AS interests,
-            up.pictures AS pictures,
-            ST_Distance_Sphere(
-                POINT(u.latitude, u.longitude),
-                POINT(${criterias.locationLatitude}, ${criterias.locationLongitude})
-            ) AS distance
-        FROM users u
-            LEFT JOIN user_interests ui ON ui.user = u.id
-            LEFT JOIN user_pictures up ON up.user = u.id
+            user_distance AS
+            (
+                SELECT
+                    id AS user,
+                    ST_Distance_Sphere(
+                        POINT(latitude, longitude),
+                        POINT(${criterias.locationLatitude}, ${criterias.locationLongitude})
+                    ) AS distance
+                FROM
+                    users
+            )
+
+        SELECT
+            fu.*,
+            ud.distance AS distance
+        FROM
+            fullUsers fu
+            LEFT JOIN user_distance ud ON ud.user = fu.id
+
         WHERE
-            u.id != ${userId}
-            AND u.id NOT IN (
+            fu.id != ${userId}
+            AND fu.id NOT IN (
                 SELECT blocked FROM userBlocks WHERE blocker = ${userId}
             )
-            AND u.gender = ${criterias.requiredGender}
-            AND u.age BETWEEN ${criterias.minAge} AND ${criterias.maxAge}
-            AND u.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
-            AND JSON_CONTAINS(ui.interests, JSON_ARRAY(${criterias.interests}))
-            AND ST_Distance_Sphere(
-                POINT(u.latitude, u.longitude),
-                POINT(${criterias.locationLatitude}, ${criterias.locationLongitude})
-            )
-            < ${criterias.maxDistance * 1000}
+            AND fu.gender = ${criterias.requiredGender}
+            AND fu.age BETWEEN ${criterias.minAge} AND ${criterias.maxAge}
+            AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
+            AND distance < ${criterias.maxDistance * 1000}
+            AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests}))
 
         ${sortingSqlQuery}
         LIMIT ${criterias.nbRequiredProfiles}

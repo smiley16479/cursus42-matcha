@@ -143,5 +143,75 @@ export default async function initDb() {
 
     await connection.query(notificationsTableQuery);
 
+    // Create full users view
+
+    const fullUserViewQuery = `
+        CREATE OR REPLACE VIEW fullUsers AS (
+            WITH
+                user_interests AS (
+                    SELECT
+                        ui.user,
+                        JSON_ARRAYAGG(ui.interest) AS interests
+                    FROM
+                        userInterests ui
+                    GROUP BY
+                        ui.user
+                ),
+                user_pictures AS (
+                    SELECT
+                        up.user,
+                        JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex)) AS pictures
+                    FROM
+                        userPictures up
+                    GROUP BY
+                        up.user
+                ),
+                user_visits AS (
+                    SELECT
+                        uv.visited,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter)) AS visits
+                    FROM
+                        userVisits uv
+                    GROUP BY
+                        uv.visited
+                ),
+                user_likes AS (
+                    SELECT
+                        ul.liked,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker)) AS likes
+                    FROM
+                        userLikes ul
+                    GROUP BY
+                        ul.liked
+                ),
+                user_notifications AS (
+                    SELECT
+                        n.user,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead)) AS notifications
+                    FROM
+                        notifications n
+                    GROUP BY
+                        n.user
+                )
+
+            SELECT
+                u.*,
+                ui.interests AS interests,
+                up.pictures AS pictures,
+                uv.visits AS visits,
+                ul.likes AS likes,
+                n.notifications AS notifications
+
+            FROM users u
+                LEFT JOIN user_interests ui ON ui.user = u.id
+                LEFT JOIN user_pictures up ON up.user = u.id
+                LEFT JOIN user_visits uv ON uv.visited = u.id
+                LEFT JOIN user_likes ul ON ul.liked = u.id
+                LEFT JOIN user_notifications n ON n.user = u.id
+        );
+    `;
+
+    await connection.query(fullUserViewQuery);
+
     connection.release();
 }
