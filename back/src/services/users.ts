@@ -147,14 +147,17 @@ export async function patchUser(id: number, rawUser: any) {
                 rawUser.emailVerified = false;
             }
         }
-        await updateUser(id, rawUser);
+
+        if ('interests' in rawUser) {
+            await updateUserInterests(id, rawUser.interests);
+            delete rawUser.interests;
+        }
+        if (Object.keys(rawUser).length != 0)
+            await updateUser(id, rawUser);
 
         if (isEmailUpdated)
             sendVerificationEmail(id);
 
-        if ('interests' in rawUser) {
-            await updateUserInterests(id, rawUser.interests);
-        }
     } catch (error) {
         throw error;
     }
