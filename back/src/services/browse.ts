@@ -9,8 +9,9 @@ export async function getMatchCandidates(userId: number, browseCriterias: IBrows
     const user: IUserDb = await retrieveUserFromId(userId);
 
     const users: IUserDb[] = await retrieveMatchingUsers(user, browseCriterias);
+
     const outputUsers: IUserOutput[] = users.map((user): IUserOutput => {
         return (sanitizeUserForOutput(user, false));
     });
-    return (outputUsers);
+    return outputUsers;
 }

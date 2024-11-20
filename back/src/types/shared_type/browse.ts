@@ -4,7 +4,8 @@ export enum ESortOn {
     FameRate = "fameRate",
     Distance = "distance",
     Age = "age",
-    Interests = "interests"
+    Interests = "interests",
+    Score = "score"
 }
 
 export enum ESortingType {

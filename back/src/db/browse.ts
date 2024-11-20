@@ -1,9 +1,39 @@
 import { IUserDb } from "../types/user";
 import pool, { sql } from "./dbUtils";
-import { IBrowseCriterias } from "../types/shared_type/browse";
+import { ESortingType, ESortOn, IBrowseCriterias } from "../types/shared_type/browse";
+import { Sql } from "sql-template-tag";
 
 export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCriterias): Promise<IUserDb[]> {
     const connection = await pool.getConnection();
+
+    let sortingSqlQuery: Sql;
+
+    switch (criterias.sortingOn) {
+        case ESortOn.Age:
+            sortingSqlQuery = sql`ORDER BY age`;
+            break;
+        case ESortOn.Distance:
+            sortingSqlQuery = sql`ORDER BY distance`;
+            break;
+        case ESortOn.FameRate:
+            sortingSqlQuery = sql`ORDER BY fameRate`;
+            break;
+        case ESortOn.Interests:
+            sortingSqlQuery = sql`ORDER BY nbCommonInterests`;
+            break;
+        case ESortOn.Score:
+            sortingSqlQuery = sql`ORDER BY score`;
+            break;
+    }
+
+    switch(criterias.sortingType) {
+        case ESortingType.Ascending:
+            sortingSqlQuery = sql`${sortingSqlQuery} ASC`;
+            break;
+        case ESortingType.Descending:
+            sortingSqlQuery = sql`${sortingSqlQuery} DESC`;
+            break;
+    }
 
     const sqlQuery = sql`
         WITH
@@ -56,7 +86,8 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
             AND distance < ${criterias.maxDistance * 1000}
             AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests}))
-        ORDER BY score DESC
+
+        ${sortingSqlQuery}
         LIMIT ${criterias.nbRequiredProfiles}
         OFFSET ${criterias.offset};
     `;
