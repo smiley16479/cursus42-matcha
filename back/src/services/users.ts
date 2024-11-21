@@ -11,6 +11,7 @@ import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordTo
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { Notif_t_E } from '../types/shared_type/notification';
+import { AppError, InternalError, RessourceAlreadyExistsError, UserNotFoundError } from '../types/error';
 
 
 /*********************************************************
@@ -58,7 +59,7 @@ export async function createUser(inputUser: IUserInput) {
     if (id) {
         await sendVerificationEmail(id);
     } else {
-        throw new Error();
+        throw new InternalError();
     }
 }
 
@@ -66,18 +67,18 @@ export async function loginUser(credentials: IUserCredentials) {
     const user: IUserDb = await retrieveUserFromUserName(credentials.userName);
 
     if (!user)
-        throw new Error('User not found');
+        throw new UserNotFoundError();
     if (user.emailVerified == false && process.env.DEBUG != "true")
-        throw new Error();
+        throw new AppError(401, 'Email Not Verified');
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
-        throw new Error('Wrong Password');
+        throw new AppError(401, 'Wrong Password');
 
     credentials.password = "";
 
     const secret = process.env.JWT_SECRET;
     if (!secret)
-        throw new Error();
+        throw new InternalError();
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
 
     const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
@@ -190,13 +191,13 @@ function checkPasswordStrength(password: string) {
     const strength = passwordStrength(password);
 
     if (strength.id < 2)
-        throw new Error();
+        throw new AppError(400, 'Password Not Strong enough');
 }
 
 async function checkUserNameUniqueness(userName: string) {
-    const userWithSameuserName = await retrieveUserFromUserName(userName);
-    if (userWithSameuserName)
-        throw new Error();
+    const userWithSameUserName = await retrieveUserFromUserName(userName);
+    if (userWithSameUserName)
+        throw new AppError(409, 'Username Already Taken');
 }
 
 async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number, boolean]> {
@@ -246,12 +247,12 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
 export async function verifyEmail(token: string) {
     const emailConfirmToken: IEmailConfirmToken = await retrieveEmailConfirmationTokenFromToken(token);
     if (!emailConfirmToken || !emailConfirmToken.confirmToken) {
-        throw new Error();
+        throw new AppError(404, 'Token Not Found');
     }
 
     let hours = moment().diff(moment(emailConfirmToken.createdAt), 'hours');
     if (hours >= 24) {
-        throw new Error();
+        throw new AppError(418, 'Validation Token Expired');
     }
 
     updateUser(emailConfirmToken.user, { emailVerified: true });
@@ -294,7 +295,7 @@ async function sendVerificationEmail(id: number) {
 export async function sendResetPasswordEmail(email: string) {
     const user: IUserDb = await retrieveUserFromEmail(email);
     if (!user)
-        throw new Error();
+        throw new UserNotFoundError();
 
     const resetPasswordToken: string = crypto.randomBytes(20).toString('hex');
 
@@ -326,12 +327,12 @@ export async function resetPassword(token: string, rawUser: any) {
 
     const resetPasswordToken: IResetPasswordToken = await retrieveResetPasswordTokenFromToken(token);
     if (!resetPasswordToken || !resetPasswordToken.resetToken) {
-        throw new Error();
+        throw new AppError(404, 'Token Not Found');
     }
 
     let hours = moment().diff(moment(resetPasswordToken.createdAt), 'hours');
     if (hours >= 24) {
-        throw new Error();
+        throw new AppError(418, 'Reset Token Expired');
     }
 
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
@@ -349,7 +350,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
     const pictureIndex = parseInt(req.body.index);
 
     if (pictureIndex < 1 || pictureIndex > 5)
-        throw new Error();
+        throw new AppError(400, 'Picture Index Out Of Range');
 
     const oldPicture = await retrieveUserPicture(userId, req.body.index);
     if (oldPicture) {
@@ -391,7 +392,7 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     const existingUserVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
 
     if (existingUserVisit)
-        throw new Error();
+        throw new AppError(409, 'User Visit Already Exists');
 
     insertUserVisit(visitedUserId, visiterUserId);
 }
@@ -404,12 +405,12 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike)
-        throw new Error();
+        throw new AppError(409, 'User Like Already Exists');
 
     const liker: IUserDb = await retrieveUserFromId(likerUserId);
     if (liker.pictures.length == 0)
-        throw new Error();
-    
+        throw new AppError(403, 'No Picture No Like');
+
     insertUserLike(likedUserId, likerUserId);
 }
 
@@ -425,7 +426,7 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
     const existingUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
 
     if (existingUserBlock)
-        throw new Error();
+        throw new RessourceAlreadyExistsError();
 
     insertUserBlock(blockedUserId, blockerUserId);
 }
@@ -451,7 +452,7 @@ export async function addNewReport(reportedUserId: number, reporterUserId: numbe
     const existingUserReport = await retrieveUserReportFromUsers(reportedUserId, reporterUserId);
 
     if (existingUserReport)
-        throw new Error();
+        throw new RessourceAlreadyExistsError();
 
     insertUserReport(reportedUserId, reporterUserId);
 }

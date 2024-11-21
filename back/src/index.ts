@@ -13,6 +13,7 @@ import browseRouter from './routes/browse';
 import researchRouter from './routes/research';
 import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
+import { AppError, InternalError } from './types/error';
 
 const port = 3000
 const app = express();
@@ -32,7 +33,7 @@ await initDb();
 /* Serve static file (pictures) */
 const uploadDir = process.env.UPLOAD_DIR;
 if (!uploadDir)
-    throw new Error();
+    throw new InternalError();
 
 app.use('/api/user/picture', jwtAuthCheck, express.static(uploadDir));
 
@@ -43,8 +44,17 @@ app.use('/api/research', researchRouter);
 
 /* catch 404 and forward to error handler */
 app.use(function (req: Request, res: Response, next: NextFunction) {
-    res.status(404).send({
-        status: 404
+    next(new InternalError())
+});
+
+/* centralized error management */
+
+app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
+    console.log(err);
+
+    res.status(err.status).json({
+        success: false,
+        message: err.message
     });
 });
 
@@ -56,6 +66,7 @@ export const io = new Server(server, {
     credentials: true,
   }
 });
+
 // Initialiser les événements Socket.IO
 initSocketEvents(io);
 

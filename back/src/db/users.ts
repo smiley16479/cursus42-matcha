@@ -3,6 +3,7 @@ import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock, IUserReport } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 import { Notif_t_E } from '../types/shared_type/notification';
+import { UserNotFoundError } from '../types/error';
 
 
 /*********************************************************
@@ -129,7 +130,7 @@ export async function deleteUser(id: number) {
     const sqlQuery = sql`DELETE FROM users WHERE id = ${id};`;
     const [result] = await connection.query(sqlQuery);
     if (result.affectedRows == 0)
-        throw new Error();
+        throw new UserNotFoundError();
 
     connection.release();
 }
@@ -155,7 +156,7 @@ export async function updateUser(id: number, rawUser: any) {
 
     const [result] = await connection.query(sqlQuery, userAttrs);
     if (result.affectedRows == 0)
-        throw new Error();
+        throw new UserNotFoundError();
 
     connection.release();
 }

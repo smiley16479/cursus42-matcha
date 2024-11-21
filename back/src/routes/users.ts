@@ -6,6 +6,8 @@ import { jwtAuthCheck } from '../middleware/auth';
 import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification, addNewReport } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
+import { InternalError, UserNotFoundError } from '../types/error';
+import { errorHandler } from '../middleware/error';
 
 
 let router = express.Router();
@@ -14,198 +16,134 @@ let router = express.Router();
  * ================== USER MANAGEMENT ====================
  *********************************************************/
 
-router.post('/create', async function (req: Request, res: Response) {
-    try {
-        await createUser(req.body);
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({
-            "status": "400"
-        });
-    }
-});
+router.post('/create', errorHandler(async (req: Request, res: Response) => {
+    await createUser(req.body);
+    res.status(200).json({
+        success: true
+    });
+}));
 
-router.post('/login', async function (req: Request, res: Response) {
-    try {
-        const [token, user] = await loginUser(req.body);
-        res.cookie("token", token, {
-            httpOnly: true,
-        }).status(200).json({
-            "status": "200",
-            user
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            "status": "403"
-        });
-    }
-});
+router.post('/login', errorHandler(async (req: Request, res: Response) => {
+    const [token, user] = await loginUser(req.body);
+    res.cookie("token", token, {
+        httpOnly: true,
+    }).status(200).json({
+        success: true,
+        data: user
+    });
+}));
 
-router.get('/logout', jwtAuthCheck, async function (req: Request, res: Response) {
+router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
     res.clearCookie("token").status(200).json({
-        "status": "200"
+        success: true
     });
 });
 
-router.get('/seed', async function (_req: Request, res: Response) {
-    try {
-        let tab = ['f', 'm'];
-        tab.forEach(async (e, i, E)=> {
-            for (let idx = 0; idx < 3; idx++) {
-                let g: {key: string, value : EGender}[] = []
-                for (const [key, value] of Object.entries(EGender))
-                    g.push({key, value})
-                let s: {key: string, value : ESexualPref}[] = []
-                for (const [key, value] of Object.entries(ESexualPref))
-                    s.push({key, value})
-                const name = e + i.toString() + idx.toString();
-                await insertUser({
-                    email: "email",
-                    emailVerified: true,
-                    userName: e + "_" + s[idx].value,
-                    firstName: name,
-                    lastName: name,
-                    password: await bcrypt.hash("test", 10),
-                    gender: g[i].value,
-                    sexualPref: s[idx].value,
-                    age: 25,
-                    biography: "biography",
-                    fameRate: 0,
-                    latitude: 0,
-                    longitude: 0,
-                    lastConnection: new Date(),
-                    profileVisibility: true,
-                    emailNotifications: false,
-                    maxDistance: 50,
-                    matchAgeMin: 18,
-                    matchAgeMax: 30 
-                });
-            }
-        })
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({
-            "status": "400"
-        });
-    }
-});
-
-router.get('/me', jwtAuthCheck, async function (req: Request, res: Response) {
-    try {
-        const user = await getUser(parseInt(res.locals.user.id), true);
-        if (!user) {
-            throw new Error();
-        } else {
-            res.status(200).json(user);
+router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
+    let tab = ['f', 'm'];
+    tab.forEach(async (e, i, E)=> {
+        for (let idx = 0; idx < 3; idx++) {
+            let g: {key: string, value : EGender}[] = []
+            for (const [key, value] of Object.entries(EGender))
+                g.push({key, value})
+            let s: {key: string, value : ESexualPref}[] = []
+            for (const [key, value] of Object.entries(ESexualPref))
+                s.push({key, value})
+            const name = e + i.toString() + idx.toString();
+            await insertUser({
+                email: "email",
+                emailVerified: true,
+                userName: e + "_" + s[idx].value,
+                firstName: name,
+                lastName: name,
+                password: await bcrypt.hash("test", 10),
+                gender: g[i].value,
+                sexualPref: s[idx].value,
+                age: 25,
+                biography: "biography",
+                fameRate: 0,
+                latitude: 0,
+                longitude: 0,
+                lastConnection: new Date(),
+                profileVisibility: true,
+                emailNotifications: false,
+                maxDistance: 50,
+                matchAgeMin: 18,
+                matchAgeMax: 30 
+            });
         }
-    } catch (error) {
-        console.log(error);
-        res.status(404).json({
-            "status": "404"
-        });
-    }
-})
+    })
+    res.status(200).json({
+        success: true
+    });
+}));
 
-router.get('/:id', jwtAuthCheck, async function (req: Request, res: Response) {
-    try {
-        const user = await getUser(parseInt(req.params.id), false);
-        if (!user) {
-            throw new Error();
-        } else {
-            res.status(200).json(user);
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(404).json({
-            "status": "404"
-        });
-    }
-});
-
-router.delete('/delete', jwtAuthCheck, async function (req: Request, res: Response) {
-    try {
-        await removeUser(res.locals.user.id);
-        res.clearCookie("token").status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(404).json({
-            "status": "404"
-        });
-    }
-});
-
-router.patch('/patch', jwtAuthCheck, async function (req: Request, res: Response) {
-    try {
-        await patchUser(res.locals.user.id, req.body);
+router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const user = await getUser(parseInt(res.locals.user.id), true);
+    if (!user) {
+        throw new InternalError();
+    } else {
         res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(404).json({
-            "status": "404"
+            success: true,
+            data: user
         });
     }
-});
+}));
+
+router.get('/:id', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const user = await getUser(parseInt(req.params.id), false);
+    if (!user) {
+        throw new UserNotFoundError();
+    } else {
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    }
+}));
+
+router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    await removeUser(res.locals.user.id);
+    res.clearCookie("token").status(200).json({
+        success: true
+    });
+}));
+
+router.patch('/patch', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    await patchUser(res.locals.user.id, req.body);
+    res.status(200).json({
+        success: true
+    });
+}));
 
 /*********************************************************
  * =========== EMAIL VERIFICATION MANAGEMENT =============
  *********************************************************/
 
-router.get('/confirmemail/:token', async function (req: Request, res: Response) {
-    try {
-        await verifyEmail(req.params.token);
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            "status": "403"
-        });
-    }
-});
+router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Response) => {
+    await verifyEmail(req.params.token);
+    res.status(200).json({
+        success: true
+    });
+}));
 
 /*********************************************************
  * ============== PASSWORD RESET MANAGEMENT ==============
  *********************************************************/
 
-router.get('/askresetpassword/:email', async function (req: Request, res: Response) {
-    try {
-        await sendResetPasswordEmail(req.params.email);
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            "status": "403"
-        });
-    }
-});
+router.get('/askresetpassword/:email', errorHandler(async (req: Request, res: Response) => {
+    await sendResetPasswordEmail(req.params.email);
+    res.status(200).json({
+        success: true
+    });
+}));
 
-router.patch('/resetpassword/:token', async function (req: Request, res: Response) {
-    try {
-        await resetPassword(req.params.token, req.body);
-        res.status(200).json({
-            "status": "200"
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            "status": "403"
-        });
-    }
-});
+router.patch('/resetpassword/:token', errorHandler(async (req: Request, res: Response) => {
+    await resetPassword(req.params.token, req.body);
+    res.status(200).json({
+        success: true
+    });
+}));
 
 /*********************************************************
  * ================ PICTURE MANAGEMENT ===================
@@ -214,7 +152,7 @@ router.patch('/resetpassword/:token', async function (req: Request, res: Respons
 const uploadDir = process.env.UPLOAD_DIR;
 
 if (!uploadDir)
-    throw new Error();
+    throw new InternalError();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -239,43 +177,26 @@ const upload = multer({
 });
 const uploadMiddleware = upload.single("picture");
 
-router.post('/picture/upload', jwtAuthCheck, async function (req: Request, res: Response) {
+router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     uploadMiddleware(req, res, async function (error) {
         if (error || !req.file) {
-            res.status(400).json({
-                "status": "400"
-            });
+            throw new InternalError();
             console.log(`error || !req.file`, error || !req.file);
             return res.end();
         }
-        try {
-            await manageUploadedPicture(req, res);
-            res.status(200).json({
-                "status": "200"
-            })
-        } catch (error) {
-            console.log(error);
-            res.status(400).json({
-                "status": "400"
-            })
-        }
-
-    });
-});
-
-router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req: Request, res: Response) {
-    try {
-        await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
+        await manageUploadedPicture(req, res);
         res.status(200).json({
-            "status": "200"
+            success: true
         })
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({
-            "status": "400"
-        })
-    }
-})
+    });
+}));
+
+router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
+    res.status(200).json({
+        success: true
+    })
+}));
 
 // Pictures are served as static files in index.ts
 
@@ -284,38 +205,47 @@ router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, async function (req
 
 // router.post('/addvisit', async function (req: Request, res: Response) {
 //     await addNewUserVisit(req.body.visitedUserId, req.body.visiterUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/addlike', async function (req: Request, res: Response) {
 //     await addNewUserLike(req.body.likedUserId, req.body.likerUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/removeLike', async function (req: Request, res: Response) {
 //     await removeUserLike(req.body.likedUserId, req.body.likerUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/addBlock', async function (req: Request, res: Response) {
 //     await addNewBlock(req.body.blockedUserId, req.body.blockerUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/removeBlock', async function (req: Request, res: Response) {
 //     await removeUserBlock(req.body.blockedUserId, req.body.blockerUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/addReport', async function (req: Request, res: Response) {
 //     await addNewReport(req.body.reportedUserId, req.body.reporterUserId);
+//     res.status(200).send();
 // })
 
 // router.post('/addnotification', async function (req: Request, res: Response) {
 //     await addNewNotification(req.body.userId, req.body.involvedUserId, string2Notif_t_E(req.body.type));
+//     res.status(200).send();
 // })
 
 // router.get('/markNotificationRead/:notifId', async function (req: Request, res: Response) {
 //     await markNotificationRead(parseInt(req.params.notifId));
+//     res.status(200).send();
 // })
 
 // router.get('/removenotification/:notifId', async function (req: Request, res: Response) {
 //     await removeNotification(parseInt(req.params.notifId));
+//     res.status(200).send();
 // })
 
 export default router;
