@@ -406,6 +406,10 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     if (existingUserLike)
         throw new Error();
 
+    const liker: IUserDb = await retrieveUserFromId(likerUserId);
+    if (liker.pictures.length == 0)
+        throw new Error();
+    
     insertUserLike(likedUserId, likerUserId);
 }
 
