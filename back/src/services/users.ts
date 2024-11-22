@@ -12,6 +12,7 @@ import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserP
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { Notif_t_E } from '../types/shared_type/notification';
 import { AppError, InternalError, RessourceAlreadyExistsError, UserNotFoundError } from '../types/error';
+import { getEnv } from '../util/envvars';
 
 
 /*********************************************************
@@ -68,7 +69,7 @@ export async function loginUser(credentials: IUserCredentials) {
 
     if (!user)
         throw new UserNotFoundError();
-    if (user.emailVerified == false && process.env.DEBUG != "true")
+    if (user.emailVerified == false && getEnv("DEBUG") != "true")
         throw new AppError(401, 'Email Not Verified');
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
@@ -76,10 +77,8 @@ export async function loginUser(credentials: IUserCredentials) {
 
     credentials.password = "";
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret)
-        throw new InternalError();
-    const token = jwt.sign({ id: user.id }, secret, { expiresIn: process.env.JWT_EXP });
+    const secret = getEnv("JWT_SECRET");
+    const token = jwt.sign({ id: user.id }, secret, { expiresIn: getEnv("JWT_EXP") });
 
     const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
 
@@ -109,7 +108,7 @@ export async function removeUser(id: number) {
 
 export async function patchUser(id: number, rawUser: any) {
 
-    if (process.env.DEBUG != "true") {
+    if (getEnv("DEBUG") != "true") {
         for (const key of Object.keys(rawUser)) {
             switch (key.toLowerCase()) {
                 case "id":
@@ -232,7 +231,7 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
     else
         biography = "";
 
-    if (process.env.DEBUG == "true")
+    if (getEnv("DEBUG") == "true")
         emailVerified = true;
     else
         emailVerified = false;
@@ -268,12 +267,12 @@ async function sendVerificationEmail(id: number) {
     await insertEmailConfirmToken(id, confirmToken);
 
     const transporter = nodemailer.createTransport({
-        host: process.env.MAILER_HOST,
-        port: process.env.MAILER_PORT,
+        host: getEnv("MAILER_HOST"),
+        port: getEnv("MAILER_PORT"),
         secure: true,
         auth: {
-            user: process.env.MAILER_LOGIN,
-            pass: process.env.MAILER_PASSWORD,
+            user: getEnv("MAILER_LOGIN"),
+            pass: getEnv("MAILER_PASSWORD"),
         },
     });
 
@@ -302,12 +301,12 @@ export async function sendResetPasswordEmail(email: string) {
     await insertResetPasswordToken(user.id, resetPasswordToken);
 
     const transporter = nodemailer.createTransport({
-        host: process.env.MAILER_HOST,
-        port: process.env.MAILER_PORT,
+        host: getEnv("MAILER_HOST"),
+        port: getEnv("MAILER_PORT"),
         secure: true,
         auth: {
-            user: process.env.MAILER_LOGIN,
-            pass: process.env.MAILER_PASSWORD,
+            user: getEnv("MAILER_LOGIN"),
+            pass: getEnv("MAILER_PASSWORD"),
         },
     });
 
@@ -354,7 +353,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
 
     const oldPicture = await retrieveUserPicture(userId, req.body.index);
     if (oldPicture) {
-        fs.unlink(path.join(process.env.UPLOAD_DIR, oldPicture.filename), () => { });
+        fs.unlink(path.join(getEnv("UPLOAD_DIR"), oldPicture.filename), () => { });
         deleteUserPictureById(oldPicture.id);
     }
 
@@ -369,7 +368,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
 
 export async function removeUserPicture(userId: number, pictureIndex: number) {
     const userPicture = await retrieveUserPicture(userId, pictureIndex);
-    fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => { });
+    fs.unlink(path.join(getEnv("UPLOAD_DIR"), userPicture.filename), () => { });
     await deleteUserPictureById(userPicture.id);
 }
 
@@ -379,7 +378,7 @@ async function removeUserPictures(userId: number) {
     const userPictures = await retrieveUserPictures(userId);
 
     userPictures.forEach((userPicture) => {
-        fs.unlink(path.join(process.env.UPLOAD_DIR, userPicture.filename), () => { });
+        fs.unlink(path.join(getEnv("UPLOAD_DIR"), userPicture.filename), () => { });
     });
     deleteUserPictures(userId);
 }

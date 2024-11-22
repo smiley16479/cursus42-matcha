@@ -14,6 +14,7 @@ import researchRouter from './routes/research';
 import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
 import { AppError, InternalError } from './types/error';
+import { getEnv } from './util/envvars';
 
 const port = 3000
 const app = express();
@@ -31,9 +32,7 @@ app.use(cookieParser());
 await initDb();
 
 /* Serve static file (pictures) */
-const uploadDir = process.env.UPLOAD_DIR;
-if (!uploadDir)
-    throw new InternalError();
+const uploadDir = getEnv("UPLOAD_DIR");
 
 app.use('/api/user/picture', jwtAuthCheck, express.static(uploadDir));
 

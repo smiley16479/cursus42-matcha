@@ -8,6 +8,7 @@ import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 import { InternalError, UserNotFoundError } from '../types/error';
 import { errorHandler } from '../middleware/error';
+import { getEnv } from '../util/envvars';
 
 
 let router = express.Router();
@@ -149,10 +150,7 @@ router.patch('/resetpassword/:token', errorHandler(async (req: Request, res: Res
  * ================ PICTURE MANAGEMENT ===================
  *********************************************************/
 
-const uploadDir = process.env.UPLOAD_DIR;
-
-if (!uploadDir)
-    throw new InternalError();
+const uploadDir = getEnv("UPLOAD_DIR");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
