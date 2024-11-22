@@ -1,17 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 import { getEnv } from "../util/envvars";
+import { AppError } from "../types/error";
+import { patchUser } from "../services/users";
 
 export function jwtAuthCheck(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.token;
     const secret = getEnv("JWT_SECRET");
-    try {
-        const user = jwt.verify(token, secret);
-        res.locals.user = user;
-        next();
-    } catch (error) {
-        res.clearCookie("token").status(403).json({
-            "status": "403"
-        });
+    let decoded_token: string | jwt.JwtPayload;
+
+    if (token === undefined) {
+        next(new AppError(403, 'User Not Logged In'));
+        return;
     }
+    decoded_token = jwt.verify(token, secret);
+    res.locals.user = decoded_token;
+    patchUser(res.locals.user.id, {lastConnection: new Date()});
+    next();
 }

@@ -82,6 +82,8 @@ export async function loginUser(credentials: IUserCredentials) {
 
     const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
 
+    patchUser(user.id, {lastConnection: new Date()});
+
     return [token, outputUser];
 }
 
