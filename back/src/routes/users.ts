@@ -3,7 +3,7 @@ import multer from 'multer';
 import bcrypt from 'bcrypt';
 import * as crypto from "node:crypto";
 import { jwtAuthCheck } from '../middleware/auth';
-import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification, addNewReport } from '../services/users';
+import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification, addNewReport, logoutUser } from '../services/users';
 import { insertUser } from '../db/users';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 import { InternalError, UserNotFoundError } from '../types/error';
@@ -35,6 +35,7 @@ router.post('/login', errorHandler(async (req: Request, res: Response) => {
 }));
 
 router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
+    logoutUser(res.locals.user.id);
     res.clearCookie("token").status(200).json({
         success: true
     });

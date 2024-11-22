@@ -13,6 +13,7 @@ import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInpu
 import { Notif_t_E } from '../types/shared_type/notification';
 import { AppError, InternalError, RessourceAlreadyExistsError, UserNotFoundError } from '../types/error';
 import { getEnv } from '../util/envvars';
+import { ConnectedUsers } from './connectedUsers';
 
 
 /*********************************************************
@@ -80,11 +81,16 @@ export async function loginUser(credentials: IUserCredentials) {
     const secret = getEnv("JWT_SECRET");
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: getEnv("JWT_EXP") });
 
-    const outputUser: IUserOutput = sanitizeUserForOutput(user, true);
+    const outputUser: IUserOutput = prepareUserForOutput(user, true);
 
     patchUser(user.id, {lastConnection: new Date()});
+    ConnectedUsers.instance.addConnectedUser(user.id);
 
     return [token, outputUser];
+}
+
+export async function logoutUser(userId: number) {
+    ConnectedUsers.instance.removeConnectedUser(userId);
 }
 
 export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput | null> {
@@ -93,7 +99,7 @@ export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput 
         return null;
     }
 
-    const outputUser: IUserOutput = sanitizeUserForOutput(user, isSelf);
+    const outputUser: IUserOutput = prepareUserForOutput(user, isSelf);
 
     return outputUser;
 }
@@ -165,7 +171,7 @@ export async function patchUser(id: number, rawUser: any) {
     }
 }
 
-export function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
+export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
     const outputUser: IUserOutput = user;
 
     if (!isSelf) {
@@ -182,6 +188,8 @@ export function sanitizeUserForOutput(user: IUserDb, isSelf: boolean): IUserOutp
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
+
+    user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 
     return outputUser;
 }
