@@ -11,7 +11,7 @@ import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordTo
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { Notif_t_E } from '../types/shared_type/notification';
-import { AppError, InternalError, RessourceAlreadyExistsError, UserNotFoundError } from '../types/error';
+import { AppError, InternalError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { getEnv } from '../util/envvars';
 import { ConnectedUsers } from './connectedUsers';
 
@@ -71,7 +71,7 @@ export async function loginUser(credentials: IUserCredentials) {
     if (!user)
         throw new UserNotFoundError();
     if (user.emailVerified == false && getEnv("DEBUG") != "true")
-        throw new AppError(401, 'Email Not Verified');
+        throw new AppError(403, 'Email Not Verified');
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
         throw new AppError(401, 'Wrong Password');
@@ -96,7 +96,7 @@ export async function logoutUser(userId: number) {
 export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput | null> {
     const user: IUserDb = await retrieveUserFromId(id);
     if (!user || !user.id) {
-        return null;
+        throw new UserNotFoundError();
     }
 
     const outputUser: IUserOutput = prepareUserForOutput(user, isSelf);
@@ -256,12 +256,13 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
 export async function verifyEmail(token: string) {
     const emailConfirmToken: IEmailConfirmToken = await retrieveEmailConfirmationTokenFromToken(token);
     if (!emailConfirmToken || !emailConfirmToken.confirmToken) {
-        throw new AppError(404, 'Token Not Found');
+        throw new TokenNotFoundError();
     }
 
     let hours = moment().diff(moment(emailConfirmToken.createdAt), 'hours');
     if (hours >= 24) {
-        throw new AppError(418, 'Validation Token Expired');
+        deleteEmailConfirmationToken(emailConfirmToken.id);
+        throw new TokenExpiredError();
     }
 
     updateUser(emailConfirmToken.user, { emailVerified: true });
@@ -332,17 +333,18 @@ export async function sendResetPasswordEmail(email: string) {
 }
 
 export async function resetPassword(token: string, rawUser: any) {
-    checkPasswordStrength(rawUser.password);
-
     const resetPasswordToken: IResetPasswordToken = await retrieveResetPasswordTokenFromToken(token);
     if (!resetPasswordToken || !resetPasswordToken.resetToken) {
-        throw new AppError(404, 'Token Not Found');
+        throw new TokenNotFoundError();
     }
 
     let hours = moment().diff(moment(resetPasswordToken.createdAt), 'hours');
     if (hours >= 24) {
-        throw new AppError(418, 'Reset Token Expired');
+        deleteResetPasswordToken(resetPasswordToken.id);
+        throw new TokenExpiredError();
     }
+
+    checkPasswordStrength(rawUser.password);
 
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
 
@@ -401,7 +403,7 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     const existingUserVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
 
     if (existingUserVisit)
-        throw new AppError(409, 'User Visit Already Exists');
+        throw new RessourceAlreadyExistsError();
 
     insertUserVisit(visitedUserId, visiterUserId);
 }
@@ -414,7 +416,7 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike)
-        throw new AppError(409, 'User Like Already Exists');
+        throw new RessourceAlreadyExistsError();
 
     const liker: IUserDb = await retrieveUserFromId(likerUserId);
     if (liker.pictures.length == 0)

@@ -13,12 +13,6 @@ export class InternalError extends AppError {
     }
 }
 
-export class PermissionError extends AppError {
-    constructor() {
-        super(403, 'Permission Denied');
-    }
-}
-
 export class UserNotFoundError extends AppError {
     constructor() {
         super(404, 'User Not Found');
@@ -28,5 +22,17 @@ export class UserNotFoundError extends AppError {
 export class RessourceAlreadyExistsError extends AppError {
     constructor() {
         super(409, 'Ressource Already exists');
+    }
+}
+
+export class TokenNotFoundError extends AppError {
+    constructor() {
+        super(404, 'Token Not Found');
+    }
+}
+
+export class TokenExpiredError extends AppError {
+    constructor() {
+        super(418, 'Token Expired');
     }
 }

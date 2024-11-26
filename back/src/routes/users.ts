@@ -43,14 +43,14 @@ router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
 
 router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
     let tab = ['f', 'm'];
-    tab.forEach(async (e, i, E)=> {
+    tab.forEach(async (e, i, E) => {
         for (let idx = 0; idx < 3; idx++) {
-            let g: {key: string, value : EGender}[] = []
+            let g: { key: string, value: EGender }[] = []
             for (const [key, value] of Object.entries(EGender))
-                g.push({key, value})
-            let s: {key: string, value : ESexualPref}[] = []
+                g.push({ key, value })
+            let s: { key: string, value: ESexualPref }[] = []
             for (const [key, value] of Object.entries(ESexualPref))
-                s.push({key, value})
+                s.push({ key, value })
             const name = e + i.toString() + idx.toString();
             await insertUser({
                 email: "email",
@@ -71,7 +71,7 @@ router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
                 emailNotifications: false,
                 maxDistance: 50,
                 matchAgeMin: 18,
-                matchAgeMax: 30 
+                matchAgeMax: 30
             });
         }
     })
@@ -82,26 +82,18 @@ router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
 
 router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     const user = await getUser(parseInt(res.locals.user.id), true);
-    if (!user) {
-        throw new InternalError();
-    } else {
-        res.status(200).json({
-            success: true,
-            data: user
-        });
-    }
+    res.status(200).json({
+        success: true,
+        data: user
+    });
 }));
 
 router.get('/:id', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     const user = await getUser(parseInt(req.params.id), false);
-    if (!user) {
-        throw new UserNotFoundError();
-    } else {
-        res.status(200).json({
-            success: true,
-            data: user
-        });
-    }
+    res.status(200).json({
+        success: true,
+        data: user
+    });
 }));
 
 router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
@@ -180,8 +172,6 @@ router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, r
     uploadMiddleware(req, res, async function (error) {
         if (error || !req.file) {
             throw new InternalError();
-            console.log(`error || !req.file`, error || !req.file);
-            return res.end();
         }
         await manageUploadedPicture(req, res);
         res.status(200).json({

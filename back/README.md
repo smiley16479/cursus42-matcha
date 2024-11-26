@@ -30,37 +30,50 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
 
 ```json
 {
-    "id": 2,
-    "userName": "AliceR1701",
-    "firstName": "Alice",
-    "lastName": "Reilly",
-    "gender": "Unknown",
-    "sexualPref": "Female",
-    "age": 0,
-    "biography": "Ipsum modi consectetur aliquam quiquia neque. Eius adipisci non quaerat tempora velit aliquam aliquam. Adipisci porro velit velit dolor etincidunt adipisci. Etincidunt neque etincidunt dolor voluptatem aliquam. Aliquam porro neque eius. Modi porro quisquam numquam dolorem. Labore quaerat tempora tempora neque sit. Neque dolore voluptatem numquam est.",
-    "fameRate": 0,
-    "latitude": "48.8666700000",
-    "longitude": "2.0833300000",
-    "lastConnection": "2024-10-10T15:48:59.000Z",
-    "interests": [
-        "Writing",
-        "Photography",
-        "Writing",
-        "Traveling",
-        "Writing",
-        "Cycling",
-        "Embroidering"
-    ],
-    "pictures": [
-        {
-            "filename": "4d77ac2ba493641c7ca8fb55d42d3a794091e2b3",
-            "pictureIndex": 1
-        },
-        {
-            "filename": "bdf878d5a4689f58c9d208ea5a29103e27e537e7",
-            "pictureIndex": 2
-        }
-    ]
+    "success": true,
+    "data": {
+        "id": 3,
+        "userName": "JenniferO1241",
+        "firstName": "Jennifer",
+        "lastName": "Ouzts",
+        "gender": "Female",
+        "sexualPref": "Female",
+        "age": 77,
+        "biography": "Eius ut amet quiquia. Sed dolorem magnam non non. Eius eius porro est consectetur adipisci etincidunt quisquam. Tempora quisquam tempora dolore. Sed magnam dolorem porro quiquia. Neque amet modi quaerat labore.",
+        "fameRate": 82,
+        "latitude": "43.6768100000",
+        "longitude": "4.6303100000",
+        "lastConnection": "2023-12-11T07:04:23.000Z",
+        "interests": [
+            "Skydiving",
+            "BoardGames",
+            "Skating",
+            "Skiing",
+            "Collection",
+            "Fishing",
+            "Languages",
+            "Writing",
+            "Photography",
+            "Knitting",
+            "Sewing",
+            "Embroidering",
+            "Drawing",
+            "Painting",
+            "Cooking",
+            "Cycling"
+        ],
+        "pictures": [
+            {
+                "filename": "6e1ccf9340c60796b2a8bbf2551f6f13aa220c2f",
+                "pictureIndex": 1
+            },
+            {
+                "filename": "d1ec5e41aac06d737075154f419952f9c1702e29",
+                "pictureIndex": 2
+            }
+        ],
+        "isConnected": false
+    }
 }
 ```
 
@@ -68,64 +81,40 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
 
 ```json
 {
-    "id": 5,
-    "email": "francois@42l.fr",
-    "emailVerified": 1,
-    "userName": "fdeĉ",
-    "firstName": "François",
-    "lastName": "Descamps",
-    "gender": "Male",
-    "sexualPref": "Female",
-    "age": 0,
-    "biography": "I'm cool 😎",
-    "fameRate": 0,
-    "latitude": "2.3514035501",
-    "longitude": "48.8658004030",
-    "lastConnection": "2024-10-10T15:49:02.000Z",
-    "profileVisibility": 1,
-    "emailNotifications": 0,
-    "maxDistance": 50,
-    "matchAgeMin": 18,
-    "matchAgeMax": 30,
-    "interests": [
-        "Writing",
-        "Photography",
-        "Writing",
-        "Traveling",
-        "Writing",
-        "Cycling",
-        "Embroidering"
-    ],
-    "pictures": [
-        {
-            "filename": "4d77ac2ba493641c7ca8fb55d42d3a794091e2b3",
-            "pictureIndex": 1
-        },
-        {
-            "filename": "bdf878d5a4689f58c9d208ea5a29103e27e537e7",
-            "pictureIndex": 2
-        }
-    ],
-    "visits": [
-        {
-            "date": "2024-10-13 17:03:27.000000",
-            "visiterId": 3
-        },
-        {
-            "date": "2024-10-13 17:03:36.000000",
-            "visiterId": 7
-        }
-    ],
-    "likes": [
-        {
-            "date": "2024-10-13 17:07:34.000000",
-            "likerId": 7
-        }
-    ]
+    "success": true,
+    "data": {
+        "id": 1,
+        "email": "francois@42l.fr",
+        "emailVerified": 1,
+        "userName": "fdeĉ",
+        "firstName": "François",
+        "lastName": "Descamps",
+        "gender": "Male",
+        "sexualPref": "Female",
+        "age": 27,
+        "biography": "I'm cool 😎",
+        "fameRate": 4,
+        "latitude": "48.8658004030",
+        "longitude": "2.3514035501",
+        "lastConnection": "2024-11-25T17:52:36.000Z",
+        "profileVisibility": 1,
+        "emailNotifications": 0,
+        "maxDistance": 50,
+        "matchAgeMin": 18,
+        "matchAgeMax": 30,
+        "interests": [
+            "Singing"
+        ],
+        "pictures": [],
+        "visits": [],
+        "likes": [],
+        "notifications": [],
+        "isConnected": true
+    }
 }
 ```
 
-Avec des tableaux vides si aucun interest/picture est trouvé
+Avec des tableaux vides si aucun interest/picture/visit/like/notification est trouvé
 
 - Supprimer l'utilisateur avec lequel tu es logué avec un DELETE à `/api/user/delete`
 - Modifier les infos de l'utilisateur avec lequel tu es logué avec un PATCH à `/api/user/patch` et n'importe quelle combinaisons de ces champs :
@@ -177,11 +166,116 @@ Le champ caché `index` donne l'index de l'image que tu envoies, il doit être >
   pictureId étant l'index entre 1 et 5 pour cet utilisateur
 - Récupérer une image avec un GET à `/api/user/picture/:imageName`
   Tu peux récupérer le imageName dans le tableau `pictures` d'un utilisateur
-- Récupérer une selection de max 20 profils conformes aux préférences de l'utilisateur avec un GET à `/api/match`
 
+### Listes d'utilisateurs
 
+#### Browse
+
+Récupérer une selection profils compatibles avec un POST à `/api/browse` et un json du type :
+
+```json
+{
+    "requiredGender": "Female",
+    "minAge": 0,
+    "maxAge": 99,
+    "minFameRate": 0,
+    "maxFameRate": 100,
+    "locationLatitude": 48.865800402991646,
+    "locationLongitude": 2.3514035501401054,
+    "maxDistance": 200000,
+    "interests": [
+        "Walking",
+        "Dancing"
+    ],
+    "nbRequiredProfiles": 20,
+    "offset": 0,
+    "sortingOn": "score",
+    "sortingType": "desc"
+}
+```
+
+- `location` correspond à la position autour de laquelle on va chercher.
+- `maxDistance` permet de filtrer les profils en ne gardant que ceux qui sont à moins de `maxDistance` de `position`.
+- `interests` permet de filtrer les profils en ne gardant que ceux qui ont ces intérêts.
+- `nbRequiredProfiles` limite le nombre max de profiles qui vont être retournés
+- `offset` permet de passer les `offset` premiers profiles. `offset` combiné à `nbRequiredProfiles` permet de récupérer des "pages" de prfiles
+- `sortingOn` peut être :
+
+  - "fameRate"
+  - "distance"
+  - "age"
+  - "interests"
+  - "score"
+
+  et définie en fonction de quel critère les profiles vont être triés.
+  `score` étant un mix des critères `distance`, `famerate` et `nbRequiredProfiles`
+- `sortingType` peut être "asc" ou "desc" et défini le sens du tri (ascendant ou descendant)
+
+#### Research
+
+Récupérer une selection de profils correspondants a certains critères de recherche avec un POST à `api/research` et un json identique à celui pour `/browse`.
+
+### Services non exposés via les routes (utilisés depuis les sockets)
+
+#### Visite
+Ajouter une nouvelle visite via un appel au service `addNewUserVisit(visitedUserId: number, visiterUserId: number)` en donnant en paramètre l'id du profil visité puis l'id du visiteur
+
+#### Like
+Ajouter un nouveau like via un appel au service `addNewUserLike(likedUserId: number, likerUserId: number)` en donnant en paramètre l'id du profil liké puis l'id du likeur
+
+Supprimer un like via un appel au service `removeUserLike(likedUserId: number, likerUserId: number)` en donnant en paramètre l'id du profil liké puis l'id du likeur
+
+#### Bloquage
+Ajouter un nouveau bloquage via un appel au service `addNewBlock(blockedUserId: number, blockerUserId: number)` en donnant en paramètre l'id du profil bloqué puis l'id du bloquant
+
+Récupérer un bloquage via un appel au service `getUserBlock(blockedUserId: number, blockerUserId: number)` en donnant en paramètre l'id du profil bloqué puis l'id du bloquant
+
+Supprimer un bloquage via un appel au service `removeUserBlock(blockedUserId: number, blockerUserId: number)` en donnant en paramètre l'id du profil bloqué puis l'id du bloquant
+
+#### Signalement
+Ajouter un nouveau signalement (report) via un appel au service `addNewReport(reportedUserId: number, reporterUserId: number)` en donnant en paramètre l'id du profil signalé puis l'id du signaleur
+
+#### Notifications
+
+Ajouter une nouvelle notification via un appel au service `addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E)` en donnant en paramètre l'id de l'utilisateur qui reçoit la notification, l'id de l'utilisateur dont l'action a généré la notification et enfin le type de notification (https://github.com/smiley16479/cursus42-matcha/blob/0975c8744ba8c4f506f94db99aef4c577125f1f9/back/src/types/shared_type/notification.ts#L24) 
+
+Marquer une notification comme lue via un appel au service `markNotificationRead(notifId: number)` en donnant en paramètre l'id de la notification
+
+Supprimer une notification via un appel au service `removeNotification(notifId: number)` en donnant en paramètre l'id de la notification
+
+## Erreurs
+
+Les erreurs sont uniformisées sous la forme :
+
+```typescript
+{
+    success: boolean,
+    message?: string,
+    data?: any
+}
+```
+
+Un code HTTP est toujours renvoyé :
+
+- `200` lorsque tout se passe bien
+- `500` si j'ai fait de la merde
+- `418` avec le messsage `Token Expired` si le token de vérification d'email ou celui de reset password utilisé a expiré
+- `400` avec les messages :
+  - `Password Not Strong enough` si une création d'utilisateur ou un changement de mot de pass a été demandé mais que le mot de pass fourni n'est pas suffisament fort
+  - `Picture Index Out Of Range` si un upload d'image a été demandé mais que l'index utilisé n'est pas dans le range 0 < index < 6
+- `404` avec les messages :
+  - `User Not Found` si une action a été demandée sur un utilisateur mais que celui-ci n'as pas été trouvé
+  - `Token Not Found` si le token de vérification d'email ou celui de reset password n'as pas été trouvé
+- `409` avec les messages :
+  - `Ressource Already exists` si une création d'élément (like, visite, notification etc) à été demandée mais que celui-ci existe déjà
+  - `Username Already Taken` si la création d'un utilisateur a été demandée avec un username déjà pris
+- `401` avec les messages :
+  - `User Not Logged In` si l'utilisateur n'est pas connecté
+  - `Wrong Password` si le mot de pass entré n'est pas reconnu
+- `403` avec les messages :
+  - `Email Not Verified` si l'utilisateur as bien créé son compte mais n'as pas encore validé son email (alors il n'as pas le droit de se connecter)
+  - `No Picture No Like` si l'utilisateur a essayé de liker un profile alors qu'il n'as pas de photo de profil
 
 ## Tests
-
 
 Le script de tests `populate_db_for_test.py` peut être utilisé pour générer des profils utilisateur aléatoires et les insérer dans la base de donnée. Le nombre de profils a créer est donné en premier paramètre. Si aucun paramètre n'est donné, 500 profils vont être créés par defaut.

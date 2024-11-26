@@ -10,7 +10,7 @@ export function jwtAuthCheck(req: Request, res: Response, next: NextFunction) {
     let decoded_token: string | jwt.JwtPayload;
 
     if (token === undefined) {
-        next(new AppError(403, 'User Not Logged In'));
+        next(new AppError(401, 'User Not Logged In'));
         return;
     }
     decoded_token = jwt.verify(token, secret);
