@@ -13,6 +13,12 @@ export class InternalError extends AppError {
     }
 }
 
+export class RouteNotFoundError extends AppError {
+    constructor() {
+        super(404, 'Route Not Found');
+    }
+}
+
 export class UserNotFoundError extends AppError {
     constructor() {
         super(404, 'User Not Found');

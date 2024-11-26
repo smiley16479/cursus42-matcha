@@ -13,7 +13,7 @@ import browseRouter from './routes/browse';
 import researchRouter from './routes/research';
 import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
-import { AppError, InternalError } from './types/error';
+import { AppError, RouteNotFoundError } from './types/error';
 import { getEnv } from './util/envvars';
 
 const port = 3000
@@ -43,7 +43,7 @@ app.use('/api/research', researchRouter);
 
 /* catch 404 and forward to error handler */
 app.use(function (req: Request, res: Response, next: NextFunction) {
-    next(new InternalError())
+    next(new RouteNotFoundError())
 });
 
 /* centralized error management */

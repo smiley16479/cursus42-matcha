@@ -266,6 +266,7 @@ Un code HTTP est toujours renvoyé :
 - `404` avec les messages :
   - `User Not Found` si une action a été demandée sur un utilisateur mais que celui-ci n'as pas été trouvé
   - `Token Not Found` si le token de vérification d'email ou celui de reset password n'as pas été trouvé
+  - `Route Not Found` si la route demandée n'existe pas
 - `409` avec les messages :
   - `Ressource Already exists` si une création d'élément (like, visite, notification etc) à été demandée mais que celui-ci existe déjà
   - `Username Already Taken` si la création d'un utilisateur a été demandée avec un username déjà pris
