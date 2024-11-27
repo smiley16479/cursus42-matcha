@@ -13,7 +13,7 @@ import browseRouter from './routes/browse';
 import researchRouter from './routes/research';
 import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
-import { AppError, RouteNotFoundError } from './types/error';
+import { AppError, InternalError, RouteNotFoundError } from './types/error';
 import { getEnv } from './util/envvars';
 
 const port = 3000
@@ -49,8 +49,11 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
 /* centralized error management */
 
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
+    console.log('catched error :');
     console.log(err);
 
+    if (!err.status)
+        err = new InternalError();
     res.status(err.status).json({
         success: false,
         message: err.message
