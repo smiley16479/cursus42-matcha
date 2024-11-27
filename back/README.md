@@ -269,7 +269,8 @@ Les erreurs sont uniformisées sous la forme :
 {
     success: boolean,
     message?: string,
-    data?: any
+    data?: any,
+    error?: any
 }
 ```
 
@@ -281,6 +282,21 @@ Un code HTTP est toujours renvoyé :
 - `400` avec les messages :
   - `Password Not Strong enough` si une création d'utilisateur ou un changement de mot de pass a été demandé mais que le mot de pass fourni n'est pas suffisament fort
   - `Picture Index Out Of Range` si un upload d'image a été demandé mais que l'index utilisé n'est pas dans le range 0 < index < 6
+  - `Error Validating Input` si les données d'entrée ne sont pas conformes a ce qui est attendu
+    Avec cette erreur vient un objet dans le champ `error` :
+    
+    ```json
+        "error": [
+        {
+            "type": "field",
+            "value": "scdore",
+            "msg": "Sorting on must be one of [fameRate, distance, age, interests, score]",
+            "path": "sortingOn",
+            "location": "body"
+        }
+    ]
+    ```
+    C'est le seule type d'erreur qui retournera un objet dans ce champ error
 - `404` avec les messages :
   - `User Not Found` si une action a été demandée sur un utilisateur mais que celui-ci n'as pas été trouvé
   - `Token Not Found` si le token de vérification d'email ou celui de reset password n'as pas été trouvé
