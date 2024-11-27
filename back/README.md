@@ -83,32 +83,50 @@ quand tu crée un utilisateur, un mail de confirmation est envoyé, tu peux pas 
 {
     "success": true,
     "data": {
-        "id": 1,
+        "id": 32,
         "email": "francois@42l.fr",
         "emailVerified": 1,
-        "userName": "fdeĉ",
+        "userName": "fdesc",
         "firstName": "François",
         "lastName": "Descamps",
         "gender": "Male",
         "sexualPref": "Female",
-        "age": 27,
+        "age": 0,
         "biography": "I'm cool 😎",
-        "fameRate": 4,
+        "fameRate": 0,
         "latitude": "48.8658004030",
         "longitude": "2.3514035501",
-        "lastConnection": "2024-11-25T17:52:36.000Z",
+        "lastConnection": "2024-11-27T14:04:30.000Z",
         "profileVisibility": 1,
         "emailNotifications": 0,
         "maxDistance": 50,
         "matchAgeMin": 18,
         "matchAgeMax": 30,
         "interests": [
-            "Singing"
+          "Walking",
+          "Dancing"
         ],
         "pictures": [],
-        "visits": [],
-        "likes": [],
-        "notifications": [],
+        "visits": [
+            {
+                "date": "2024-11-27 14:04:11.000000",
+                "visiterUserId": 10
+            }
+        ],
+        "likes": [
+            {
+                "date": "2024-11-27 14:05:01.000000",
+                "likerUserId": 10
+            }
+        ],
+        "notifications": [
+            {
+                "date": "2024-11-27 14:04:22.000000",
+                "type": "VISIT",
+                "isRead": 0,
+                "involvedUserId": 10
+            }
+        ],
         "isConnected": true
     }
 }
