@@ -137,7 +137,7 @@ export async function patchUser(id: number, rawUser: any) {
                 case "createdat":
                     delete rawUser[key];
                     break;
-                case "userName":
+                case "username":
                     delete rawUser[key];
                     break;
             }
