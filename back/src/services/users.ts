@@ -11,7 +11,7 @@ import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordTo
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { Notif_t_E } from '../types/shared_type/notification';
-import { AppError, InternalError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
+import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { getEnv } from '../util/envvars';
 import { ConnectedUsers } from './connectedUsers';
 
@@ -72,6 +72,7 @@ export async function loginUser(credentials: IUserCredentials) {
         throw new UserNotFoundError();
     if (user.emailVerified == false && getEnv("DEBUG") != "true")
         throw new AppError(403, 'Email Not Verified');
+
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
         throw new AppError(401, 'Wrong Password');
@@ -380,6 +381,9 @@ export async function manageUploadedPicture(req: Request, res: Response) {
 
 export async function removeUserPicture(userId: number, pictureIndex: number) {
     const userPicture = await retrieveUserPicture(userId, pictureIndex);
+    if (!userPicture)
+        throw new PictureNotFoundError();
+    
     fs.unlink(path.join(getEnv("UPLOAD_DIR"), userPicture.filename), () => { });
     await deleteUserPictureById(userPicture.id);
 }

@@ -54,10 +54,17 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
 
     if (!err.status)
         err = new InternalError();
-    res.status(err.status).json({
-        success: false,
-        message: err.message
-    });
+    if (err.error)
+        res.status(err.status).json({
+            success: false,
+            message: err.message,
+            error: err.error
+        });
+    else
+        res.status(err.status).json({
+            success: false,
+            message: err.message,
+        });
 });
 
 const server = http.createServer(app);

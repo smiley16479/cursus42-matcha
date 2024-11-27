@@ -1,14 +1,16 @@
-import express, { Request, Response } from 'express';
-import multer from 'multer';
 import bcrypt from 'bcrypt';
+import express, { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
+import multer from 'multer';
 import * as crypto from "node:crypto";
-import { jwtAuthCheck } from '../middleware/auth';
-import { createUser, getUser, loginUser, manageUploadedPicture, patchUser, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail, markNotificationRead, removeNotification, addNewReport, logoutUser } from '../services/users';
 import { insertUser } from '../db/users';
-import { EGender, ESexualPref } from '../types/shared_type/user';
-import { InternalError, UserNotFoundError } from '../types/error';
+import { jwtAuthCheck } from '../middleware/auth';
 import { errorHandler } from '../middleware/error';
+import { createUser, getUser, loginUser, logoutUser, manageUploadedPicture, patchUser, removeUser, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { InternalError, ValidationError } from '../types/error';
+import { EGender, ESexualPref } from '../types/shared_type/user';
 import { getEnv } from '../util/envvars';
+import { askResetPasswordValidator, createUserValidator, deletePictureValidator, getUserValidator, loginValidator, patchUserValidator } from '../validators/users';
 
 
 let router = express.Router();
@@ -17,15 +19,25 @@ let router = express.Router();
  * ================== USER MANAGEMENT ====================
  *********************************************************/
 
-router.post('/create', errorHandler(async (req: Request, res: Response) => {
+router.post('/create', createUserValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     await createUser(req.body);
+
     res.status(200).json({
         success: true
     });
 }));
 
-router.post('/login', errorHandler(async (req: Request, res: Response) => {
+router.post('/login', loginValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     const [token, user] = await loginUser(req.body);
+
     res.cookie("token", token, {
         httpOnly: true,
     }).status(200).json({
@@ -88,8 +100,13 @@ router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response)
     });
 }));
 
-router.get('/:id', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     const user = await getUser(parseInt(req.params.id), false);
+
     res.status(200).json({
         success: true,
         data: user
@@ -103,8 +120,13 @@ router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Re
     });
 }));
 
-router.patch('/patch', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     await patchUser(res.locals.user.id, req.body);
+
     res.status(200).json({
         success: true
     });
@@ -125,8 +147,13 @@ router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Respon
  * ============== PASSWORD RESET MANAGEMENT ==============
  *********************************************************/
 
-router.get('/askresetpassword/:email', errorHandler(async (req: Request, res: Response) => {
+router.get('/askresetpassword/:email', askResetPasswordValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     await sendResetPasswordEmail(req.params.email);
+
     res.status(200).json({
         success: true
     });
@@ -180,8 +207,13 @@ router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, r
     });
 }));
 
-router.delete('/picture/delete/:pictureIndex', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+router.delete('/picture/delete/:pictureIndex', deletePictureValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
     await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
+
     res.status(200).json({
         success: true
     })
