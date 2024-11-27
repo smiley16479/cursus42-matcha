@@ -25,6 +25,7 @@ services:
       - ./back/src:/app/src
       - /app/node_modules
       - ./back/src/types/shared_type:/app/src/types/shared_type
+      - /srv/www/api/uploads
     ports:
       - 3000:3000
     tty: true
