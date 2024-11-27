@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./.mysql-data/db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 3306:3306
     environment:
@@ -26,6 +27,7 @@ services:
       - /app/node_modules
       - ./back/src/types/shared_type:/app/src/types/shared_type
       - /srv/www/api/uploads
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 3000:3000
     tty: true
@@ -42,6 +44,7 @@ services:
       - ./front/src:/app/src
       - /app/node_modules
       - ./back/src/types/shared_type:/app/src/type/shared_type
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 8080:8080
     stdin_open: true
