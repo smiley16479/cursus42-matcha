@@ -40,7 +40,7 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             user_distance AS
             (
                 SELECT
-                    id AS user,
+                    id AS userId,
                     ST_Distance_Sphere(
                         POINT(latitude, longitude),
                         POINT(${criterias.locationLatitude}, ${criterias.locationLongitude})
@@ -51,7 +51,7 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             user_common_interests AS
             (
                 SELECT
-                    fu.id AS user,
+                    fu.id AS userId,
                     (
                         SELECT
                             COUNT(*)
@@ -74,12 +74,12 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             ((1 / (distance + 1)) + fameRate / 100 + nbCommonInterests / 30) AS score
         FROM
             fullUsers fu
-            LEFT JOIN user_distance ud ON ud.user = fu.id
-            LEFT JOIN user_common_interests uci ON uci.user = fu.id
+            LEFT JOIN user_distance ud ON ud.userId = fu.id
+            LEFT JOIN user_common_interests uci ON uci.userId = fu.id
         WHERE
             fu.id != ${user.id}
             AND fu.id NOT IN (
-                SELECT blocked FROM userBlocks WHERE blocker = ${user.id}
+                SELECT blockedUserId FROM userBlocks WHERE blockerUserId = ${user.id}
             )
             AND fu.gender = ${criterias.requiredGender}
             AND fu.age BETWEEN ${criterias.minAge} AND ${criterias.maxAge}

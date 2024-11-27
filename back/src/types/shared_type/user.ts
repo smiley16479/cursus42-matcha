@@ -101,7 +101,7 @@ export type UserPic_t = {
 }
 
 export interface IUserPictureInput {
-    user: number,
+    userId: number,
     filename: string,
     pictureIndex: number,
 }

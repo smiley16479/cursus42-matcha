@@ -370,7 +370,7 @@ export async function manageUploadedPicture(req: Request, res: Response) {
     }
 
     const userPicture: IUserPictureInput = {
-        user: userId,
+        userId: userId,
         filename: req.file.filename,
         pictureIndex: pictureIndex
     };

@@ -24,14 +24,14 @@ export interface IUserInputInternal extends IUserInput {
 
 export interface IEmailConfirmToken extends RowDataPacket {
   id: number,
-  user: number,
+  userId: number,
   confirmToken: string,
   createdAt: Date
 }
 
 export interface IResetPasswordToken extends RowDataPacket {
   id: number,
-  user: number,
+  userId: number,
   resetToken: string,
   createdAt: Date
 }

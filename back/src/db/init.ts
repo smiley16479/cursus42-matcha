@@ -37,7 +37,7 @@ export default async function initDb() {
     const emailConfirmTokenTableQuery = `
         CREATE TABLE IF NOT EXISTS emailConfirmTokens (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user INT NOT NULL,
+        userId INT NOT NULL,
         confirmToken VARCHAR(255) NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -51,7 +51,7 @@ export default async function initDb() {
     const resetPasswordTokenTableQuery = `
         CREATE TABLE IF NOT EXISTS resetPasswordTokens (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user INT NOT NULL,
+        userId INT NOT NULL,
         resetToken VARCHAR(255) NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -67,7 +67,7 @@ export default async function initDb() {
     const userInterestsTableQuery = `
         CREATE TABLE IF NOT EXISTS userInterests (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user INT NOT NULL,
+        userId INT NOT NULL,
         interest VARCHAR(255) NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -80,7 +80,7 @@ export default async function initDb() {
     const userPicturesTableQuery = `
         CREATE TABLE IF NOT EXISTS userPictures (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user INT NOT NULL,
+        userId INT NOT NULL,
         filename VARCHAR(255) NOT NULL,
         pictureIndex INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -94,8 +94,8 @@ export default async function initDb() {
     const userVisitsTableQuery = `
         CREATE TABLE IF NOT EXISTS userVisits (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        visited INT NOT NULL,
-        visiter INT NOT NULL,
+        visitedUserId INT NOT NULL,
+        visiterUserId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -107,8 +107,8 @@ export default async function initDb() {
     const userLikesTableQuery = `
         CREATE TABLE IF NOT EXISTS userLikes (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        liked INT NOT NULL,
-        liker INT NOT NULL,
+        likedUserId INT NOT NULL,
+        likerUserId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -120,8 +120,8 @@ export default async function initDb() {
     const userBocksTableQuery = `
         CREATE TABLE IF NOT EXISTS userBlocks (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        blocked INT NOT NULL,
-        blocker INT NOT NULL,
+        blockerUserId INT NOT NULL,
+        blockedUserId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -133,8 +133,8 @@ export default async function initDb() {
     const userReportsTableQuery = `
         CREATE TABLE IF NOT EXISTS userReports (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        reported INT NOT NULL,
-        reporter INT NOT NULL,
+        reportedUserId INT NOT NULL,
+        reporterUserId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -146,8 +146,8 @@ export default async function initDb() {
     const notificationsTableQuery = `
         CREATE TABLE IF NOT EXISTS notifications (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user INT NOT NULL,
-        involvedUser INT NOT NULL,
+        userId INT NOT NULL,
+        involvedUserId INT NOT NULL,
         type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
         isRead BOOLEAN NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -163,48 +163,48 @@ export default async function initDb() {
             WITH
                 user_interests AS (
                     SELECT
-                        ui.user,
+                        ui.userId,
                         JSON_ARRAYAGG(ui.interest) AS interests
                     FROM
                         userInterests ui
                     GROUP BY
-                        ui.user
+                        ui.userId
                 ),
                 user_pictures AS (
                     SELECT
-                        up.user,
+                        up.userId,
                         JSON_ARRAYAGG(JSON_OBJECT("filename", up.filename, "pictureIndex", up.pictureIndex)) AS pictures
                     FROM
                         userPictures up
                     GROUP BY
-                        up.user
+                        up.userId
                 ),
                 user_visits AS (
                     SELECT
-                        uv.visited,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterId", uv.visiter)) AS visits
+                        uv.visitedUserId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterUserId", uv.visiterUserId)) AS visits
                     FROM
                         userVisits uv
                     GROUP BY
-                        uv.visited
+                        uv.visitedUserId
                 ),
                 user_likes AS (
                     SELECT
-                        ul.liked,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerId", ul.liker)) AS likes
+                        ul.likedUserId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerUserId", ul.likerUserId)) AS likes
                     FROM
                         userLikes ul
                     GROUP BY
-                        ul.liked
+                        ul.likedUserId
                 ),
                 user_notifications AS (
                     SELECT
-                        n.user,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUser", n.involvedUser, "type", n.type, "isRead", n.isRead)) AS notifications
+                        n.userId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "isRead", n.isRead)) AS notifications
                     FROM
                         notifications n
                     GROUP BY
-                        n.user
+                        n.userId
                 )
 
             SELECT
@@ -216,11 +216,11 @@ export default async function initDb() {
                 n.notifications AS notifications
 
             FROM users u
-                LEFT JOIN user_interests ui ON ui.user = u.id
-                LEFT JOIN user_pictures up ON up.user = u.id
-                LEFT JOIN user_visits uv ON uv.visited = u.id
-                LEFT JOIN user_likes ul ON ul.liked = u.id
-                LEFT JOIN user_notifications n ON n.user = u.id
+                LEFT JOIN user_interests ui ON ui.userId = u.id
+                LEFT JOIN user_pictures up ON up.userId = u.id
+                LEFT JOIN user_visits uv ON uv.visitedUserId = u.id
+                LEFT JOIN user_likes ul ON ul.likedUserId = u.id
+                LEFT JOIN user_notifications n ON n.userId = u.id
         );
     `;
 

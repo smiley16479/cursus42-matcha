@@ -169,7 +169,7 @@ export async function insertEmailConfirmToken(userId: number, confirmToken: stri
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO emailConfirmTokens (
-        user,
+        userId,
         confirmToken
     )
     VALUES (
@@ -209,7 +209,7 @@ export async function insertResetPasswordToken(userId: number, resetToken: strin
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO resetPasswordTokens (
-        user,
+        userId,
         resetToken
     )
     VALUES (
@@ -250,7 +250,7 @@ export async function updateUserInterests(userId: number, interests: string[]) {
 
     const retrieveUserInterestsSqlQuery = sql`
         SELECT * FROM userInterests WHERE
-        user = ${userId};
+        userId = ${userId};
     `;
 
     const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestsSqlQuery);
@@ -275,7 +275,7 @@ export async function updateUserInterests(userId: number, interests: string[]) {
 export async function deleteUserInterests(userId: number) {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`DELETE FROM userInterests WHERE user = ${userId};`
+    const sqlQuery = sql`DELETE FROM userInterests WHERE userId = ${userId};`
 
     await connection.query(sqlQuery);
 
@@ -288,7 +288,7 @@ async function insertUserInterest(userId: number, interest: EInterest) {
     const connection = await pool.getConnection();
 
     const insertUserInterestSqlQuery = sql`INSERT INTO userInterests (
-        user,
+        userId,
         interest
     )
     VALUES (
@@ -319,12 +319,12 @@ export async function insertUserPicture(inputPicture: IUserPictureInput) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO userPictures (
-        user,
+        userId,
         filename,
         pictureIndex
     )
     VALUES (
-        ${inputPicture.user},
+        ${inputPicture.userId},
         ${inputPicture.filename},
         ${inputPicture.pictureIndex}
     );`;
@@ -336,7 +336,7 @@ export async function insertUserPicture(inputPicture: IUserPictureInput) {
 export async function retrieveUserPictures(userId: number): Promise<IUserPicture[]> {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`SELECT * FROM userPictures WHERE user = ${userId};`;
+    const sqlQuery = sql`SELECT * FROM userPictures WHERE userId = ${userId};`;
 
     const [rows] = await connection.query<IUserPicture[]>(sqlQuery);
 
@@ -349,7 +349,7 @@ export async function retrieveUserPicture(userId: number, pictureIndex: number):
 
     const sqlQuery = sql`
         SELECT * FROM userPictures
-        WHERE user = ${userId}
+        WHERE userId = ${userId}
         AND pictureIndex = ${pictureIndex};
     `;
 
@@ -372,7 +372,7 @@ export async function deleteUserPictureById(userPictureId: number) {
 export async function deleteUserPictures(userId: number) {
     const connection = await pool.getConnection();
 
-    const sqlQuery = sql`DELETE FROM userPictures WHERE user = ${userId};`;
+    const sqlQuery = sql`DELETE FROM userPictures WHERE userId = ${userId};`;
 
     await connection.query(sqlQuery);
 
@@ -388,8 +388,8 @@ export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterU
 
     const sqlQuery = sql`
         SELECT * FROM userVisits
-        WHERE visited = ${visitedUserId}
-        AND visiter = ${visiterUserId}
+        WHERE visitedUserId = ${visitedUserId}
+        AND visiterUserId = ${visiterUserId}
     ;`
 
     const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
@@ -402,8 +402,8 @@ export async function insertUserVisit(visitedUserId: number, visiterUserId: numb
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO userVisits (
-        visited,
-        visiter
+        visitedUserId,
+        visiterUserId
     )
     VALUES (
         ${visitedUserId},
@@ -424,8 +424,8 @@ export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId
 
     const sqlQuery = sql`
         SELECT * FROM userLikes
-        WHERE liked = ${likedUserId}
-        AND liker = ${likerUserId}
+        WHERE likedUserId = ${likedUserId}
+        AND likerUserId = ${likerUserId}
     ;`
 
     const [rows] = await connection.query<IUserLike[]>(sqlQuery);
@@ -438,8 +438,8 @@ export async function insertUserLike(likedUserId: number, likerUserId: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO userLikes (
-        liked,
-        liker
+        likedUserId,
+        likerUserId
     )
     VALUES (
         ${likedUserId},
@@ -456,8 +456,8 @@ export async function deleteUserLike(likedUserId: number, likerUserId: number) {
 
     const sqlQuery = sql`
         DELETE FROM userLikes
-        WHERE liked = ${likedUserId}
-        AND liker = ${likerUserId}
+        WHERE likedUserId = ${likedUserId}
+        AND likerUserId = ${likerUserId}
     ;`;
 
     await connection.query(sqlQuery);
@@ -474,8 +474,8 @@ export async function retrieveUserBlockFromUsers(blockedUserId: number, blockerU
 
     const sqlQuery = sql`
         SELECT * FROM userBlocks
-        WHERE blocked = ${blockedUserId}
-        AND blocker = ${blockerUserId}
+        WHERE blockedUserId = ${blockedUserId}
+        AND blockerUserId = ${blockerUserId}
     ;`
 
     const [rows] = await connection.query<IUserBlock[]>(sqlQuery);
@@ -488,8 +488,8 @@ export async function insertUserBlock(blockedUserId: number, blockerUserId: numb
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO userBlocks (
-        blocked,
-        blocker
+        blockedUserId,
+        blockerUserId
     )
     VALUES (
         ${blockedUserId},
@@ -506,8 +506,8 @@ export async function deleteUserBlock(blockedUserId: number, blockerUserId: numb
 
     const sqlQuery = sql`
         DELETE FROM userBlocks
-        WHERE blocked = ${blockedUserId}
-        AND blocker = ${blockerUserId}
+        WHERE blockedUserId = ${blockedUserId}
+        AND blockerUserId = ${blockerUserId}
     ;`;
 
     await connection.query(sqlQuery);
@@ -524,8 +524,8 @@ export async function retrieveUserReportFromUsers(reportedUserId: number, report
 
     const sqlQuery = sql`
         SELECT * FROM userReports
-        WHERE reported = ${reportedUserId}
-        AND reporter = ${reporterUserId}
+        WHERE reportedUserId = ${reportedUserId}
+        AND reporterUserId = ${reporterUserId}
     ;`
 
     const [rows] = await connection.query<IUserReport[]>(sqlQuery);
@@ -538,8 +538,8 @@ export async function insertUserReport(reportedUserId: number, reporterUserId: n
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO userReports (
-        reported,
-        reporter
+        reportedUserId,
+        reporterUserId
     )
     VALUES (
         ${reportedUserId},
@@ -560,8 +560,8 @@ export async function insertNotification(userId: number, involvedUserId: number,
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO notifications (
-        user,
-        involvedUser,
+        userId,
+        involvedUserId,
         type,
         isRead
     )
