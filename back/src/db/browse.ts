@@ -1,5 +1,5 @@
 import { IUserDb } from "../types/user";
-import pool, { sql } from "./dbUtils";
+import pool, { cleanUserDb, sql } from "./dbUtils";
 import { ESortingType, ESortOn, IBrowseCriterias } from "../types/shared_type/browse";
 import { Sql } from "sql-template-tag";
 
@@ -85,7 +85,7 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             AND fu.age BETWEEN ${criterias.minAge} AND ${criterias.maxAge}
             AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
             AND distance < ${criterias.maxDistance * 1000}
-            AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests}))
+            AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests})) OR JSON_LENGTH(JSON_ARRAY(${criterias.interests})) = 0
 
         ${sortingSqlQuery}
         LIMIT ${criterias.nbRequiredProfiles}
@@ -94,8 +94,10 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
 
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
     
-    rows.forEach((row) => {
-        delete row.score
+
+    rows.forEach((user, index, array) => {
+        delete user.score
+        array[index] = cleanUserDb(user);
     });
 
     connection.release();
