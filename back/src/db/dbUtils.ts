@@ -30,21 +30,21 @@ console.log("Connected to database");
 
 export default pool;
 
-
-
 export function cleanUserDb(user: IUserDb) {
     if (!user)
         return user;
     if (user.interests === null)
         user.interests = [];
     if (user.pictures === null)
-        user.pictures = []
+        user.pictures = [];
     if (user.visits === null)
-        user.visits = []
+        user.visits = [];
     if (user.likes === null)
-        user.likes = []
+        user.likes = [];
     if (user.notifications === null)
-        user.notifications = []
+        user.notifications = [];
+    if (user.blocks === null)
+        user.blocks = [];
     return user;
 }
 

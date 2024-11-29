@@ -205,6 +205,15 @@ export default async function initDb() {
                         notifications n
                     GROUP BY
                         n.userId
+                ),
+                user_blocks AS (
+                    SELECT
+                        blockedUserId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockerUserId", ub.blockedUserId)) AS blocks
+                    FROM
+                        userBlocks ub
+                    GROUP BY
+                        ub.blockedUserId
                 )
 
             SELECT
@@ -213,7 +222,8 @@ export default async function initDb() {
                 up.pictures AS pictures,
                 uv.visits AS visits,
                 ul.likes AS likes,
-                n.notifications AS notifications
+                n.notifications AS notifications,
+                ub.blocks AS blocks
 
             FROM users u
                 LEFT JOIN user_interests ui ON ui.userId = u.id
@@ -221,6 +231,7 @@ export default async function initDb() {
                 LEFT JOIN user_visits uv ON uv.visitedUserId = u.id
                 LEFT JOIN user_likes ul ON ul.likedUserId = u.id
                 LEFT JOIN user_notifications n ON n.userId = u.id
+                LEFT JOIN user_blocks ub ON ub.blockedUserId = u.id
         );
     `;
 

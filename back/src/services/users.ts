@@ -189,6 +189,7 @@ export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutpu
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
+    delete outputUser['blocks'];
 
     user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 
