@@ -1,4 +1,4 @@
-import type { ITotalUser, IUserPictureInput } from "./user"
+import type { IUserOutput } from "./user"
 import type { Msg_t } from "./msg"
 
 export enum ChatStatus {
@@ -23,6 +23,6 @@ export class Chat_c {
 
   id?: number
   status: ChatStatus
-  interlocutor?: Partial<ITotalUser>
+  interlocutor?: Partial<IUserOutput>
   msg: Msg_t[]
 }
