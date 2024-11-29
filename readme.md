@@ -3,6 +3,8 @@
 * Mettre les socket dans le back   <span style="float: right;">- [ ]</span>
 * faire la logique socket du Chat front & back   <span style="float: right;">- [ ]</span>
 * faire la table de settings   <span style="float: right;">- [ ]</span>
+* faire la route /api/match(a) (donne une liste de 20 profil compatibles avec les pref du user courant avec toutes leurs caractéristiques nécessaires à afficher dans leur profils)
+* faire la route /api/chat (donne tous les chat et tous les msg du user courant du genre)
 
 # Registration and Signing-in:
 requesting of at least their:

@@ -27,8 +27,8 @@
   let showNopeBox = false;
 
 	onMount(async () => {
-		card1Data = cardData($app.cardIndex);
-		card2Data = cardData(($app.cardIndex + 1));
+		card1Data = cardData($app.cardIndex++);
+		card2Data = cardData($app.cardIndex++);
 
 		[card1, card2].forEach(function (el) {
 			el.style.zIndex = currentZ.toString();
