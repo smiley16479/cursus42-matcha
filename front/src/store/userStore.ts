@@ -1,10 +1,10 @@
 import {writable, get} from 'svelte/store'
-import { type IUser, EGender, ESexualPref, type UserPic_t, EGeoPref } from '../type/shared_type/user';
+import { type IUserSelf, EGender, ESexualPref, type UserPic_t, EGeoPref } from '../type/shared_type/user';
 import { LoggingState } from '@/type/user';
 
 export class UserStore {
-	user: IUser & {interests : string[], prefGeoloc: EGeoPref} = {
-		// id: 0,
+	user: IUserSelf & {password: string, prefGeoloc: EGeoPref} = {
+		id: 0,
 		userName:  "",
 		firstName:  "",
 		lastName:  "",
@@ -24,7 +24,13 @@ export class UserStore {
 		maxDistance: 0,
 		matchAgeMin: 18,
 		matchAgeMax: 100,
-		prefGeoloc: EGeoPref.Never
+		prefGeoloc: EGeoPref.Never,
+		age: 0,
+		visits: [],
+		likes: [],
+		notifications: [],
+		pictures: [],
+		isConnected: true
 	}
 	pictures: UserPic_t[] = [];
 	avatar = "";
