@@ -1,5 +1,7 @@
 // Enums
 
+import { Notif_t_E } from "./notification"
+
 export enum EGender {
     Female = "Female",
     Male = "Male",
@@ -58,6 +60,16 @@ export interface IMinimalUser {
     userName: string,
     firstName: string,
     lastName: string,
+}
+
+export interface IUserInput extends IMinimalUser {
+    email: string,
+    password: string
+}
+
+export interface IUserOutput extends IMinimalUser {
+    id: number,
+    age: number,
     gender: EGender,
     sexualPref: ESexualPref,
     biography: string,
@@ -65,41 +77,52 @@ export interface IMinimalUser {
     latitude: number,
     longitude: number,
     lastConnection: Date,
+    isConnected: boolean,
+    interests: string[],
+    pictures: UserPic_t[]
 }
 
-export interface IUserInput extends IMinimalUser {
+export interface IUserSelf extends IUserOutput {
     email: string,
     emailVerified: boolean,
+    profileVisibility: boolean,
+    emailNotifications: boolean,
+    maxDistance: number,
+    matchAgeMin: number,
+    matchAgeMax: number,
+    visits: UserVisit_t[],
+    likes: UserLike_t[],
+    notifications: UserNotification_t[]
+}
+
+export interface IUserCredentials {
+    userName: string,
     password: string
 }
 
-export interface IUserOutput extends IMinimalUser {
-    id: number,
-    interests: string[],
-}
-
-export interface ITotalUser extends IMinimalUser, IUserInput {
-    id?: number
-    profileVisibility: boolean
-    emailNotifications: boolean
-    maxDistance: number
-    matchAgeMin: number
-    matchAgeMax: number
-}
-
 export type UserPic_t = {
-	    filename: string,
-	    pictureIndex: number
+    filename: string,
+    pictureIndex: number
 }
 
-export interface IUser extends ITotalUser {}
+export type UserVisit_t = {
+    date: Date,
+    visiterUserId: number
+}
 
-export interface IUserDb extends IUserInput, IUserOutput {
-    createdAt: Date
+export type UserLike_t = {
+    date: Date,
+    likerUserId: number
+}
+export type UserNotification_t = {
+    date: Date,
+    type: Notif_t_E,
+    isRead: boolean,
+    involvedUserId: number
 }
 
 export interface IUserPictureInput {
-    user: number,
+    userId: number,
     filename: string,
     pictureIndex: number,
 }
@@ -107,7 +130,7 @@ export interface IUserPictureInput {
 // Helpers
 
 export function string2EInterest(interestString: string): EInterest {
-    const interest =  Object.values(EInterest).find(entry => entry === interestString);
+    const interest = Object.values(EInterest).find(entry => entry === interestString);
     if (!interest)
         throw new TypeError;
     return interest;
