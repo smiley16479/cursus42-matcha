@@ -4,7 +4,7 @@ import { ESexualPref } from "../types/shared_type/user";
 
 export const researchValidator = [
     body("sexualPref").isString().trim().isIn(Object.values(ESexualPref))
-        .withMessage(`Required Gender must be one of [${Object.values(ESexualPref).join(', ')}]`),
+        .withMessage(`Sexual preference must be one of [${Object.values(ESexualPref).join(', ')}]`),
 
     body("matchAgeMin").isInt({ gt: -1 })
         .withMessage('Min age must be positive integer'),
