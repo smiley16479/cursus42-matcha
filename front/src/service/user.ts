@@ -1,6 +1,6 @@
 import {axios} from '@/service/interceptor/axios'
 import type { UserChPw_ce } from '@/type/user';
-import type { IMinimalUser, ITotalUser } from '@/type/shared_type/user';
+import type { IMinimalUser, IUserOutput, IUserSelf } from '@/type/shared_type/user';
 function deserializeContact(data: any): any {
 	return {
 	  ...data,
@@ -30,9 +30,9 @@ export async function logout() {
 }
 
 /** get current User */
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<IUserSelf>  {
 	try {
-		const response = (await axios.get(`user/current`, {withCredentials: true})).data;
+		const response = (await axios.get(`user/me`, {withCredentials: true})).data;
 		console.log('getCurrentUser service response', response);
 		if (response.contact)
 			response.contact = deserializeContact(response.contact)
@@ -42,10 +42,10 @@ export async function getCurrentUser() {
 	}
 }
 
-/** get current User */
-export async function getUser() {
+/** get a User by id */
+export async function getUser(id: number): Promise<IUserOutput> {
 	try {
-		const response = (await axios.get(`user/me`, {withCredentials: true})).data;
+		const response = (await axios.get(`user/${id}`, {withCredentials: true})).data;
 		console.log(`getUser n°me service response`, response);
 		if (response.contact)
 			response.contact = deserializeContact(response.contact)
@@ -91,7 +91,7 @@ export async function deleteUser() {
 }
 
 /** patch current User */
-export async function updateUser(user: ITotalUser) {
+export async function updateUser(user: IUserOutput) {
 	try {
 		console.log(`updateUser service`, user);
 		const response = (await axios.patch(`user/patch`, user, {withCredentials: true}));
