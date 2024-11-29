@@ -1,8 +1,8 @@
 {
-"Nom" : "Maxime",
-"Âge" : "33",
-"Profession" : "Photographe de voyage et aventurier",
-"Intérêts" : ["Photographie", "voyages", "randonnée", "nature", "aventure"],
-"Description" : "Passionné par la capture de moments uniques et l'exploration des paysages les plus reculés, je cherche quelqu'un qui partage mon amour pour la nature et l'aventure. Ensemble, nous pouvons découvrir le monde à travers l'objectif et créer des souvenirs inoubliables.",
+"nom" : "Maxime",
+"age" : "33",
+"profession" : "Photographe de voyage et aventurier",
+"interests" : ["Photographie", "voyages", "randonnée", "nature", "aventure"],
+"description" : "Passionné par la capture de moments uniques et l'exploration des paysages les plus reculés, je cherche quelqu'un qui partage mon amour pour la nature et l'aventure. Ensemble, nous pouvons découvrir le monde à travers l'objectif et créer des souvenirs inoubliables.",
 "photo": 4
 }

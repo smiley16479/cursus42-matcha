@@ -1,8 +1,8 @@
 {
-"Nom" : "Julia",
-"Âge" : "27",
-"Profession" : "Chanteuse et compositrice",
-"Intérêts" : ["Musique", "chant", "écriture de chansons", "concerts", "voyages"],
-"Description" : "Passionnée par la musique et l'expression artistique, je cherche quelqu'un qui partage mon amour pour la création musicale et les performances en live. Ensemble, nous pouvons explorer de nouveaux sons et vivre des aventures inoubliables.",
+"nom" : "Julia",
+"age" : "27",
+"profession" : "Chanteuse et compositrice",
+"interests" : ["Musique", "chant", "écriture de chansons", "concerts", "voyages"],
+"description" : "Passionnée par la musique et l'expression artistique, je cherche quelqu'un qui partage mon amour pour la création musicale et les performances en live. Ensemble, nous pouvons explorer de nouveaux sons et vivre des aventures inoubliables.",
 "photo": 4
 }

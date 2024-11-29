@@ -19,6 +19,7 @@ API_URL = "http://localhost:3000/api/"
 PICTURES_FOLDER = "./test_pictures/"
 MALE_PICTURES_FOLDER = PICTURES_FOLDER + "Male/"
 FEMALE_PICTURES_FOLDER = PICTURES_FOLDER + "Female/"
+PICTURES_PROFIL_FOLDER = './front/static/profil/'
 
 DEFAULT_EMAIL = "francois@42l.fr"
 
@@ -76,6 +77,74 @@ if (len(sys.argv) > 1):
     nbProfiles = int(sys.argv[1])
 else:
     nbProfiles = 500
+
+for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
+    if userNb % 2:
+        gender = EGender.Male
+    else:
+        gender = EGender.Female
+    with open(PICTURES_PROFIL_FOLDER + str(userNb) + "/bio.json", 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    firstName = data["nom"]
+    lastName = names.get_last_name()
+    userName = firstName + lastName[:1] + str(random.randint(1000, 2000))
+    password = "tesT123!!!"
+    age = data["age"]
+    fameRate = 100
+    sexualPref = random.choice(list(ESexualPref)).value
+    biography = data["description"]
+    [latitude, longitude, *_] = fake.local_latlng(country_code='FR')
+    lastConnection = str(datetime.now() - timedelta(days=random.uniform(0, 365)))
+    interests = random.sample(list(map(lambda c: c.value, EInterest)), random.randint(0, 20))
+
+    # Signup
+    signup_json = {
+        "email": DEFAULT_EMAIL,
+        "firstName": firstName,
+        "lastName": lastName,
+        "userName": userName,
+        "password": password
+    }
+
+    response = session.post(API_URL + "user/create", json=signup_json)
+    if response.status_code != 200:
+        print(response)
+
+    # Signin
+    signin_json = {
+        "userName": userName,
+        "password": password
+    }
+
+    response = session.post(API_URL + "user/login", json=signin_json)
+    if response.status_code != 200:
+        print(response)
+
+    # Update
+    patch_json = {
+        "age": age,
+        "fameRate": fameRate,
+        "gender": gender.value,
+        "sexualPref": sexualPref,
+        "biography": biography,
+        "latitude": latitude,
+        "longitude": longitude,
+        "lastConnection": lastConnection,
+        "interests": interests
+    }
+
+    response = session.patch(API_URL + "user/patch", json=patch_json)
+    if response.status_code != 200:
+        print(response)
+
+    for index in range(data["photo"]):
+        picture_path = PICTURES_PROFIL_FOLDER + str(userNb) + "/" + str(index + 1) + ".webp"
+        picture = open(picture_path, 'rb').read()
+        files = {'picture': (picture_path.split("/")[-1], picture, "image/webp")}
+        meta = {'index': index + 1}
+        response = session.post(API_URL + "user/picture/upload", data=meta, files=files)
+        if response.status_code != 200:
+            print(response)
 
 for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
 
