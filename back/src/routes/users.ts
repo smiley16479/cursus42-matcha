@@ -38,9 +38,7 @@ router.post('/login', loginValidator, errorHandler(async (req: Request, res: Res
 
     res.cookie("token", token, {
         httpOnly: true,
-    }).status(200).json({
-        data: user
-    });
+    }).status(200).json(user);
 }));
 
 router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
@@ -87,9 +85,7 @@ router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
 
 router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     const user = await getUser(parseInt(res.locals.user.id), true);
-    res.status(200).json({
-        data: user
-    });
+    res.status(200).json(user);
 }));
 
 router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Request, res: Response) => {
@@ -99,9 +95,7 @@ router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Requ
 
     const user = await getUser(parseInt(req.params.id), false);
 
-    res.status(200).json({
-        data: user
-    });
+    res.status(200).json(user);
 }));
 
 router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
