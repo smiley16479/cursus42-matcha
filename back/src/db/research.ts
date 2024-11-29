@@ -2,6 +2,7 @@ import { Sql } from "sql-template-tag";
 import { ESortingType, ESortOn, IResearchCriterias } from "../types/shared_type/research";
 import { IUserDb } from "../types/user";
 import pool, { cleanUserDb, sql } from "./dbUtils";
+import { EGender, ESexualPref } from "../types/shared_type/user";
 
 export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearchCriterias): Promise<IUserDb[]> {
     const connection = await pool.getConnection();
@@ -32,6 +33,20 @@ export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearc
             break;
     }
 
+    let requiredGenderSqlQuery: Sql;
+
+    switch(criterias.sexualPref) {
+        case ESexualPref.Female:
+            requiredGenderSqlQuery = sql`AND fu.gender = ${EGender.Female}`;
+            break;
+        case ESexualPref.Male:
+            requiredGenderSqlQuery = sql`AND fu.gender = ${EGender.Male}`;
+            break;
+        case ESexualPref.Both:
+            requiredGenderSqlQuery = sql``;
+            break;
+    }
+
     const sqlQuery = sql`
         WITH
             user_distance AS
@@ -40,7 +55,7 @@ export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearc
                     id AS userId,
                     ST_Distance_Sphere(
                         POINT(latitude, longitude),
-                        POINT(${criterias.locationLatitude}, ${criterias.locationLongitude})
+                        POINT(${criterias.latitude}, ${criterias.longitude})
                     ) AS distance
                 FROM
                     users
@@ -78,8 +93,8 @@ export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearc
             AND fu.id NOT IN (
                 SELECT blockedUserId FROM userBlocks WHERE blockerUserId = ${user.id}
             )
-            AND fu.gender = ${criterias.requiredGender}
-            AND fu.age BETWEEN ${criterias.minAge} AND ${criterias.maxAge}
+            ${requiredGenderSqlQuery}
+            AND fu.age BETWEEN ${criterias.matchAgeMin} AND ${criterias.matchAgeMax}
             AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
             AND distance < ${criterias.maxDistance * 1000}
             AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests})) OR JSON_LENGTH(JSON_ARRAY(${criterias.interests})) = 0

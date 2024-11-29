@@ -1,4 +1,4 @@
-import { EGender, EInterest } from "./user";
+import { EInterest, ESexualPref } from "./user";
 
 export enum ESortOn {
     FameRate = "fameRate",
@@ -14,13 +14,13 @@ export enum ESortingType {
 }
 
 export interface IBrowseCriterias {
-    requiredGender: EGender,
-    minAge: number,
-    maxAge: number,
+    sexualPref: ESexualPref,
+    matchAgeMin: number,
+    matchAgeMax: number,
     minFameRate: number,
     maxFameRate: number,
-    locationLatitude: number,
-    locationLongitude: number,
+    latitude: number,
+    longitude: number,
     maxDistance: number,
     interests: EInterest[],
     nbRequiredProfiles: number,

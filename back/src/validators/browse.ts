@@ -3,13 +3,13 @@ import { ESortingType, ESortOn } from "../types/shared_type/browse";
 import { EGender } from "../types/shared_type/user";
 
 export const BrowseValidator = [
-    body("requiredGender").isString().trim().isIn(Object.values(EGender))
+    body("sexualPref").isString().trim().isIn(Object.values(EGender))
     .withMessage(`Required Gender must be one of [${Object.values(EGender).join(', ')}]`),
 
-    body("minAge").isInt({gt: -1})
+    body("matchAgeMin").isInt({gt: -1})
     .withMessage('Min age must be positive integer'),
 
-    body("maxAge").isInt({gt: -1})
+    body("matchAgeMax").isInt({gt: -1})
     .withMessage('Max age must be positive integer'),
 
     body("minFameRate").isInt({gt: -1})
@@ -18,10 +18,10 @@ export const BrowseValidator = [
     body("maxFameRate").isInt({gt: -1})
     .withMessage('Max famerate must be positive integer'),
 
-    body("locationLatitude").toFloat().isFloat({ min: -90, max: 90 })
+    body("latitude").toFloat().isFloat({ min: -90, max: 90 })
     .withMessage('Location latitude must be between -90 and 90'),
     
-    body("locationLongitude").toFloat().isFloat({ min: -180, max: 180 })
+    body("longitude").toFloat().isFloat({ min: -180, max: 180 })
     .withMessage('Location longitude must be between -180 and 180'),
 
     body("maxDistance").isInt({gt: -1})
