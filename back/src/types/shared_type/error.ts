@@ -1,5 +1,4 @@
-export interface IError {
-    success: boolean,
+export interface IhttpData {
     message?: string,
     data?: any,
     error?: any

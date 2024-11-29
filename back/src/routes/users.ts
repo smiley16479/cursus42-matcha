@@ -26,9 +26,7 @@ router.post('/create', createUserValidator, errorHandler(async (req: Request, re
 
     await createUser(req.body);
 
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 router.post('/login', loginValidator, errorHandler(async (req: Request, res: Response) => {
@@ -41,16 +39,13 @@ router.post('/login', loginValidator, errorHandler(async (req: Request, res: Res
     res.cookie("token", token, {
         httpOnly: true,
     }).status(200).json({
-        success: true,
         data: user
     });
 }));
 
 router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
     logoutUser(res.locals.user.id);
-    res.clearCookie("token").status(200).json({
-        success: true
-    });
+    res.clearCookie("token").sendStatus(200);
 });
 
 router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
@@ -87,15 +82,12 @@ router.get('/seed', errorHandler(async (_req: Request, res: Response) => {
             });
         }
     })
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     const user = await getUser(parseInt(res.locals.user.id), true);
     res.status(200).json({
-        success: true,
         data: user
     });
 }));
@@ -108,16 +100,13 @@ router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Requ
     const user = await getUser(parseInt(req.params.id), false);
 
     res.status(200).json({
-        success: true,
         data: user
     });
 }));
 
 router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
     await removeUser(res.locals.user.id);
-    res.clearCookie("token").status(200).json({
-        success: true
-    });
+    res.clearCookie("token").sendStatus(200);
 }));
 
 router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
@@ -127,9 +116,7 @@ router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req
 
     await patchUser(res.locals.user.id, req.body);
 
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 /*********************************************************
@@ -138,9 +125,7 @@ router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req
 
 router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Response) => {
     await verifyEmail(req.params.token);
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 /*********************************************************
@@ -154,16 +139,12 @@ router.get('/askresetpassword/:email', askResetPasswordValidator, errorHandler(a
 
     await sendResetPasswordEmail(req.params.email);
 
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 router.patch('/resetpassword/:token', errorHandler(async (req: Request, res: Response) => {
     await resetPassword(req.params.token, req.body);
-    res.status(200).json({
-        success: true
-    });
+    res.sendStatus(200);
 }));
 
 /*********************************************************
@@ -201,9 +182,7 @@ router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, r
             throw new InternalError();
         }
         await manageUploadedPicture(req, res);
-        res.status(200).json({
-            success: true
-        })
+        res.sendStatus(200);
     });
 }));
 
@@ -214,9 +193,7 @@ router.delete('/picture/delete/:pictureIndex', deletePictureValidator, jwtAuthCh
 
     await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
 
-    res.status(200).json({
-        success: true
-    })
+    res.sendStatus(200);
 }));
 
 // Pictures are served as static files in index.ts

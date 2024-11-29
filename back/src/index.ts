@@ -56,13 +56,11 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
         err = new InternalError();
     if (err.error)
         res.status(err.status).json({
-            success: false,
             message: err.message,
             error: err.error
         });
     else
         res.status(err.status).json({
-            success: false,
             message: err.message,
         });
 });

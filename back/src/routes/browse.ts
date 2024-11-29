@@ -18,7 +18,6 @@ router.post('/', jwtAuthCheck, BrowseValidator, errorHandler(async (req: Request
     const users: IUserOutput[] = await getMatchCandidates(res.locals.user.id, req.body);
     
     res.status(200).json({
-        success: true,
         data: users
     });
 }));
