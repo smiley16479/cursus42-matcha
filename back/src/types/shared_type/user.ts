@@ -1,5 +1,7 @@
 // Enums
 
+import { Notif_t_E } from "./notification"
+
 export enum EGender {
     Female = "Female",
     Male = "Male",
@@ -75,9 +77,9 @@ export interface IUserOutput extends IMinimalUser {
     latitude: number,
     longitude: number,
     lastConnection: Date,
-    interests: string[]
-    // TODO: Add pictures
-    // TODO: Add visits
+    isConnected: boolean,
+    interests: string[],
+    pictures: UserPic_t[]
 }
 
 export interface IUserSelf extends IUserOutput {
@@ -87,7 +89,10 @@ export interface IUserSelf extends IUserOutput {
     emailNotifications: boolean,
     maxDistance: number,
     matchAgeMin: number,
-    matchAgeMax: number
+    matchAgeMax: number,
+    visits: UserVisit_t[],
+    likes: UserLike_t[],
+    notifications: UserNotification_t[]
 }
 
 export interface IUserCredentials {
@@ -98,6 +103,22 @@ export interface IUserCredentials {
 export type UserPic_t = {
     filename: string,
     pictureIndex: number
+}
+
+export type UserVisit_t = {
+    date: Date,
+    visiterUserId: number
+}
+
+export type UserLike_t = {
+    date: Date,
+    likerUserId: number
+}
+export type UserNotification_t = {
+    date: Date,
+    type: Notif_t_E,
+    isRead: boolean,
+    involvedUserId: number
 }
 
 export interface IUserPictureInput {
