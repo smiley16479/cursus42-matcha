@@ -52,7 +52,7 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
     console.log('catched error :');
     console.log(err);
 
-    if (!err.status)
+    if (!(err instanceof AppError))
         err = new InternalError();
     if (err.error)
         res.status(err.status).json({
