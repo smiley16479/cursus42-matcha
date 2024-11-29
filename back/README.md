@@ -314,3 +314,14 @@ Un code HTTP est toujours renvoyé :
 ## Tests
 
 Le script de tests `populate_db_for_test.py` peut être utilisé pour générer des profils utilisateur aléatoires et les insérer dans la base de donnée. Le nombre de profils a créer est donné en premier paramètre. Si aucun paramètre n'est donné, 500 profils vont être créés par defaut.
+
+## Seed db
+
+To create a population to browse using the python script:
+
+```bash
+python3 -m venv env # (already done => facultative)
+source ./env/bin/activate 
+python3 populate_db_for_test.py
+deactivate
+``` 
