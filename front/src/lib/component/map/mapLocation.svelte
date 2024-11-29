@@ -8,7 +8,7 @@
     // { name: 'User 1',   latitude: 48.8566, longitude: 2.3522 }, // Paris
     // { name: 'User 2',   latitude: 34.0522, longitude: -118.2437 }, // Los Angeles
     // { name: 'User 3',   latitude: 51.5074, longitude: -0.1278 }, // Londres
-    { name: 'Moi-Même', latitude: parseFloat($us.user.latitude.toFixed(3)), longitude: parseFloat($us.user.longitude.toFixed(3)) }
+    // { name: 'Moi-Même', latitude: parseFloat($us.user.latitude.toFixed(3)), longitude: parseFloat($us.user.longitude.toFixed(3)) }
     
   ];
 
@@ -22,7 +22,8 @@
   onMount(async () => {
     L = await import('leaflet');
     // Initialiser la carte
-    map = L.map('map').setView([51.505, -0.09], 2); // Vue initiale
+    if (!map)
+      map = L.map('map').setView([51.505, -0.09], 2); // Vue initiale
 
     // Ajouter une couche de tuile
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

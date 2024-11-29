@@ -57,7 +57,7 @@
   }
 </style>
   
-<div class="w-full">
+<div class="w-full z-1000">
   <div class="relative">
     <ul class="relative flex flex-wrap p-1 list-none rounded-lg bg-blue-gray-50/60" bind:this={tabsContainer}>
     {#each content as item, index}

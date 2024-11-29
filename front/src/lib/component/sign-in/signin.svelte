@@ -35,10 +35,11 @@ async function signIn() {
     if (resp?.status === 200) {
       $us.logState = LoggingState.logged;
       $app.footer = true;
-      const { password, pictures, ...rest } = resp.data.user;
+      const { password, pictures, ...rest } = resp.data;
       rest.interests = rest.interests.filter((e: string) => e !== null) 
       $us.user = rest;
-      $us.pictures = pictures;
+      if (pictures) 
+        $us.pictures = pictures;
       $us.avatar = "http://localhost:3000/api/user/picture/" + pictures[0]?.filename;
       goto("/app/accueil");
     } else

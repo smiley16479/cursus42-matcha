@@ -7,7 +7,7 @@
 	import Interest from "./interest.svelte";
 	import { ESexualPref, EGender, EGeoPref } from "@/type/shared_type/user";
 	import { us } from "@/store/userStore";
-	import { deleteUser, getUser, logout, updateUser } from "@/service/user";
+	import { deleteUser, getCurrentUser, logout, updateUser } from "@/service/user";
 	import { goto } from "$app/navigation";
 	import { app } from "@/store/appStore";
 
@@ -38,7 +38,7 @@
 	  if (confirm("Êtes-vous sûr de vouloir suspendre votre compte ?")) {
 			// Logique pour suspendre le compte utilisateur
 			// TEST RIEN À VOIR
-			const resp = await getUser()
+			const resp = await getCurrentUser()
 			console.log("Compte suspendu", resp);
 
 			alert("Votre compte a été suspendu.");
@@ -105,6 +105,17 @@
 		  </div>
 		</div>
   
+		<div>
+			<label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+			<input type="range" id="age" min="1" max="200" bind:value={$us.user.age}
+			class="slider mt-1 block w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+			<div class="flex justify-between text-sm text-gray-500">
+				<span>18 ans</span>
+				<span>{$us.user.age} ans</span>
+				<span>100 ans</span>
+			</div>
+		</div>
+		
 		<!-- Bio -->
 		<div class="mt-6">
 		  <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
