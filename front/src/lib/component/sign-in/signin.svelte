@@ -5,7 +5,7 @@ import { goto } from "$app/navigation";
 import { createUser, login } from "@/service/user";
 import { us } from "@/store/userStore";
 import { LoggingState } from '@/type/user';
-	import { app } from "@/store/appStore";
+import { app } from "@/store/appStore";
 
 let signUpMode = false;
 let showModalPW = false;
@@ -30,17 +30,15 @@ async function handleFormSubmit() {
 
 async function signIn() {
   try {
+    const pwd = $us.user.password;
     const resp = await login({userName: $us.user.userName, password: $us.user.password})
     console.log(`resp`, resp);
     if (resp?.status === 200) {
       $us.logState = LoggingState.logged;
       $app.footer = true;
-      const { password, pictures, ...rest } = resp.data;
-      rest.interests = rest.interests.filter((e: string) => e !== null) 
-      $us.user = rest;
-      if (pictures) 
-        $us.pictures = pictures;
-      $us.avatar = "http://localhost:3000/api/user/picture/" + pictures[0]?.filename;
+      $us.user = resp.data;
+      $us.user.password = pwd;
+      $us.avatar = "http://localhost:3000/api/user/picture/" + $us.user.pictures[0]?.filename;
       goto("/app/accueil");
     } else
       alert('Failed to login. Please check your credentials.');
@@ -48,6 +46,29 @@ async function signIn() {
     console.log(`error`, error);
   }
 }
+
+  let passwordStrengthMessage = '';
+
+  function validatePassword() {
+      const minLength = 8;
+      const hasUpperCase = /[A-Z]/.test($us.user.password);
+      const hasLowerCase = /[a-z]/.test($us.user.password);
+      const hasNumber = /[0-9]/.test($us.user.password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test($us.user.password);
+      const hasNoSpaces = !/\s/.test($us.user.password);
+
+      const isStrong =
+          $us.user.password.length >= minLength &&
+          hasUpperCase &&
+          hasLowerCase &&
+          hasNumber &&
+          hasSpecialChar &&
+          hasNoSpaces;
+
+      passwordStrengthMessage = isStrong
+          ? "Mot de passe fort"
+          : "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.";
+  }
 
 </script>
 
@@ -102,7 +123,10 @@ async function signIn() {
               {/if}
             </div>
             <div class="mt-2">
-              <input bind:value={$us.user.password} id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <input bind:value={$us.user.password} on:input={validatePassword} id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <p class="mt-2 text-sm {passwordStrengthMessage.includes('fort') ? 'text-green-500' : 'text-red-500'}">
+                {passwordStrengthMessage}
+              </p>
             </div>
           </div>
 
