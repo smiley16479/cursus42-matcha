@@ -38,6 +38,11 @@
         .bindPopup(`<b>${user.name}</b><br />${user.latitude}, ${user.longitude}`)
         .openPopup();
     });
+
+    marker = L.marker([$us.user.latitude, $us.user.longitude])
+        .addTo(map!)
+        .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
+        .openPopup();
   });
 
   function setLocation() {
@@ -80,6 +85,7 @@
   #map {
     height: 500px; /* Hauteur de la carte */
     width: 100%; /* Largeur de la carte */
+    z-index: 0;
   }
 </style>
 
