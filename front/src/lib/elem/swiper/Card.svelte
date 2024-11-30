@@ -6,6 +6,7 @@
 	export let color: string = '';
 	export let title: string = '';
 	export let description: string = '';
+	export let userName: string = '';
 	export let image: string | undefined = undefined;
 </script>
 
@@ -19,10 +20,11 @@
 		{/if}
 	{/key}
 	<div class="absolute inset-0 bg-gradient-to-t from-white/80 via-white/0 rounded-b-xl"></div>
-	<div class="p-4 absolute bottom-0 w-full flex justify-center">
+	<div class="p-2 absolute bottom-0 w-full flex justify-center">
 		<div class="flex items-center flex-col gap-y-5">
 			<Btn href={`/app/frida/${id}`}>Voir Profil</Btn>
 			<!-- <h3 class="text-3xl font-semibold pb-4">{title}</h3> -->
+			<p>{userName}</p>
 			<p>{description}</p>
 		</div>
 	</div>
