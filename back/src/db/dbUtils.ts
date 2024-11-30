@@ -43,8 +43,10 @@ export function cleanUserDb(user: IUserDb) {
         user.likes = [];
     if (user.notifications === null)
         user.notifications = [];
-    if (user.blocks === null)
-        user.blocks = [];
+    if (user.blockedBy === null)
+        user.blockedBy = [];
+    if (user.blocking === null)
+        user.blocking = [];
     return user;
 }
 

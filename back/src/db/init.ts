@@ -206,14 +206,23 @@ export default async function initDb() {
                     GROUP BY
                         n.userId
                 ),
-                user_blocks AS (
+                user_blocked AS (
                     SELECT
                         blockedUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockerUserId", ub.blockedUserId)) AS blocks
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockerUserId", ub.blockerUserId)) AS blockedBy
                     FROM
                         userBlocks ub
                     GROUP BY
                         ub.blockedUserId
+                ),
+                user_blocker AS (
+                    SELECT
+                        blockerUserId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockedUserId", ub.blockedUserId)) AS blocking
+                    FROM
+                        userBlocks ub
+                    GROUP BY
+                        ub.blockerUserId
                 )
 
             SELECT
@@ -223,7 +232,8 @@ export default async function initDb() {
                 uv.visits AS visits,
                 ul.likes AS likes,
                 n.notifications AS notifications,
-                ub.blocks AS blocks
+                ubd.blockedBy AS blockedBy,
+                ubr.blocking AS blocking
 
             FROM users u
                 LEFT JOIN user_interests ui ON ui.userId = u.id
@@ -231,7 +241,8 @@ export default async function initDb() {
                 LEFT JOIN user_visits uv ON uv.visitedUserId = u.id
                 LEFT JOIN user_likes ul ON ul.likedUserId = u.id
                 LEFT JOIN user_notifications n ON n.userId = u.id
-                LEFT JOIN user_blocks ub ON ub.blockedUserId = u.id
+                LEFT JOIN user_blocked ubd ON ubd.blockedUserId = u.id
+                LEFT JOIN user_blocker ubr ON ubr.blockerUserId = u.id
         );
     `;
 
