@@ -16,6 +16,6 @@ export function jwtAuthCheck(req: Request, res: Response, next: NextFunction) {
     decoded_token = jwt.verify(token, secret);
     res.locals.user = decoded_token;
     const promise = patchUser(res.locals.user.id, { lastConnection: new Date() });
-    next();
     promise.catch(next);
+    next();
 }
