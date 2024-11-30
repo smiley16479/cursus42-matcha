@@ -3,6 +3,16 @@
 	import Tab from '$lib/component/tabs/tab.svelte';
 	import '../../app.css';
 	import { app } from '../../store/appStore';
+	import { onMount } from 'svelte';
+	import { us } from '@/store/userStore';
+	import { goto } from '$app/navigation';
+
+	onMount(()=> {
+		if (!$us.user.id) {
+			alert("Vous avez été déconnecté");
+			goto("/");
+		}
+	})
 </script>
 
 <div class="app">
