@@ -14,6 +14,7 @@ import { Notif_t_E } from '../types/shared_type/notification';
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { getEnv } from '../util/envvars';
 import { ConnectedUsers } from './connectedUsers';
+import { updateUserFameRate } from './fameRating';
 
 
 /*********************************************************
@@ -189,7 +190,8 @@ export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutpu
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
-    delete outputUser['blocks'];
+    delete outputUser['blockedBy'];
+    delete outputUser['blocking'];
 
     user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 
@@ -267,7 +269,7 @@ export async function verifyEmail(token: string) {
         throw new TokenExpiredError();
     }
 
-    updateUser(emailConfirmToken.user, { emailVerified: true });
+    updateUser(emailConfirmToken.userId, { emailVerified: true });
     deleteEmailConfirmationToken(emailConfirmToken.id);
 }
 
@@ -411,6 +413,8 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
         throw new RessourceAlreadyExistsError();
 
     insertUserVisit(visitedUserId, visiterUserId);
+
+    updateUserFameRate(visitedUserId);
 }
 
 /*********************************************************
@@ -428,6 +432,8 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
         throw new AppError(403, 'No Picture No Like');
 
     insertUserLike(likedUserId, likerUserId);
+
+    updateUserFameRate(likedUserId);
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {
@@ -445,6 +451,8 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
         throw new RessourceAlreadyExistsError();
 
     insertUserBlock(blockedUserId, blockerUserId);
+
+    updateUserFameRate(blockedUserId);
 }
 
 export async function getUserBlock(blockedUserId: number, blockerUserId: number) {

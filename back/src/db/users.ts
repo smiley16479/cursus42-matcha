@@ -124,6 +124,24 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
     return user;
 }
 
+export async function retrieveAllUsers() {
+    const connection = await pool.getConnection();
+
+    const sqlQuery = sql`
+        SELECT *
+        FROM fullUsers
+    `;
+
+    const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+
+    rows.forEach((user, index, array) => {
+        array[index] = cleanUserDb(user);
+    });
+
+    connection.release();
+    return rows;
+}
+
 export async function deleteUser(id: number) {
     const connection = await pool.getConnection();
 

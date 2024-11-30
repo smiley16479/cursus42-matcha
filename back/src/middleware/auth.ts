@@ -13,9 +13,13 @@ export function jwtAuthCheck(req: Request, res: Response, next: NextFunction) {
         next(new AppError(401, 'User Not Logged In'));
         return;
     }
-    decoded_token = jwt.verify(token, secret);
+    try {
+        decoded_token = jwt.verify(token, secret);
+    } catch (error) {
+        throw new AppError(401, 'JWT Token Expired');
+    }
     res.locals.user = decoded_token;
     const promise = patchUser(res.locals.user.id, { lastConnection: new Date() });
-    next();
     promise.catch(next);
+    next();
 }

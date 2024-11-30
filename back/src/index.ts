@@ -15,6 +15,8 @@ import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
 import { AppError, InternalError, RouteNotFoundError } from './types/error';
 import { getEnv } from './util/envvars';
+import { startUpdateAllUsersFameRateTask, UpdateAllUsersFameRate } from './services/fameRating';
+import { errorHandler } from './middleware/error';
 
 const port = 3000
 const app = express();
@@ -47,7 +49,6 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
 });
 
 /* centralized error management */
-
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
     console.log('catched error :');
     console.log(err);
@@ -73,6 +74,9 @@ export const io = new Server(server, {
     credentials: true,
   }
 });
+
+// Schedule fameRate periodic updates
+startUpdateAllUsersFameRateTask();
 
 // Initialiser les événements Socket.IO
 initSocketEvents(io);
