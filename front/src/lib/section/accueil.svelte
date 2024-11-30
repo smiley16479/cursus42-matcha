@@ -9,9 +9,9 @@ function accept() {
 async function isEmailVerified() {
   // recup le user et voir si son mail est verifié
   // pour le faire passer ou non à l'étape d'apres
-  const isNot403 = await login({userName: $us.user.userName, password: $us.user.password});
-  if (isNot403)
-    $us.user.emailVerified = true; // ceci renverra alors vers l'autre
+  const resp = await login({userName: $us.user.userName, password: $us.user.password});
+  if (resp?.data.emailVerified)
+    $us.user.emailVerified = resp?.data.emailVerified; // ceci renverra alors vers l'autre
   else
     alert(("Vous devez valider votre email puis\nAccepter les CGV pour continuer..."))
 }
