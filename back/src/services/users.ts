@@ -269,7 +269,7 @@ export async function verifyEmail(token: string) {
         throw new TokenExpiredError();
     }
 
-    updateUser(emailConfirmToken.user, { emailVerified: true });
+    updateUser(emailConfirmToken.userId, { emailVerified: true });
     deleteEmailConfirmationToken(emailConfirmToken.id);
 }
 
