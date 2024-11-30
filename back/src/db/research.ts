@@ -97,7 +97,7 @@ export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearc
             AND fu.age BETWEEN ${criterias.matchAgeMin} AND ${criterias.matchAgeMax}
             AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
             AND distance < ${criterias.maxDistance * 1000}
-            AND JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests})) OR JSON_LENGTH(JSON_ARRAY(${criterias.interests})) = 0
+            AND (JSON_CONTAINS(interests, JSON_ARRAY(${criterias.interests})) OR JSON_LENGTH(JSON_ARRAY(${criterias.interests})) = 0)
 
         ${sortingSqlQuery}
         LIMIT ${criterias.nbRequiredProfiles}
