@@ -15,7 +15,8 @@ import { jwtAuthCheck } from './middleware/auth';
 import { initSocketEvents } from './gateway/io';
 import { AppError, InternalError, RouteNotFoundError } from './types/error';
 import { getEnv } from './util/envvars';
-import { UpdateAllUsersFameRate } from './services/fameRating';
+import { startUpdateAllUsersFameRateTask, UpdateAllUsersFameRate } from './services/fameRating';
+import { errorHandler } from './middleware/error';
 
 const port = 3000
 const app = express();
@@ -75,8 +76,7 @@ export const io = new Server(server, {
 });
 
 // Schedule fameRate periodic updates
-UpdateAllUsersFameRate();
-setInterval(UpdateAllUsersFameRate, 10000); // 10 secondes
+startUpdateAllUsersFameRateTask();
 
 // Initialiser les événements Socket.IO
 initSocketEvents(io);

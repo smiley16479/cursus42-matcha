@@ -2,12 +2,21 @@ import moment from "moment";
 import { retrieveAllUsers, retrieveUserFromId, updateUser } from "../db/users";
 import { IUserDb } from "../types/user";
 
-export async function UpdateAllUsersFameRate() {
-    const users = await retrieveAllUsers();
+export async function startUpdateAllUsersFameRateTask() {
+    UpdateAllUsersFameRate();
+    setInterval(UpdateAllUsersFameRate, 10000); // 10 secondes
+}
 
-    users.forEach((user) => {
-        updateUserFameRate(user.id);
-    })
+export async function UpdateAllUsersFameRate() {
+    try {
+        const users = await retrieveAllUsers();
+        users.forEach((user) => {
+            updateUserFameRate(user.id);
+        })
+    } catch (error) {
+        console.log('catched error :');
+        console.log(error);
+    }
 }
 
 export async function updateUserFameRate(userId: number) {
@@ -18,7 +27,7 @@ export async function updateUserFameRate(userId: number) {
     const blocksScore = getBlocksScore(user);
 
     const fameRate = Math.max(visitsScore + likeSscore + blocksScore * -1, 0);
-    updateUser(user.id, {"fameRate": fameRate});
+    updateUser(user.id, { "fameRate": fameRate });
 }
 
 // Helpers
