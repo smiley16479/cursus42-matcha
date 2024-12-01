@@ -51,13 +51,7 @@ export async function createUser(inputUser: IUserInput) {
         matchAgeMax: 30
     };
 
-    let id: number | null;
-
-    try {
-        id = await insertUser(user);
-    } catch (error) {
-        throw error;
-    }
+    const id = await insertUser(user);
 
     if (id) {
         await sendVerificationEmail(id);
@@ -85,7 +79,7 @@ export async function loginUser(credentials: IUserCredentials) {
 
     const outputUser: IUserOutput = prepareUserForOutput(user, true);
 
-    patchUser(user.id, {lastConnection: new Date()});
+    patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
 
     return [token, outputUser];
@@ -107,13 +101,9 @@ export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput 
 }
 
 export async function removeUser(id: number) {
-    try {
-        deleteUser(id);
-        deleteUserInterests(id);
-        removeUserPictures(id);
-    } catch (error) {
-        throw error;
-    }
+    deleteUser(id);
+    deleteUserInterests(id);
+    removeUserPictures(id);
 }
 
 export async function patchUser(id: number, rawUser: any) {
@@ -146,31 +136,26 @@ export async function patchUser(id: number, rawUser: any) {
         }
     }
 
-    try {
-        let isEmailUpdated: boolean = false;
+    let isEmailUpdated: boolean = false;
 
-        if ('email' in rawUser) {
-            const oldUser = await retrieveUserFromId(id);
+    if ('email' in rawUser) {
+        const oldUser = await retrieveUserFromId(id);
 
-            if (oldUser.email !== rawUser.email) {
-                isEmailUpdated = true;
-                rawUser.emailVerified = false;
-            }
+        if (oldUser.email !== rawUser.email) {
+            isEmailUpdated = true;
+            rawUser.emailVerified = false;
         }
-
-        if ('interests' in rawUser) {
-            await updateUserInterests(id, rawUser.interests);
-            delete rawUser.interests;
-        }
-        if (Object.keys(rawUser).length != 0)
-            await updateUser(id, rawUser);
-
-        if (isEmailUpdated)
-            sendVerificationEmail(id);
-
-    } catch (error) {
-        throw error;
     }
+
+    if ('interests' in rawUser) {
+        await updateUserInterests(id, rawUser.interests);
+        delete rawUser.interests;
+    }
+    if (Object.keys(rawUser).length != 0)
+        await updateUser(id, rawUser);
+
+    if (isEmailUpdated)
+        sendVerificationEmail(id);
 }
 
 export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
@@ -386,7 +371,7 @@ export async function removeUserPicture(userId: number, pictureIndex: number) {
     const userPicture = await retrieveUserPicture(userId, pictureIndex);
     if (!userPicture)
         throw new PictureNotFoundError();
-    
+
     fs.unlink(path.join(getEnv("UPLOAD_DIR"), userPicture.filename), () => { });
     await deleteUserPictureById(userPicture.id);
 }

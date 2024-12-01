@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import express, { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
+import { matchedData, validationResult } from 'express-validator';
 import multer from 'multer';
 import * as crypto from "node:crypto";
 import { insertUser } from '../db/users';
@@ -111,7 +111,8 @@ router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req
     if (!validationErrors.isEmpty())
         throw new ValidationError(validationErrors.array());
 
-    await patchUser(res.locals.user.id, req.body);
+    const matched = matchedData(req);
+    await patchUser(res.locals.user.id, matched);
 
     res.sendStatus(200);
 }));

@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 import { ESortingType, ESortOn } from "../types/shared_type/browse";
-import { ESexualPref } from "../types/shared_type/user";
+import { EInterest, ESexualPref } from "../types/shared_type/user";
 
 export const BrowseValidator = [
     body("sexualPref").isString().trim().isIn(Object.values(ESexualPref))
@@ -29,8 +29,8 @@ export const BrowseValidator = [
 
     body("interests").isArray()
         .withMessage('Interests must be an array of strings'),
-    body("interests.*").isString()
-        .withMessage('Interests must be an array of strings'),
+    body("interests.*").isString().trim().isIn(Object.values(EInterest))
+        .withMessage(`Interests must be an array of a selection of [${Object.values(EInterest).join(', ')}]`),
 
     body("offset").isInt({ gt: -1 })
         .withMessage('Offset must be positive integer'),
