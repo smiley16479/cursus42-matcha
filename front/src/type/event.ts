@@ -6,3 +6,9 @@ type SwipeEventDetail = {
 };
 
 export interface SwipeEvent extends CustomEvent<SwipeEventDetail> {}
+
+export interface SocketResponse {
+  success: boolean;
+  data?: any;
+  error?: string
+}
