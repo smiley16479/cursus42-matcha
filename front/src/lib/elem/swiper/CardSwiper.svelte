@@ -135,6 +135,10 @@
 	export const swipe = (direction: Direction = 'right') => {
 		if(thresholdPassed !== 0) return;
 
+		if (direction === 'left')
+			showNopeBox = true;
+		else
+			showBox = true;
 		let dir = direction === 'left' ? -1 : 1;
 		cardSwiped(topCard, [dir, 0.1], [dir, 1]);
 	};

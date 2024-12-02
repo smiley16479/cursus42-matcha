@@ -84,7 +84,7 @@ current userId: {$us.user.id}
         </div>
         <!-- ça ne marchera pas il faut le mettre dans une URL -->
         {#if !index || chat.msg[index -1].userId !== chat.msg[index].userId }
-          <img src={$us.avatar || "https://pagedone.io/asset/uploads/1704091591.png"} alt="Pic" class="w-10 h-11  rounded-full">
+          <img src={"https://pagedone.io/asset/uploads/1704091591.png"} alt="Pic" class="w-10 h-11  rounded-full">
         {/if}
       </div>
     {/if}
