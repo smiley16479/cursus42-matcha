@@ -82,7 +82,7 @@ else:
 ######## GPT test profiles ########
 #####################################
 
-for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
+for userNb in tqdm (range(16), desc="Populating database with GPT profiles...   "):
     if userNb % 2:
         gender = EGender.Male.value
     else:
@@ -143,7 +143,7 @@ for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
 
 print()
 
-for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
+for userNb in tqdm (range(nbProfiles), desc="Populating database with other profiles... "):
 
     # Define user properties
     gender = random.choice(list(EGender)).value
