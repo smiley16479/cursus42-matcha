@@ -11,10 +11,10 @@
 <style>
 
 .container {
-    position: fixed; /* Fixe l'élément par rapport à la fenêtre du navigateur */
-    top: 50%; /* Positionne l'élément verticalement au milieu */
-    left: 50%; /* Positionne l'élément horizontalement au milieu */
-    transform: translate(-50%, -50%); /* Centre l'élément exactement au milieu */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .message {
