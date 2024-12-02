@@ -4,4 +4,4 @@ export const generateRoomId = (userId1, userId2) => {
 };
 
 /**Array d'id de tous les users en ligne */
-export const connectedUser = []
+export const connectedUser: number[] = []
