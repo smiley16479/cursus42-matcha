@@ -78,11 +78,15 @@ if (len(sys.argv) > 1):
 else:
     nbProfiles = 500
 
-for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
+#####################################
+######## GPT test profiles ########
+#####################################
+
+for userNb in tqdm (range(16), desc="Populating database with GPT profiles...   "):
     if userNb % 2:
-        gender = EGender.Male
+        gender = EGender.Male.value
     else:
-        gender = EGender.Female
+        gender = EGender.Female.value
     with open(PICTURES_PROFIL_FOLDER + str(userNb) + "/bio.json", 'r', encoding='utf-8') as file:
         data = json.load(file)
     firstName = data["nom"]
@@ -97,34 +101,16 @@ for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
     lastConnection = str(datetime.now() - timedelta(days=random.uniform(0, 365)))
     interests = random.sample(list(map(lambda c: c.value, EInterest)), random.randint(0, 20))
 
-    # Signup
-    signup_json = {
+    # Create Debug User
+    debug_user_json = {
         "email": DEFAULT_EMAIL,
         "firstName": firstName,
         "lastName": lastName,
         "userName": userName,
-        "password": password
-    }
-
-    response = session.post(API_URL + "user/create", json=signup_json)
-    if response.status_code != 200:
-        print(response)
-
-    # Signin
-    signin_json = {
-        "userName": userName,
-        "password": password
-    }
-
-    response = session.post(API_URL + "user/login", json=signin_json)
-    if response.status_code != 200:
-        print(response)
-
-    # Update
-    patch_json = {
+        "password": password,
         "age": age,
         "fameRate": fameRate,
-        "gender": gender.value,
+        "gender": gender,
         "sexualPref": sexualPref,
         "biography": biography,
         "latitude": latitude,
@@ -133,20 +119,31 @@ for userNb in tqdm (range(16), desc="Populating database with GPT profil..."):
         "interests": interests
     }
 
-    response = session.patch(API_URL + "user/patch", json=patch_json)
+    response = session.post(API_URL + "user/debugCreateUser", json=debug_user_json)
     if response.status_code != 200:
         print(response)
 
+    # Upload pictures
+    files = []
     for index in range(data["photo"]):
         picture_path = PICTURES_PROFIL_FOLDER + str(userNb) + "/" + str(index + 1) + ".webp"
         picture = open(picture_path, 'rb').read()
-        files = {'picture': (picture_path.split("/")[-1], picture, "image/webp")}
-        meta = {'index': index + 1}
-        response = session.post(API_URL + "user/picture/upload", data=meta, files=files)
-        if response.status_code != 200:
-            print(response)
+        files.append(('picture', (picture_path.split("/")[-1], picture, "image/webp")))
 
-for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
+    debug_user_json.update({"isSamePic": "false"})
+    response = session.post(API_URL + "user/debugUpload", data=debug_user_json, files=files)
+    if response.status_code != 200:
+        print(response)
+
+
+#####################################
+######## Basic test profiles ########
+#####################################
+
+
+print()
+
+for userNb in tqdm (range(nbProfiles), desc="Populating database with other profiles... "):
 
     # Define user properties
     gender = random.choice(list(EGender)).value
@@ -172,31 +169,22 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
     lastConnection = str(datetime.now() - timedelta(days=random.uniform(0, 365)))
     interests = random.sample(list(map(lambda c: c.value, EInterest)), random.randint(0, 20))
 
-    # Signup
-    signup_json = {
+    if actual_gender == "Female":
+        picture_path = FEMALE_PICTURES_FOLDER + str(nbFemaleProfiles) + "_f.webp"
+    else:
+        picture_path = MALE_PICTURES_FOLDER + str(nbMaleProfiles) + "_m.webp"
+    picture = open(picture_path, 'rb').read()
+
+    files = [('picture', (picture_path.split("/")[-1], picture, "image/webp"))]
+    
+
+    # Create Debug User
+    debug_user_json = {
         "email": DEFAULT_EMAIL,
         "firstName": firstName,
         "lastName": lastName,
         "userName": userName,
-        "password": password
-    }
-
-    response = session.post(API_URL + "user/create", json=signup_json)
-    if response.status_code != 200:
-        print(response)
-
-    # Signin
-    signin_json = {
-        "userName": userName,
-        "password": password
-    }
-
-    response = session.post(API_URL + "user/login", json=signin_json)
-    if response.status_code != 200:
-        print(response)
-
-    # Update
-    patch_json = {
+        "password": password,
         "age": age,
         "fameRate": fameRate,
         "gender": gender,
@@ -208,19 +196,12 @@ for userNb in tqdm (range(nbProfiles), desc="Populating database ..."):
         "interests": interests
     }
 
-    response = session.patch(API_URL + "user/patch", json=patch_json)
+    response = session.post(API_URL + "user/debugCreateUser", json=debug_user_json)
     if response.status_code != 200:
         print(response)
-        
-    # Upload pictures
-    if actual_gender == "Female":
-        picture_path = FEMALE_PICTURES_FOLDER + str(nbFemaleProfiles) + "_f.webp"
-    else:
-        picture_path = MALE_PICTURES_FOLDER + str(nbMaleProfiles) + "_m.webp"
-    picture = open(picture_path, 'rb').read()
-    files = {'picture': (picture_path.split("/")[-1], picture, "image/webp")}
-    for index in range(random.randint(1, 5)):
-        data = {'index': index + 1}
-        response = session.post(API_URL + "user/picture/upload", data=data, files=files)
-        if response.status_code != 200:
-            print(response)
+
+    debug_user_json.update({"isSamePic": "true", "nbPics": random.randint(1, 5)})
+
+    response = session.post(API_URL + "user/debugUpload", data=debug_user_json, files=files)
+    if response.status_code != 200:
+        print(response)

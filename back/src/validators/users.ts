@@ -53,8 +53,8 @@ export const patchUserValidator = [
     body("lastName").optional().isString().trim().escape()
     .withMessage('LastName must be a string'),
 
-    body("userName").optional().isString().trim().escape()
-    .withMessage('UserName must be a string'),
+    body("email").optional().isString().trim().isEmail().normalizeEmail({gmail_remove_dots: true, all_lowercase: true})
+    .withMessage('Email wasn\'t recognized as an email'),
 
     body("gender").optional().isString().trim().isIn(Object.values(EGender))
     .withMessage(`Gender must be one of [${Object.values(EGender).join(', ')}]`),
@@ -74,7 +74,28 @@ export const patchUserValidator = [
     body("interests").optional().isArray()
     .withMessage('Interests must be an array of strings'),
     body("interests.*").optional().isString()
-    .withMessage('Interests must be an array of strings')
+    .withMessage('Interests must be an array of strings'),
+
+    body("age").optional().isInt({gt: 17})
+    .withMessage('Age must be a number greater than 17'),
+
+    body("bio").optional().isString().trim().escape()
+    .withMessage('Biography must be a string'),
+    
+    body("profileVisibility").optional().isBoolean()
+    .withMessage('Profile visibility must be a boolean'),
+
+    body("emailNotifications").optional().isBoolean()
+    .withMessage('Email notifications must be a boolean'),
+
+    body("maxDistance").optional().isInt({gt: -1})
+    .withMessage('Max distance must be an int greater than -1'),
+
+    body("matchAgeMin").optional().isInt({gt: 17})
+    .withMessage('Match age min must be greater than 17'),
+    
+    body("matchAgeMax").optional().isInt({gt: 17})
+    .withMessage('Match age max must be greater than 17')
 ]
 
 export const askResetPasswordValidator = [

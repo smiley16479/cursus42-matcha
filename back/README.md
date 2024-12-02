@@ -139,7 +139,7 @@ Avec des tableaux vides si aucun interest/picture/visit/like/notification est tr
 
 ```json
 {
-    "username": "fdec",
+    "email": "francoid@42l.fr",
     "firstName": "2",
     "lastName": "Desc",
     "gender": "Male",

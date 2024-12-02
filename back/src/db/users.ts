@@ -12,7 +12,6 @@ import { UserNotFoundError } from '../types/error';
 
 export async function insertUser(inputuser: IUserInputInternal): Promise<number | null> {
 
-    const connection = await pool.getConnection();
     const sqlQuery = sql`INSERT INTO users (
         email,
         emailVerified,
@@ -58,13 +57,9 @@ export async function insertUser(inputuser: IUserInputInternal): Promise<number 
 
     let result: [QueryResult, FieldPacket[]];
 
-    try {
-        result = await connection.query(sqlQuery);
-    } catch (error) {
-        throw error;
-    } finally {
-        connection.release();
-    }
+    const connection = await pool.getConnection();
+    result = await connection.query(sqlQuery);
+    connection.release();
 
     if (!result[0]) {
         return null;
@@ -74,19 +69,18 @@ export async function insertUser(inputuser: IUserInputInternal): Promise<number 
 }
 
 export async function retrieveUserFromId(id: number): Promise<IUserDb> {
-    const connection = await pool.getConnection();
-
     const sqlQuery = sql`
         SELECT *
         FROM fullUsers
         WHERE id = ${id};
     `;
 
+    const connection = await pool.getConnection();
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+    connection.release();
 
     const user = cleanUserDb(rows[0]);
 
-    connection.release();
     return user;
 }
 
@@ -108,7 +102,6 @@ export async function retrieveUserFromEmail(email: string): Promise<IUserDb> {
 }
 
 export async function retrieveUserFromUserName(userName: string): Promise<IUserDb> {
-    const connection = await pool.getConnection();
 
     const sqlQuery = sql`
         SELECT *
@@ -116,11 +109,12 @@ export async function retrieveUserFromUserName(userName: string): Promise<IUserD
         WHERE BINARY userName = ${userName}
     `;
 
+    const connection = await pool.getConnection();
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+    connection.release();
 
     const user = cleanUserDb(rows[0]);
 
-    connection.release();
     return user;
 }
 
@@ -154,8 +148,6 @@ export async function deleteUser(id: number) {
 }
 
 export async function updateUser(id: number, rawUser: any) {
-    const connection = await pool.getConnection();
-
     let sqlQuery = 'UPDATE users SET ';
     let userAttrs: any[] = [];
 
@@ -172,11 +164,13 @@ export async function updateUser(id: number, rawUser: any) {
     sqlQuery = sqlQuery + ' WHERE id = ?;';
     userAttrs.push(id);
 
+    const connection = await pool.getConnection();
     const [result] = await connection.query(sqlQuery, userAttrs);
+    connection.release();
+
     if (result.affectedRows == 0)
         throw new UserNotFoundError();
 
-    connection.release();
 }
 
 /*********************************************************
@@ -184,8 +178,6 @@ export async function updateUser(id: number, rawUser: any) {
  *********************************************************/
 
 export async function insertEmailConfirmToken(userId: number, confirmToken: string) {
-    const connection = await pool.getConnection();
-
     const sqlQuery = sql`INSERT INTO emailConfirmTokens (
         userId,
         confirmToken
@@ -195,8 +187,8 @@ export async function insertEmailConfirmToken(userId: number, confirmToken: stri
         ${confirmToken}
     );`;
 
+    const connection = await pool.getConnection();
     await connection.query(sqlQuery);
-
     connection.release();
 }
 
@@ -264,14 +256,14 @@ export async function deleteResetPasswordToken(id: number) {
  *********************************************************/
 
 export async function updateUserInterests(userId: number, interests: string[]) {
-    const connection = await pool.getConnection();
-
     const retrieveUserInterestsSqlQuery = sql`
         SELECT * FROM userInterests WHERE
         userId = ${userId};
     `;
 
+    const connection = await pool.getConnection();
     const [rows] = await connection.query<IUserInterest[]>(retrieveUserInterestsSqlQuery);
+    connection.release();
 
     interests.forEach((interest) => {
         const interestsFromDb = rows.find(elem => elem.interest === interest);
@@ -286,8 +278,6 @@ export async function updateUserInterests(userId: number, interests: string[]) {
         if (interest.id != -1)
             deleteUserInterest(interest.id);
     })
-
-    connection.release();
 }
 
 export async function deleteUserInterests(userId: number) {
@@ -303,8 +293,6 @@ export async function deleteUserInterests(userId: number) {
 // Helpers
 
 async function insertUserInterest(userId: number, interest: EInterest) {
-    const connection = await pool.getConnection();
-
     const insertUserInterestSqlQuery = sql`INSERT INTO userInterests (
         userId,
         interest
@@ -314,18 +302,17 @@ async function insertUserInterest(userId: number, interest: EInterest) {
         ${interest}
     );`;
 
+    const connection = await pool.getConnection();
     await connection.query(insertUserInterestSqlQuery);
-
     connection.release();
 }
 
 async function deleteUserInterest(interestId: number) {
-    const connection = await pool.getConnection();
 
     const sqlQuery = sql`DELETE FROM userInterests WHERE id = ${interestId};`
 
+    const connection = await pool.getConnection();
     await connection.query(sqlQuery);
-
     connection.release();
 }
 

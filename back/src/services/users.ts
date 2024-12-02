@@ -27,11 +27,11 @@ export async function createUser(inputUser: IUserInput) {
 
     checkPasswordStrength(inputUser.password);
 
-    const [hashedPassword, gender, sexualPref, biography, latitude, longitude, emailVerified] = await convertValues(inputUser);
+    const [hashedPassword, gender, sexualPref, biography, latitude, longitude] = await convertValues(inputUser);
 
     const user: IUserInputInternal = {
         email: inputUser.email,
-        emailVerified: emailVerified,
+        emailVerified: false,
         userName: inputUser.userName,
         firstName: inputUser.firstName,
         lastName: inputUser.lastName,
@@ -65,7 +65,7 @@ export async function loginUser(credentials: IUserCredentials) {
 
     if (!user)
         throw new UserNotFoundError();
-    if (user.emailVerified == false && getEnv("DEBUG") != "true")
+    if (user.emailVerified == false)
         throw new AppError(403, 'Email Not Verified');
 
     const result = await bcrypt.compare(credentials.password, user.password);
@@ -107,34 +107,6 @@ export async function removeUser(id: number) {
 }
 
 export async function patchUser(id: number, rawUser: any) {
-
-    if (getEnv("DEBUG") != "true") {
-        for (const key of Object.keys(rawUser)) {
-            switch (key.toLowerCase()) {
-                case "id":
-                    delete rawUser[key];
-                    break;
-                case "emailverified":
-                    delete rawUser[key];
-                    break;
-                case "password":
-                    delete rawUser[key];
-                    break;
-                case "famerate":
-                    delete rawUser[key];
-                    break;
-                case "lastconnection":
-                    delete rawUser[key];
-                    break;
-                case "createdat":
-                    delete rawUser[key];
-                    break;
-                case "username":
-                    delete rawUser[key];
-                    break;
-            }
-        }
-    }
 
     let isEmailUpdated: boolean = false;
 
@@ -198,7 +170,7 @@ async function checkUserNameUniqueness(userName: string) {
         throw new AppError(409, 'Username Already Taken');
 }
 
-async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number, boolean]> {
+async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPref, string, number, number]> {
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
     let gender: EGender;
     let sexualPref: ESexualPref;
@@ -230,12 +202,7 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
     else
         biography = "";
 
-    if (getEnv("DEBUG") == "true")
-        emailVerified = true;
-    else
-        emailVerified = false;
-
-    return [hashedPassword, gender, sexualPref, biography, latitude, longitude, emailVerified];
+    return [hashedPassword, gender, sexualPref, biography, latitude, longitude];
 }
 
 /*********************************************************
