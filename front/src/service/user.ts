@@ -46,7 +46,7 @@ export async function getCurrentUser(): Promise<IUserSelf>  {
 export async function getUser(id: number): Promise<IUserOutput> {
 	try {
 		const response = (await axios.get(`user/${id}`, {withCredentials: true})).data;
-		console.log(`getUser n°me service response`, response);
+		console.log(`getUser(${id}) service, response:`, response);
 		if (response.contact)
 			response.contact = deserializeContact(response.contact)
 		return response;

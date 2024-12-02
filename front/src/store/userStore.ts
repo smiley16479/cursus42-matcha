@@ -32,7 +32,6 @@ export class UserStore {
 		pictures: [],
 		isConnected: true
 	}
-	pictures: UserPic_t[] = [];
 	avatar = "";
 	logState: LoggingState = LoggingState.unlogged;
 }
