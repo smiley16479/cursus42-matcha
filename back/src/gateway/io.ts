@@ -32,48 +32,86 @@ export const initSocketEvents = (io: Server) => {
     console.log('A user connected: ', socket.user.id, "socket.handshake.headers", socket.handshake.headers.token);
     connectedUser.push(socket.user.id);
 
+    socket.on("error", (error) => {
+      console.error("Socket error:", error.message);
+    });
+
     socket.on('c_joinRoom', (roomId) => {
-      
       socket.join(roomId);
       console.log(`Socket ${socket.id} a rejoint la room ${roomId}`);
     });
 
-    socket.on('c_visit', (visitedUserId) => {
+    socket.on('c_visit', async (visitedUserId, callback) => {
       console.log(`C_VISIT: visiterUserId ${socket.user.id}, visitedUserId ${visitedUserId}`);
-      addNewUserVisit(visitedUserId, socket.user.id);
+      try {
+        await addNewUserVisit(visitedUserId, socket.user.id);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_like', (likedUserId) => {
+    socket.on('c_like', async (likedUserId, callback) => {
       console.log(`C_LIKE: likedUserId ${likedUserId}, likerUserId ${socket.user.id}`);
-      addNewUserLike(likedUserId, socket.user.id);
+      try {
+        await addNewUserLike(likedUserId, socket.user.id);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_dislike', (dislikedUserId) => {
-      console.log(`C_DISLIKE: DislikedUserId ${dislikedUserId}, DislikerUserId ${dislikedUserId}`);
-      removeUserLike(dislikedUserId, socket.user.id);
+    socket.on('c_unlike', async (unlikedUserId, callback) => {
+      console.log(`C_UNLIKE: unlikedUserId ${unlikedUserId}, unlikerUserId ${unlikedUserId}`);
+      try {
+        await removeUserLike(unlikedUserId, socket.user.id);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_block', (blockedUserId) => {
+    socket.on('c_block', async (blockedUserId, callback) => {
       console.log(`C_BLOCK: blockedUserId ${blockedUserId}, blockerUserId ${socket.user.id}`);
-      addNewBlock(blockedUserId, socket.user.id);
+      try {
+        await addNewBlock(blockedUserId, socket.user.id);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_unblock', (unblockedUserId) => {
+    socket.on('c_unblock', async (unblockedUserId, callback) => {
       console.log(`C_unBLOCK: unblockedUserId ${unblockedUserId}, unblockerUserId ${socket.user.id}`);
-      removeUserBlock(unblockedUserId, socket.user.id);
+      try {
+        await removeUserBlock(unblockedUserId, socket.user.id);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_report', (reportedUserId) => {
+    socket.on('c_report', async (reportedUserId, callback) => {
       console.log(`C_report: reportedUserId ${reportedUserId}, reporterUserId ${socket.user.id}`);
-      addNewReport(reportedUserId, socket.user.id)
+      try {
+        await addNewReport(reportedUserId, socket.user.id)
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_read_notif', (notifId) => {
+    socket.on('c_read_notif', async (notifId, callback) => {
       console.log(`C_read_notif_id: read_notifId ${notifId}`);
-      markNotificationRead(notifId);
+      try {
+        await markNotificationRead(notifId);
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    socket.on('c_sendTxtMsg', (msg: Msg_t) => {
+    socket.on('c_sendTxtMsg',  async(msg: Msg_t, callback) => {
       console.log(`C_SENDTXTMSG received`);
       // if ()
       // const { chatId, content, userId } = msg;
@@ -95,6 +133,7 @@ export const initSocketEvents = (io: Server) => {
         //     chats[chatId] = { id: chatId, messages: [] };
         // }
         // chats[chatId].messages.push(message);
+        callback({ success: true });
       } catch (error) {
         console.log(`error`, error);
       }
