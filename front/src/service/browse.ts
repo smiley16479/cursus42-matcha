@@ -1,11 +1,11 @@
 import {axios} from '@/service/interceptor/axios'
-import type { IUserSelf } from '@/type/shared_type/user';
+import type { IUserOutput } from '@/type/shared_type/user';
 
 
 /** Get all match from an userId */
-export async function browse(searchPref: any): Promise<IUserSelf[]| null>{
+export async function browse(searchPref: any): Promise<IUserOutput[]| null>{
 	try {
-		return (await axios.post(`browse`, searchPref, {withCredentials: true})).data as IUserSelf[];
+		return (await axios.post(`browse`, searchPref, {withCredentials: true})).data as IUserOutput[];
 	} catch (error) {
 		console.log('error', error);
 		return null;
