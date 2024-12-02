@@ -1,13 +1,27 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import { page } from "$app/stores";
-	import ProfileDropdown from "./profileDropdown.svelte";
-	import { app } from "@/store/appStore";
-	import Btn from "@/lib/component/btn/btn.svelte";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { app } from "@/store/appStore";
+  import Btn from "@/lib/component/btn/btn.svelte";
+  import { logout } from "@/service/user";
+  import { us } from "@/store/userStore";
+  import { LoggingState } from "@/type/user";
   const go2Matcha = () => {
     $app.tabIdx = 1;
     $app.footer = true
     goto("/app/matcha");
+  }
+
+  async function signOut() {
+    try {
+      await logout();
+      $us.logState = LoggingState.unlogged;
+      $app.tabIdx = 0;
+      goto('/')
+    } catch (error) {
+      console.warn(`error`, error);
+      throw error;
+    }
   }
 </script>
 
@@ -43,6 +57,8 @@
     </Btn>
   {/if}
   <span class="end">
-    <ProfileDropdown/>
+    <button on:click={signOut}>
+      <img class="h-16" src="/svg.svg" alt="Matcha-Frida">
+    </button>
   </span>
 </header>
