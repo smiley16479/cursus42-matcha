@@ -16,7 +16,6 @@ import { initSocketEvents } from './gateway/io';
 import { AppError, InternalError, RouteNotFoundError } from './types/error';
 import { getEnv } from './util/envvars';
 import { startUpdateAllUsersFameRateTask, UpdateAllUsersFameRate } from './services/fameRating';
-import { errorHandler } from './middleware/error';
 
 const port = 3000
 const app = express();
@@ -66,8 +65,13 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
         });
 });
 
+/* Schedule fameRate periodic updates */
+startUpdateAllUsersFameRateTask();
+
+
 const server = http.createServer(app);
-export const io = new Server(server, {
+
+export const socketServer = new Server(server, {
   cors: {
     origin: 'http://localhost:8080',
     methods: ["GET", "POST"],
@@ -75,11 +79,8 @@ export const io = new Server(server, {
   }
 });
 
-// Schedule fameRate periodic updates
-startUpdateAllUsersFameRateTask();
-
-// Initialiser les événements Socket.IO
-initSocketEvents(io);
+/* Initialiser les événements Socket.IO */
+initSocketEvents(socketServer);
 
 server.listen(port, ()=> {
     console.log(`App listening on port ${port}`)
