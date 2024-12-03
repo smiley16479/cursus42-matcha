@@ -2,8 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { app } from "../../../store/appStore";
   import { onMount, afterUpdate } from "svelte";
-  import { writable } from "svelte/store";
-  
+  import { us } from "@/store/userStore";
   // Propriétés du composant
   export let content: { title: string, icon: string, href: string }[] = [
     { title: "Acceuil", icon: "" , href: "/accueil"},
@@ -63,12 +62,19 @@
     {#each content as item, index}
       <li class="flex-auto text-center">
       <button
-        class="flex items-center justify-center w-full px-0 py-1 mb-0 transition-all ease-in-out border-0 rounded-lg cursor-pointer text-slate-700 bg-inherit"
+        class="flex items-center relative justify-center w-full px-0 py-1 mb-0 transition-all ease-in-out border-0 rounded-lg cursor-pointer text-slate-700 bg-inherit"
         role="tab"
         on:click={() => handleTabClick(index)}
         aria-selected={index === $app.tabIdx}
       >
         <span class="ml-1">{item.title}</span>
+        {#if item.title === "Matcha"} <!-- && $us.user.notifications.length -->
+          <span class="absolute top-0 right-28 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
+            aria-label="Notification Count"
+          >
+           1<!-- {$us.user.notifications.length} -->
+          </span>
+        {/if}
       </button>
       </li>
     {/each}
