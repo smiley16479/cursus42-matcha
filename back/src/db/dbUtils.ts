@@ -39,15 +39,17 @@ export function cleanUserDb(user: IUserDb) {
         user.pictures = [];
     if (user.visits === null)
         user.visits = [];
-    if (user.likes === null)
-        user.likes = [];
+    if (user.likedBy === null)
+        user.likedBy = [];
+    if (user.liking === null)
+        user.liking = [];
     if (user.notifications === null)
         user.notifications = [];
     if (user.blockedBy === null)
         user.blockedBy = [];
     if (user.blocking === null)
         user.blocking = [];
-    
+
     if (user.chats === null)
         user.chats = [];
     else {

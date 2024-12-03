@@ -216,14 +216,23 @@ export default async function initDb() {
                     GROUP BY
                         uv.visitedUserId
                 ),
-                user_likes AS (
+                user_liked AS (
                     SELECT
                         ul.likedUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerUserId", ul.likerUserId)) AS likes
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerUserId", ul.likerUserId)) AS likedBy
                     FROM
                         userLikes ul
                     GROUP BY
                         ul.likedUserId
+                ),
+                user_liker AS (
+                    SELECT
+                        likerUserId,
+                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likedUserId", ul.likedUserId)) AS liking
+                    FROM
+                        userLikes ul
+                    GROUP BY
+                        ul.likerUserId
                 ),
                 user_notifications AS (
                     SELECT
@@ -291,7 +300,8 @@ export default async function initDb() {
                 ui.interests AS interests,
                 up.pictures AS pictures,
                 uv.visits AS visits,
-                ul.likes AS likes,
+                uld.likedBy AS likedBy,
+                ulr.liking AS liking,
                 n.notifications AS notifications,
                 ubd.blockedBy AS blockedBy,
                 ubr.blocking AS blocking,
@@ -301,7 +311,8 @@ export default async function initDb() {
                 LEFT JOIN user_interests ui ON ui.userId = u.id
                 LEFT JOIN user_pictures up ON up.userId = u.id
                 LEFT JOIN user_visits uv ON uv.visitedUserId = u.id
-                LEFT JOIN user_likes ul ON ul.likedUserId = u.id
+                LEFT JOIN user_liked uld ON uld.likedUserId = u.id
+                LEFT JOIN user_liker ulr ON ulr.likerUserId = u.id
                 LEFT JOIN user_notifications n ON n.userId = u.id
                 LEFT JOIN user_blocked ubd ON ubd.blockedUserId = u.id
                 LEFT JOIN user_blocker ubr ON ubr.blockerUserId = u.id

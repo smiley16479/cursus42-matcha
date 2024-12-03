@@ -45,7 +45,7 @@ function getVisitsScore(user: IUserDb) {
 }
 
 function getLikesScore(user: IUserDb) {
-    const likes = user.likes;
+    const likes = user.likedBy;
     let likesScore = .0;
 
     for (var like of likes) {

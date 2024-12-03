@@ -143,13 +143,15 @@ export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutpu
         delete outputUser['matchAgeMin'];
         delete outputUser['matchAgeMax'];
         delete outputUser['visits'];
-        delete outputUser['likes'];
         delete outputUser['notifications'];
+        delete outputUser['blocking'];
+        delete outputUser['likedBy'];
+        delete outputUser['liking'];
+        delete outputUser['chats'];
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
     delete outputUser['blockedBy'];
-    delete outputUser['blocking'];
 
     user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 

@@ -92,7 +92,9 @@ export interface IUserSelf extends IUserOutput {
     matchAgeMin: number,
     matchAgeMax: number,
     visits: UserVisit_t[],
-    likes: UserLike_t[],
+    blocking: UserBlocking_t[],
+    liking: UserLiking_t[],
+    likedBy: UserLikedBy_t[],
     notifications: UserNotification_t[],
     chats: Chat_c[]
 }
@@ -112,10 +114,21 @@ export type UserVisit_t = {
     visiterUserId: number
 }
 
-export type UserLike_t = {
+export type UserBlocking_t = {
+    date: Date,
+    blockedUserId: number
+}
+
+export type UserLikedBy_t = {
     date: Date,
     likerUserId: number
 }
+
+export type UserLiking_t = {
+    date: Date,
+    likedUserId: number
+}
+
 export type UserNotification_t = {
     date: Date,
     type: Notif_t_E,
