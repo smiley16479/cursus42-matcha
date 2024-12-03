@@ -55,16 +55,14 @@ export async function insertUser(inputuser: IUserInputInternal): Promise<number 
         ${inputuser.matchAgeMax} 
     );`;
 
-    let result: [QueryResult, FieldPacket[]];
-
     const connection = await pool.getConnection();
-    result = await connection.query(sqlQuery);
+    const [result] = await connection.query(sqlQuery);
     connection.release();
 
-    if (!result[0]) {
+    if (!result) {
         return null;
     } else {
-        return result[0].insertId;
+        return result.insertId;
     }
 }
 
@@ -170,7 +168,6 @@ export async function updateUser(id: number, rawUser: any) {
 
     if (result.affectedRows == 0)
         throw new UserNotFoundError();
-
 }
 
 /*********************************************************
