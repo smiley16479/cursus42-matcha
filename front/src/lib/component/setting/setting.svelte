@@ -177,7 +177,7 @@
 		  </div>
 		</div>
 
-		<SliderRange fromSlider={$us.user.matchAgeMin} toSlider={$us.user.matchAgeMax}/>
+		<SliderRange bind:fromSlider={$us.user.matchAgeMin} bind:toSlider={$us.user.matchAgeMax}/>
 		<!-- <Interest/> -->
 
 		<!-- Bouton de Sauvegarde -->

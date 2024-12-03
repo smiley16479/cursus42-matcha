@@ -3,6 +3,7 @@
 	import Nope from '$lib/component/animation/nope.svelte';
   import LikeNopeBtn from '$lib/component/btn/like_nopeBtn.svelte';
 	import { getUser } from '@/service/user';
+	import { decodeHtmlEntities } from '@/service/util/sharedFunction';
 	import { app } from '@/store/appStore';
 	import { us } from '@/store/userStore';
 	import type { IUserOutput } from '@/type/shared_type/user';
@@ -76,7 +77,7 @@
       <div class="text-gray-500 text-sm">{computeDistance()} km</div>
 
       <!-- Bio -->
-      <div class="mt-4 text-base">{profil.biography}</div>
+      <div class="mt-4 text-base">{decodeHtmlEntities(profil.biography)}</div>
 
       <!-- Intérêts -->
       <div class="mt-4 flex flex-wrap gap-2">
