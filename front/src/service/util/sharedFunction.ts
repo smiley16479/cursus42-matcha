@@ -7,3 +7,10 @@ export function parseCookies(cookieHeader: string): Record<string, string> {
     });
     return cookies;
 }
+
+/** permet de décoder de l'HTML */
+export function decodeHtmlEntities(str: string): string {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = str;
+    return tempDiv.textContent || str;
+  }
