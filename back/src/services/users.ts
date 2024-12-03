@@ -8,11 +8,12 @@ import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
 import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateNotificationRead, updateUser, updateUserInterests } from "../db/users";
+import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
+import { Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
-import { Notif_t_E } from '../types/shared_type/notification';
-import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { getEnv } from '../util/envvars';
+import { createChat } from './chats';
 import { ConnectedUsers } from './connectedUsers';
 import { updateUserFameRate } from './fameRating';
 
@@ -373,7 +374,7 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
  * ================ LIKES MANAGEMENT =====================
  *********************************************************/
 
-export async function addNewUserLike(likedUserId: number, likerUserId: number) {
+export async function addNewUserLike(likedUserId: number, likerUserId: number): Promise<number | null> {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike)
@@ -386,6 +387,14 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     insertUserLike(likedUserId, likerUserId);
 
     updateUserFameRate(likedUserId);
+
+    const reciprocalLike = await retrieveUserLikeFromUsers(likerUserId, likedUserId);
+    if (reciprocalLike) {
+        const chatId = await createChat(likedUserId, likerUserId);
+        return chatId;
+    }
+    else
+        return null;
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {

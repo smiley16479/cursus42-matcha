@@ -12,6 +12,7 @@ import { EGender, ESexualPref } from '../types/shared_type/user';
 import { getEnv } from '../util/envvars';
 import { askResetPasswordValidator, createUserValidator, deletePictureValidator, getUserValidator, loginValidator, patchUserValidator } from '../validators/users';
 import { string2Notif_t_E } from '../types/shared_type/notification';
+import { createChat, createMessage } from '../services/chats';
 
 
 let router = express.Router();
@@ -308,6 +309,11 @@ if (getEnv("DEBUG") == "true") {
 
     router.get('/removenotification/:notifId', async function (req: Request, res: Response) {
         await removeNotification(parseInt(req.params.notifId));
+        res.status(200).send();
+    })
+
+    router.post('/createMessage', async function (req: Request, res: Response) {
+        await createMessage(parseInt(req.body.chatId), parseInt(req.body.userId), req.body.content);
         res.status(200).send();
     })
 }

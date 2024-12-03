@@ -47,6 +47,15 @@ export function cleanUserDb(user: IUserDb) {
         user.blockedBy = [];
     if (user.blocking === null)
         user.blocking = [];
+    
+    if (user.chats === null)
+        user.chats = [];
+    else {
+        for (const chat of user.chats) {
+            if (chat.msg === null)
+                chat.msg = [];
+        }
+    }
     return user;
 }
 

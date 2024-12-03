@@ -1,5 +1,6 @@
 // Enums
 
+import { Chat_c } from "./chat"
 import { Notif_t_E } from "./notification"
 
 export enum EGender {
@@ -92,7 +93,8 @@ export interface IUserSelf extends IUserOutput {
     matchAgeMax: number,
     visits: UserVisit_t[],
     likes: UserLike_t[],
-    notifications: UserNotification_t[]
+    notifications: UserNotification_t[],
+    chats: Chat_c[]
 }
 
 export interface IUserCredentials {

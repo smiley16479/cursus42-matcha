@@ -156,6 +156,34 @@ export default async function initDb() {
 
     await connection.query(notificationsTableQuery);
 
+    // Create userChats table
+
+    const userChatsTableQuery = `
+        CREATE TABLE IF NOT EXISTS userChats (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user1Id INT NOT NULL,
+        user2Id INT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(userChatsTableQuery);
+
+    // Create chatMessages table
+
+    const chatMessagesTableQuery = `
+        CREATE TABLE IF NOT EXISTS chatMessages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        chatId INT NOT NULL,
+        userId INT NOT NULL,
+        status ENUM('read', 'unread') NOT NULL,
+        content TEXT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(chatMessagesTableQuery);
+
     // Create full users view
 
     const fullUserViewQuery = `
@@ -223,6 +251,39 @@ export default async function initDb() {
                         userBlocks ub
                     GROUP BY
                         ub.blockerUserId
+                ),
+                chat_messages AS (
+                    SELECT
+                        cm.chatId,
+                        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "status", cm.status, "content", cm.content, "date", cm.createdAt)) AS messages
+                    FROM
+                        chatMessages cm
+                    GROUP BY
+                        cm.chatId
+                ),
+                user_chats AS (
+                    SELECT
+                        uc.userId,
+                        JSON_ARRAYAGG(JSON_OBJECT("id", uc.id, "user1Id", uc.userId, "user2Id", uc.otherUserId, "msg", cm.messages)) AS chats
+                    FROM
+                        (
+                            SELECT
+                                uc.user1Id AS userId,
+                                uc.user2Id AS otherUserId,
+                                uc.id
+                            FROM
+                                userChats uc
+                            UNION
+                            SELECT
+                                uc.user2Id AS userId,
+                                uc.user1Id AS otherUserId,
+                                uc.id
+                            FROM
+                                userChats uc
+                        ) AS uc
+                        LEFT JOIN chat_messages cm ON cm.chatId = uc.id
+                    GROUP BY
+                        uc.userId
                 )
 
             SELECT
@@ -233,7 +294,8 @@ export default async function initDb() {
                 ul.likes AS likes,
                 n.notifications AS notifications,
                 ubd.blockedBy AS blockedBy,
-                ubr.blocking AS blocking
+                ubr.blocking AS blocking,
+                uc.chats AS chats
 
             FROM users u
                 LEFT JOIN user_interests ui ON ui.userId = u.id
@@ -243,6 +305,7 @@ export default async function initDb() {
                 LEFT JOIN user_notifications n ON n.userId = u.id
                 LEFT JOIN user_blocked ubd ON ubd.blockedUserId = u.id
                 LEFT JOIN user_blocker ubr ON ubr.blockerUserId = u.id
+                LEFT JOIN user_chats uc ON uc.userId = u.id
         );
     `;
 

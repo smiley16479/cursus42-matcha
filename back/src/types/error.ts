@@ -59,3 +59,9 @@ export class PictureNotFoundError extends AppError {
         super(404, 'Picture Not Found');
     }
 }
+
+export class MessageNotFoundError extends AppError {
+    constructor() {
+        super(404, 'Message Not Found');
+    }
+}
