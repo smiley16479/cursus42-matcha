@@ -6,7 +6,7 @@ export async function load({ params, request }) {
 	// console.log('params', params.chat);
 	const cookieHeader = request.headers.get('cookie') || '';
 	const cookies = parseCookies(cookieHeader);
-	const authentication_cookie = cookies['Authentication'];
+	const authentication_cookie = cookies['token'];
 
 /* 	const apiUrl = `http://back:3000/api/`
 	const res = await axios.get(`chat`, {

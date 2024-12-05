@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { us } from '@/store/userStore';
+	import type { LatLng } from 'leaflet';
   import { onMount } from 'svelte';
   // import 'leaflet/dist/leaflet.css';
   // import L from 'leaflet';
@@ -14,6 +15,8 @@
 
   // export let users = []; // Liste des utilisateurs avec latitude et longitude
 
+  export let searchMode = false;
+  export const pos: {lng: number, lat: number} = {lng: 0, lat: 0};
   let L: any;
   let map: L.Map | null = null;
   let marker: L.Marker | null = null;
@@ -43,6 +46,8 @@
         .addTo(map!)
         .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
         .openPopup();
+    if (searchMode)
+      setLocation();
   });
 
   function setLocation() {
@@ -56,19 +61,14 @@
       const { lat, lng } = e.latlng;
 
       // Mettre à jour les variables de position de l'utilisateur
-      $us.user.latitude = lat;
-      $us.user.longitude = lng;
-
-      // marker?.remove();
-      // Ajouter un marqueur ou mettre à jour sa position si il existe déjà
-      if (marker) {
-        marker.setLatLng(e.latlng);
+      if (!searchMode) {
+        $us.user.latitude = lat;
+        $us.user.longitude = lng;
+      } else {
+        pos.lat = lat;
+        pos.lng = lng;
       }
-      else {
-        marker = L.marker([lat, lng]).addTo(map!)
-        .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
-        .openPopup();
-      }
+      setPosMarker(e.latlng);
     });
     setLocMode = true;
   }
@@ -78,6 +78,19 @@
     if (map)
       map.off('click');
     setLocMode = false;
+  }
+
+  function setPosMarker(e: LatLng) {
+    // marker?.remove();
+    // Ajouter un marqueur ou mettre à jour sa position si il existe déjà
+    if (marker) {
+      marker.setLatLng(e);
+    }
+    else {
+      marker = L.marker([e.lat, e.lng]).addTo(map!)
+      .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
+      .openPopup();
+    }
   }
 </script>
 
@@ -90,11 +103,15 @@
 </style>
 
 <div id="map"></div>
-<button
-on:click={setLocation}
-class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
->
-  {(setLocMode ? "Valider" : "Changer") + " ma Position"}
-</button>
-{$us.user.latitude}
-{$us.user.longitude}
+{#if !searchMode}
+  <button
+    on:click={setLocation}
+    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+  >
+    {(setLocMode ? "Valider" : "Changer") + " ma Position"}
+  </button>
+<!-- 
+  {$us.user.latitude}
+  {$us.user.longitude}
+   -->
+{/if}

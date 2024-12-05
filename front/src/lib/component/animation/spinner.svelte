@@ -18,14 +18,14 @@
       ></path>
     </svg>
 
-    <button
+    <!-- <button
       on:click={()=> ($app.loadingSpinner = !$app.loadingSpinner)}
-    >
+    > -->
       <img
         src={imageUrl}
         alt="Loading"
         class="absolute inset-0 w-24 h-24 m-auto rounded-full"
       />
-    </button>
+    <!-- </button> -->
   </div>
 </div>

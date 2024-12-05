@@ -1,4 +1,4 @@
-import {writable, get} from 'svelte/store'
+import {writable, get, derived} from 'svelte/store'
 import { type IUserSelf, EGender, ESexualPref, type UserPic_t, EGeoPref } from '../type/shared_type/user';
 import { LoggingState } from '@/type/user';
 
@@ -37,3 +37,5 @@ export class UserStore {
 }
 
 export const us = writable<UserStore>(new UserStore());
+//  Non ça log à tous les changements
+// export const logState = derived(us, $us => (console.log(`smt Changed`), $us.user.age));

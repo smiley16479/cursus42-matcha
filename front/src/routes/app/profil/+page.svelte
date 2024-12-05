@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Setting from "@/lib/component/setting/setting.svelte";
+  import Setting from "@/lib/section/setting.svelte";
 </script>
 
 <Setting/>

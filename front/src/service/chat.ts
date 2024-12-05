@@ -1,6 +1,6 @@
 import {axios} from '@/service/interceptor/axios'
 import type { Chat_c } from '@/type/chat';
-import type { Msg_t } from '@/type/msg';
+import type { MsgOutput_t } from '@/type/msg';
 
 /** Créer un chat  */
 export async function newChat(param : any): Promise<Chat_c | null> {
@@ -43,7 +43,7 @@ export async function deleteChat(chatId : number) {
 	}
 }
 
-export async function newMsg(param : Msg_t) {
+export async function newMsg(param : MsgOutput_t) {
 	console.log('creating new Msg', param);
 	try {
 		return await axios.post('msg/create', param);

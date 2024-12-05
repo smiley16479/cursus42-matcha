@@ -1,14 +1,8 @@
-<!-- <script type="module">
-
-</script> -->
-
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { DragGesture, type FullGestureState } from '@use-gesture/vanilla';
 	import type { CardData, Direction } from './';
 	import Card from './Card.svelte';
-	import Like from "$lib/component/animation/like.svelte";
-	import Nope from "$lib/component/animation/nope.svelte";
 	import { app } from '../../../store/appStore';
 	import { createEventDispatcher } from 'svelte';
 
@@ -22,9 +16,6 @@
 	// let $app.cardIndex = 0;
 	let topCard: HTMLElement;
 	let currentZ = 100000;
-
-	let showBox = false;
-  let showNopeBox = false;
 
 	onMount(async () => {
 		card1Data = cardData($app.cardIndex++);
@@ -49,7 +40,7 @@
 
 		let direction: Direction = movement[0] > 0 ? 'right' : 'left';
 		let data = el === card1 ? card1Data : card2Data;
-		dispatch('swiped', { direction, element: el, data, index: $app.cardIndex - 2 });
+		dispatch('swiped', { direction, element: el, data, index: $app.cardIndex });
 		thresholdPassed = movement[0] > 0 ? 1 : -1;
 
 		let moveOutWidth = document.body.clientWidth;
@@ -69,11 +60,11 @@
 			// move card back to start position at bottom of stack and update data
 			if (el === card1) {
 				card1Data = {};
-				card1Data = cardData(($app.cardIndex = $app.cardIndex + 1));
+				card1Data = cardData(($app.cardIndex++));
 				topCard = card2;
 			} else {
 				card2Data = {};
-				card2Data = cardData(($app.cardIndex = $app.cardIndex + 1));
+				card2Data = cardData(($app.cardIndex++));
 				topCard = card1;
 			}
 
@@ -136,9 +127,10 @@
 		if(thresholdPassed !== 0) return;
 
 		if (direction === 'left')
-			showNopeBox = true;
+			console.log(`LIKER`, card1Data);
 		else
-			showBox = true;
+			console.log(`UNLIKER`, card1Data);
+
 		let dir = direction === 'left' ? -1 : 1;
 		cardSwiped(topCard, [dir, 0.1], [dir, 1]);
 	};
@@ -170,17 +162,3 @@
 		<svelte:component this={Card} bind:element={card2} {...card2Data} />
 	</div>
 </div>
-
-<!-- SVG avec animation pour LIKE -->
-{#if showBox}
-<div class="z-10">
-	<Like/>
-</div>
-{/if}
-
-<!-- SVG avec animation pour "NOPE" -->
-{#if showNopeBox}
-<div class="z-10">
-	<Nope/>
-</div>
-{/if}

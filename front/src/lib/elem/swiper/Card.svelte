@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Btn from "$lib/component/btn/btn.svelte";
+	import { decodeHtmlEntities } from "@/service/util/sharedFunction";
 
 	export let element: HTMLElement;
 	export let id: number = 0;
@@ -25,7 +26,7 @@
 			<Btn href={`/app/frida/search/${id}`}>Voir Profil</Btn>
 			<!-- <h3 class="text-3xl font-semibold pb-4">{title}</h3> -->
 			<p>{userName}</p>
-			<p>{description}</p>
+			<p>{decodeHtmlEntities(description)}</p>
 		</div>
 	</div>
 </div>

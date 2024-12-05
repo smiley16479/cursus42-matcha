@@ -69,7 +69,7 @@
       >
         <span class="ml-1">{item.title}</span>
         {#if item.title === "Matcha"} <!-- && $us.user.notifications.length -->
-          <span class="absolute top-0 right-28 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
+          <span class="relative bottom-2 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
             aria-label="Notification Count"
           >
            1<!-- {$us.user.notifications.length} -->

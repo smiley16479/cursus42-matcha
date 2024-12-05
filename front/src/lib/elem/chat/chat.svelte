@@ -1,67 +1,55 @@
 <!-- url du compo: https://pagedone.io/docs/chat-bubble -->
 
 <script lang="ts">
-	import { Chat_c, ChatStatus } from "@/type/shared_type/chat";
+	import { Chat_c } from "@/type/shared_type/chat";
   import RtCcall from "./RTCcall.svelte";
 	import { app } from "../../../store/appStore";
-	import { soc, sendTxtMsg, sendVocalMsg } from "../../../store/socketStore";
+	import { soc, send_msg, sendVocalMsg } from "../../../store/socketStore";
 	import { us } from "../../../store/userStore";
 	import Msg from "./msg.svelte";
-	import {type Msg_t, initMsg } from "@/type/shared_type/msg";
+	import { EChatStatus, type MsgInput_t } from "@/type/shared_type/msg";
 	import { onMount } from "svelte";
-
+  import { page } from "$app/stores";
+  
 const fakeChat: Chat_c = {
-    status: ChatStatus.UNREAD,
     interlocutor: {
-      // user: 1
-      // id: 1,
-      // emailNotifications: false,
 	  	userName: "Alice",
-	  	// photo: "/profil/0/1.webp",
-	  	// bio: "Amoureuse des animaux et passionnée par la musique.",
-	  	// compatibility: 85,
 	  },
     msg: [{
-    	id: 0,
     	chatId: 0,
     	userId: 1,
+      destId: 1,
     	content: 'salut',
-    	createdAt: "04/03/1987 11:00"
     },
     {
-    	id: 0,
     	chatId: 0,
     	userId: 1,
+      destId: 1,
     	content: 'Comment vas tu ?',
-    	createdAt: "04/03/1987 11:00"
     },
     {
-    	id: 0,
     	chatId: 0,
     	userId: 1,
+      destId: 1,
     	content: "J'ai mangé une pomme hier",
-    	createdAt: "04/03/1987 11:00"
     },
     {
-    	id: 1,
     	chatId: 0,
     	userId: 2,
+      destId: 2,
     	content: "hey",
-    	createdAt: "04/03/1987 11:01"
     },
     {
-    	id: 1,
     	chatId: 0,
     	userId: 2,
+      destId: 2,
     	content: "Ça va et toi ?",
-    	createdAt: "04/03/1987 11:01"
     },
     {
-    	id: 1,
     	chatId: 0,
     	userId: 2,
+      destId: 2,
     	content: "Moi je me suis gratté les fesses",
-    	createdAt: "04/03/1987 11:01"
     }],
   } 
 
@@ -70,20 +58,35 @@ const fakeChat: Chat_c = {
   let audio: HTMLAudioElement | null = null;
   let audioChunks: Blob[] = [];
   let audioUrl: string = "";
+  let unsubscribe: () => void;
 
   onMount(()=> {
     audio = new Audio();
+
+    unsubscribe = soc.subscribe((s) => {
+      if (s.msg) {
+        chat.msg = [...chat.msg, s.msg]; // Ajoute le nouveau message à la liste
+      }
+    });
+    return () => {
+      if (unsubscribe)
+        unsubscribe(); // Nettoyage de l'abonnement
+    };
   })
 
   function sendMsg(_msg: string) {
-    // sendTxtMsg(_msg);
+    // send_msg(_msg);
     console.log(`dans Send Msg`);
-    $soc.socket?.emit('c_sendTxtMsg', "msg")
-    const newMsg: Msg_t= {...fakeChat.msg[0]}
-    newMsg.content = _msg;
+    const newMsg: MsgInput_t = {
+      chatId: chat.id!,
+      userId: $us.user.id,
+      destId: +$page.params.chat, //chat.interlocutor?.id, // Pour test PROBLEM 
+      content: _msg
+    };
+    send_msg(newMsg);
     chat.msg.push(newMsg)
     msg.content = "";
-    chat = chat
+    chat = chat;
   }
 
   async function record() {
@@ -134,7 +137,7 @@ const fakeChat: Chat_c = {
     // document.body.appendChild(audioElement);
   }
   
-  let msg: Msg_t= {...fakeChat.msg[0]} //initMsg();
+  let msg: MsgInput_t= {...fakeChat.msg[0]};
 </script>
 
 <div class="w-full">

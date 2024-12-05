@@ -1,33 +1,65 @@
 import { writable, get } from 'svelte/store';
 import { io, type Socket } from "socket.io-client";
 import type { Notif_T } from '@/type/shared_type/notification';
-import {type Msg_t, initMsg } from '@/type/shared_type/msg';
+import { initMsg } from '@/service/util/sharedFunction';
+import { type MsgInput_t, type MsgOutput_t } from '@/type/shared_type/msg';
+import { parseCookies } from '@/service/util/sharedFunction';
+import type { SocketResponse } from '@/type/event';
 
-export const soc = writable<{socket: Socket | null, msg: Msg_t, notif: Notif_T | null}>({
-	socket: io(import.meta.env.VITE_SOCKET_URL), //null,
-	msg: initMsg(),
+export const soc = writable<{socket: Socket | null, msg: MsgOutput_t | null, notif: Notif_T | null}>({
+	socket: null, //io(import.meta.env.VITE_SOCKET_URL, { withCredentials: true }),
+	msg: null,
 	notif: null
 });
 
-// Fonction pour initialiser le socket
+/** Fonction pour initialiser le socket */
 export function initializeSocket() {
 	// const socket = io(import.meta.env.VITE_SOCKET_URL);
 	const store = get(soc);
+
+	const cookies = parseCookies(document.cookie);
+	console.log(`initializeSocket cookies.token`, cookies.token);
 	if (!store.socket)
-		throw new Error("!store.socket")
-	store.socket.on('connect', () => {
-		console.log('Socket connecté:', store.socket?.id);
+		soc.set({
+			socket : io(import.meta.env.VITE_SOCKET_URL, { withCredentials: true,
+				extraHeaders: {
+					token: `Bearer ${cookies.token}`
+				}
+			}),
+			msg: initMsg(),
+			notif: null
+		});
+	else
+		return;
+
+	const store1 = get(soc);
+	if (!store1.socket) {
+		console.error("!store1.socket");
+		return;
+	}
+	store1.socket.on('connect', () => {
+		console.log('Socket connecté:', store1.socket?.id);
 	});
 
-	store.socket.on('s_receiveMsg', (msg) => {
-		soc.update(store => {
+	store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
+		console.log(`s_send_msg`, msg);
+		soc.update(store1 => {
 			return {
-				...store,
+				...store1,
 				msg
 			};
 		});
 	});
-	soc.set({socket : store.socket, msg: initMsg(), notif: null});
+
+	
+	store1.socket.on('s_like', (chatId: number) => {
+		console.log(`s_like new ChatId`, chatId);
+		soc.update(store1 => {
+			return {
+				...store1,
+			};
+		});
+	});
 }
 
 /** Fonction pour se connecter à un chat  */
@@ -38,17 +70,120 @@ export function joinRoom(chatId: number) {
 		return {...store}
 	});
 }
-// Fonction pour envoyer un message
-export function sendTxtMsg(msg: string) {
-	const store = get(soc);
-	// ou: //
-	// soc.update(store => {
-		if (store && store.socket)
-			store.socket.emit('c_sendTxtMsg', msg);
-		else
-			throw new Error("!(store && store.socket)")
-		// return store;
-	// });
+
+/** Fonction pour envoyer un message 
+ * @param msg: string
+*/
+export function send_msg(msg: MsgInput_t) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_send_msg', msg, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket send_msg completed");
+			} else {
+				console.error("Socket not available. Message not sent.", response.error)
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
+}
+
+/** notifier une visite 
+ * @param: visitedUserId
+*/
+export function visit(visitedUserId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_visit', visitedUserId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket visit completed");
+			} else {
+				console.error("Error received:", response.error);
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
+}
+
+/** créer un like 
+ * @param: likedUserId
+*/
+export function like(likedUserId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_like', likedUserId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket like completed", response.data);
+			} else {
+				console.error("Error received:", response.error);
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
+}
+
+/** Unlike un profil
+ * @param: unlikedUserId
+*/
+export function unlike(unlikedUserId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_unlike', unlikedUserId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket unlike completed");
+			} else {
+				console.error("Error received:", response.error);
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
+}
+
+
+/** créer un block 
+ * @param: blockdUserId
+*/
+export function block(blockdUserId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_block', blockdUserId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket block completed");
+			} else {
+				console.error("Error received:", response.error);
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
+}
+
+/** créer un report
+ * @param: reportedUserId
+*/
+export function report(reportedUserId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_report', reportedUserId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket report completed");
+			} else {
+				console.error("Error received:", response.error);
+			}
+		});
+	} catch (err) {
+		printError(err);
+	}
 }
 
 export function sendVocalMsg(msg: string) {
@@ -56,7 +191,7 @@ export function sendVocalMsg(msg: string) {
 		if (store && store.socket)
 			store.socket.emit('c_sendVocalMsg', msg);
 		else
-			throw new Error("!(store && store.socket)");
+			console.warn("Socket not available. Message not sent.");
 		console.log(`sendVocalMsg`, msg);
 }
 
@@ -65,8 +200,34 @@ export function closeSocket() {
 	soc.update(store => {
 			if (store && store.socket)
 					store.socket.disconnect();
-			return { socket: null, msg: initMsg(), notif: null };
+			return { socket: null, msg: null, notif: null };
 	});
+}
+
+//////////////// UTILITAIRES ///////////////////
+
+const timeout = 10000;
+
+/** TimeOut de 10sec */
+const timer = setTimeout(() => {
+  console.error("No response received within the timeout.");
+}, timeout);
+
+function getSocketOrThrow() {
+	const store = get(soc);
+	if (store && store.socket) {
+		return store.socket;
+	} else {
+		throw new Error("Socket is not initialized.");
+	}
+}
+
+function printError(err: unknown) {
+	if (err instanceof Error) {
+		console.error(err.message);
+	} else {
+		console.error("An unknown error occurred:", err);
+	}
 }
 
 export default soc;

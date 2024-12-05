@@ -5,5 +5,6 @@ export class AppStore {
   cardIndex = 0;
   offset = 0;
   tabIdx = 0;
+  loadingSpinner = false;
 }
 export const app = writable<AppStore>(new AppStore());

@@ -7,8 +7,8 @@
 <div class="range_container">
   <label for="fromSlider" class="block text-sm font-medium text-gray-700 mb-1">Intervale d'age pour les matches</label>
   <div class="sliders_control">
-    <input class="absolute top-1 bg-gray-300" on:input={(event) => {fromSlider = event?.target?.value}} id="fromSlider" type="range" value={fromSlider} min="18" max="100"/>
-    <input class="absolute bg-gray-300" on:input={(event) => {toSlider = event?.target?.value}} id="toSlider" type="range" value={toSlider} min="20" max="100"/>
+    <input class="absolute top-1 bg-gray-300" on:input={(event) => {fromSlider = +event.currentTarget.value}} id="fromSlider" type="range" value={fromSlider} min="18" max="100"/>
+    <input class="absolute bg-gray-300" on:input={(event) => {toSlider = +event.currentTarget.value}} id="toSlider" type="range" value={toSlider} min="20" max="100"/>
     <div class="flex justify-between text-sm text-gray-500 mt-2">
       <span>18 ans</span>
       <span>100 ans</span>

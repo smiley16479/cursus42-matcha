@@ -1,11 +1,12 @@
 <script>
 	import Header from '$lib/elem/header/header.svelte';
-	import Tab from '$lib/component/tabs/tab.svelte';
+	import NavigationTab from '@/lib/component/tabs/navigationTab.svelte';
 	import '../../app.css';
 	import { app } from '../../store/appStore';
 	import { onMount } from 'svelte';
 	import { us } from '@/store/userStore';
 	import { goto } from '$app/navigation';
+	import { initializeSocket } from '@/store/socketStore';
 
 	onMount(()=> {
 		if (!$us.user.id) {
@@ -13,6 +14,21 @@
 			goto("/");
 		}
 	})
+
+	import { beforeNavigate } from '$app/navigation';
+	import Spinner from '@/lib/component/animation/spinner.svelte';
+
+	beforeNavigate((navigation) => {
+		if (!navigation.to) {
+				// La navigation est annulée ou interne (comme un scroll dans la page)
+				console.log(`beforeNavigate(navigation)`);
+				return;
+		}
+		initializeSocket();
+
+		// Vérifier l'état de l'utilisateur à chaque navigation
+		console.log('Navigation vers : ', navigation.to.url.pathname);
+	});
 </script>
 
 <div class="app">
@@ -24,10 +40,14 @@
 	</main>
 	<div class="w-full fixed bottom-0 backdrop-blur" class:hidden={!$app.footer}>
 		<footer>
-			<Tab/>
+			<NavigationTab/>
 		</footer>
 	</div>
 </div>
+
+{#if $app.loadingSpinner}
+  <Spinner size={32} imageUrl="/svg.svg" />
+{/if}
 
 <style>
 	.app {
@@ -48,7 +68,6 @@
 	}
 
 	.header {
-		z-index: 1;
 		position: sticky;
 		top: 0;
 		left: 0;

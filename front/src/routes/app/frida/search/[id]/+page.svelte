@@ -1,13 +1,13 @@
 <script lang="ts">
 import Profil from "$lib/elem/profil/profil.svelte";
 import { page } from '$app/stores';
-	import { onMount } from "svelte";
-	import { visit } from "@/store/socketStore";
-	import { us } from "@/store/userStore";
+import { onMount } from "svelte";
+import { visit } from "@/store/socketStore";
 
 onMount(()=> {
-  console.log(`$page`, $page.params);
-  visit($us.user.id, parseInt($page.params.id));
+  if ($page.params.id)
+    visit(parseInt($page.params.id));
+  console.warn(`User id undefined`);
 })
 </script>
 

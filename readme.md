@@ -46,7 +46,7 @@ The user must be able to easily get a list of suggestions that match their profi
 * You will only propose “interesting” profiles. For example, only men for a hetero-   <span style="float: right;">- [ ]</span>
 sexual girls. You must manage bisexuality.If the user’s orientation isn’t specified,
 they will be considered bisexual.
-* You must cleverly match 3 based on:   <span style="float: right;">- [ ]</span>
+* You must cleverly match based on:   <span style="float: right;">- [ ]</span>
   * Same geographic area as the user.   <span style="float: right;">- [ ]</span>
   * A maximum of common tags.   <span style="float: right;">- [ ]</span>
   * A maximum “fame rating”.    <span style="float: right;">- [ ]</span>

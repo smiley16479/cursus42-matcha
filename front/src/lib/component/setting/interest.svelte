@@ -30,7 +30,7 @@
 </script>
 
 <div>
-  <button class="flex items-center cursor-pointer" type="button" on:click={toggleDropdown} aria-expanded={isOpen}>
+  <button class="flex items-center cursor-pointer text-sm font-medium text-gray-700" type="button" on:click={toggleDropdown} aria-expanded={isOpen}>
     Mes centres d'intérêts :
     <span class="ml-2">{isOpen ? '▲' : '▼'}</span>
   </button>

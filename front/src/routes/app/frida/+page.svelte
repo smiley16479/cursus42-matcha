@@ -8,17 +8,24 @@
 	import Nope from "$lib/component/animation/nope.svelte";
 	import { browse } from '@/service/browse';
 	import { us } from '@/store/userStore';
-	import { ESexualPref, type IUserSelf } from '@/type/shared_type/user';
+	import { ESexualPref, type IUserOutput } from '@/type/shared_type/user';
+	import { app } from '@/store/appStore';
+	import Match from '@/lib/component/animation/match.svelte';
+	import { like } from '@/store/socketStore';
 
 	let showBox = false;
   let showNopeBox = false;
+  let showMatchBox = false;
+  let matchArrayID = [1,2,3,4,5,6,7,8,9]
 
   let description=  writable<string[]>([]);
-  let browseItems=  writable<IUserSelf[]>([]);
+  let browseItems=  writable<IUserOutput[]>([]);
   let data1: any
-  onMount(()=> {
-    getLocalProfil();
-    get_db_Profil();
+  onMount(async ()=> {
+    // getLocalProfil();
+    await get_db_Profil();
+    // if ($app.cardIndex >= $browseItems.length)
+      // $app.cardIndex = 0;
   })
 
   function getLocalProfil() {
@@ -41,13 +48,6 @@
   }
 
   async function get_db_Profil() {
-    // const pref = {...$us.user};
-    // console.log(`pref`, pref);
-
-  // modifié :         front/src/lib/elem/profil/profil.svelte
-  // modifié :         front/src/lib/elem/swiper/CardSwiper.svelte
-  // modifié :         front/src/routes/app/frida/+page.svelte
-
 // what I have
 /* let user ={
   age: 0 ,
@@ -103,79 +103,117 @@ const {
     interests  
 } = $us.user
   const pref = {
-    minFameRate: $us.user.fameRate,
-    maxFameRate: $us.user.fameRate + 100,
+    minFameRate: 0,
+    maxFameRate: 100,
     nbRequiredProfiles:  20,
     offset:  0,
     sortingOn:  "score",
     sortingType:  "desc",
   }
   const user = $us.user;
-  user.sexualPref = ESexualPref.Male;
   console.log(`{pref, user}`, {...pref, ...user});
-  const profils = await browse({...pref, ...user});
-  console.log(`profils:\n`, profils);
-  if (profils)
-    browseItems.set(profils);
+  try {
+    $app.loadingSpinner = true;
+    const profils = await browse({...pref, ...user});
+    $app.loadingSpinner = false;
+    console.log(`profils:\n`, profils);
+    if (profils)
+      browseItems.set(profils);
+  } catch (error) {
+    console.warn(`browse catch`, error);
+    $app.loadingSpinner = false;
+  }
 }
 
 
   data1 =  (index: number) => {
-        if (index< 20)
-          return {
-            id: $browseItems[index].id,
-            image:  "http://localhost:3000/api/user/picture/" + $browseItems[index].pictures?.[0]?.filename,
-            title: 'Card ' + index,
-            description: 'Description :' + $browseItems[index].biography
-        }
 
-        return {
-          id: index,
-          image: `/profil/${index - 20}/1.webp`,
-          title: 'Card ' + index,
-          description: 'Description :' + $description?.[index - 20]
-        }
-      }
+    console.log(`Swiping`);
+    // retourne les slides à CardSwiper
+    return {
+        id: $browseItems?.[index]?.id,
+        image: $browseItems?.[index]?.pictures?.[0]?.filename ? "http://localhost:3000/api/user/picture/" + $browseItems?.[index]?.pictures?.[0]?.filename : undefined,
+        title: 'Card ' + index,
+        userName: $browseItems?.[index]?.userName,
+        description: 'Description :' + $browseItems?.[index]?.biography
+    }
+  }
 
 
   function onSwipe(event : SwipeEvent) {
-    // console.log('swiped', cardInfo.direction, 'on card', cardInfo.data.title);
-    if (event.detail.direction === 'left')
-      showNopeStamp()
-    else
-      showStamp()
-    console.log(`event OnSwipe`, event);
+    console.log(`event OnSwipe`, event.detail.data);
+    showStamp(event.detail.direction);
+    if (event.detail.direction === "right")
+      like(event.detail.data.id);
+    resfreshProfils();
   }
 
-        // Fonction pour déclencher l'affichage et l'animation du "NOPE"
-  function showNopeStamp() {
-    console.log(`Nope`);
+// Fonction pour déclencher l'animation
+function showStamp(direction: string) {
+  const current_Viewed_UserId = $browseItems?.[$app.cardIndex-2]?.id;
+  if (direction === "right") {
+    if (matchArrayID.includes(current_Viewed_UserId) ) {
+      showMatchBox = true;
+      setTimeout(() => (showMatchBox = false), 1000);
+    } else {
+      showBox = true;
+      setTimeout(() => (showBox = false), 1000);
+    }
+  } else if (direction === "left") {
     showNopeBox = true;
-
-    // Réinitialise l'animation après un certain temps si besoin
-    setTimeout(() => {
-      showNopeBox = false;
-    }, 1000);  // Cache l'encart après 3 secondes
+    setTimeout(() => (showNopeBox = false), 1000);
   }
-// Fonction pour déclencher l'affichage et l'animation
-function showStamp() {
-  showBox = true;
-  console.log(`Like`);
+}
 
-  // Réinitialise l'animation après un certain temps si besoin
-  setTimeout(() => {
-    showBox = false;
-  }, 1000);  // Cache l'encart après 3 secondes
+function resfreshProfils() {
+  if ($app.cardIndex + 3 > $browseItems.length) {
+    const pref = {
+      minFameRate: 0,
+      maxFameRate: 100,
+      nbRequiredProfiles:  50,
+      offset:  0,
+      sortingOn:  "score",
+      sortingType:  "desc",
+    }
+    browse({...pref, ...$us.user}).then(data => {
+      // console.log(`profils data FETCH:\n`, data);
+      // console.log(`$browseItems data FETCH:\n`, $browseItems);
+      if ((!data?.length || data?.length < 20) && $app.offset > 0)
+        $app.offset -= 20;
+      if ($app.cardIndex > 20) {
+        $app.cardIndex = 0;
+        browseItems.set(data!);
+      } else
+        browseItems.update(currentItems => {
+          return [...currentItems, ...data!];
+        })
+    }).catch(error => {
+      console.error('Erreur lors du chargement du JSON:', error);
+    });
+  }
 }
 </script>
 
-{#if $description.length >2 && $browseItems.length >2}
-  <section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
+<!-- {$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName}  data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
+<section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
+  {#if !$us.user.pictures.length}
+    <div class="flex h-[80vh] w-[80vw] items-center justify-center">
+      <span class="text-gray-500 text-lg font-semibold">
+        Uploader au moins une image pour pouvoir liker
+      </span>
+    </div>
+  {:else if $browseItems.length > $app.cardIndex}
     <div class="h-[80vh] w-[80vw]">
       <CardSwiper on:swiped={onSwipe} cardData={data1} />
     </div>
-  </section>
-{/if}
+  {:else}
+    <div class="flex h-[80vh] w-[80vw] items-center justify-center">
+      <span class="text-gray-500 text-lg font-semibold">
+        Il n'y a plus de Match à proximité
+      </span>
+    </div>
+  {/if}
+</section>
 
 <!-- SVG avec animation pour LIKE -->
 {#if showBox}
@@ -185,4 +223,9 @@ function showStamp() {
 <!-- SVG avec animation pour "NOPE" -->
 {#if showNopeBox}
 	<Nope/>
+{/if}
+
+<!-- Animation pour "MATCH" -->
+{#if showMatchBox}
+	<Match/>
 {/if}

@@ -66,6 +66,8 @@ export const initSocketEvents = (io: Server) => {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
         const chatId = await addNewUserLike(likedUserId, socket.user.id);
+        if (!chatId) // actuellement le chat n'est pas créé : on a une erreur
+          throw Error(`Chat non créé`); // Il 'sagit d'une id je ne peux pas m'en servir
         if (connectedUser.includes(likedUserId))
           socket.to(`room_${likedUserId}`).emit('s_like', chatId);
         callback({ success: true, data: chatId });

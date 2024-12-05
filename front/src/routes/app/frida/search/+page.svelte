@@ -1,6 +1,6 @@
 <script>
-import MatchFinder from "@/lib/elem/frida/matchFinder.svelte";
+import AdvancedSearch from "@/lib/elem/frida/advancedSearch.svelte";
 
 </script>
 
-<MatchFinder/>
+<AdvancedSearch/>

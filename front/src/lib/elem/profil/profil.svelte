@@ -3,7 +3,7 @@
 	import Nope from '$lib/component/animation/nope.svelte';
   import LikeNopeBtn from '$lib/component/btn/like_nopeBtn.svelte';
 	import { getUser } from '@/service/user';
-	import { decodeHtmlEntities } from '@/service/util/sharedFunction';
+	import { decodeHtmlEntities, haversine } from '@/service/util/sharedFunction';
 	import { app } from '@/store/appStore';
 	import { us } from '@/store/userStore';
 	import type { IUserOutput } from '@/type/shared_type/user';
@@ -49,20 +49,8 @@
   }
 
   function computeDistance() {
-    const R = 6371; // Rayon de la Terre en kilomètres
-    const lat1Rad = (profil!.latitude * Math.PI) / 180;
-    const lon1Rad = (profil!.longitude * Math.PI) / 180;
-    const lat2Rad = ($us.user.latitude * Math.PI) / 180;
-    const lon2Rad = ($us.user.longitude * Math.PI) / 180;
-
-    const dLat = lat2Rad - lat1Rad;
-    const dLon = lon2Rad - lon1Rad;
-
-    const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-              Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return (R * c).toFixed(0);
+    return haversine(profil!.latitude, profil!.longitude, $us.user.latitude, $us.user.longitude)
+    .toFixed(0);
   }
 
 </script>
