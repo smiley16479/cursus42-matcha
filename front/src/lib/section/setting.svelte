@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { LoggingState } from "../../../type/user";
-  import SliderRange from "./sliderRange.svelte";
+	import { LoggingState } from "../../type/user";
+  import SliderRange from "../component/setting/sliderRange.svelte";
 	import PhotoUpload from "@/lib/component/setting/photoUpload.svelte";
-	import Location from "./location.svelte";
-	import MapLocation from "../map/mapLocation.svelte";
-	import Interest from "./interest.svelte";
+	import Location from "../component/setting/location.svelte";
+	import MapLocation from "../component/map/mapLocation.svelte";
+	import Interest from "../component/setting/interest.svelte";
 	import { ESexualPref, EGender, EGeoPref } from "@/type/shared_type/user";
 	import { us } from "@/store/userStore";
 	import { deleteUser, getCurrentUser, logout, updateUser } from "@/service/user";
@@ -30,7 +30,6 @@
 			goto('/')
 		} catch (error) {
 			console.warn(`error`, error);
-			throw error;
 		}
 	}
 
@@ -56,7 +55,6 @@
 			} catch (error) {
 				console.error('Erreur lors de la suppression du compte');
 				alert("Erreur lors de la suppression du compte");
-				throw error;
 			}
 	  }
 	}
@@ -142,6 +140,9 @@
 					<option value={ESexualPref.Male}>Homme</option>
 					<option value={ESexualPref.Both}>Bisexual</option>
 				</select>
+				<div class="py-4">
+					<Interest/>
+				</div>
 				<label for="profile-visibility" class="block text-sm font-medium text-gray-700">Visibilité du profil</label>
 				<select bind:value={$us.user.profileVisibility} id="profile-visibility" name="profile-visibility"
 					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -178,10 +179,10 @@
 		</div>
 
 		<SliderRange bind:fromSlider={$us.user.matchAgeMin} bind:toSlider={$us.user.matchAgeMax}/>
-		<!-- <Interest/> -->
 
 		<!-- Bouton de Sauvegarde -->
 		<div class="mt-6">
+			<span class="text-xs">Sans enregistrer les préférences ne seront valides que pour la session en cours</span>
 		  <button type="submit"
 			class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 			Enregistrer les modifications
@@ -225,4 +226,3 @@
 	  </form>
 	</div>
 </div>
-  
