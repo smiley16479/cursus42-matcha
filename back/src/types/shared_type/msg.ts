@@ -15,5 +15,6 @@ export type MsgOutput_t = {
 export type MsgInput_t = {
 	chatId: number,
 	userId: number,
+	destId?: number,
 	content: string,
 }
