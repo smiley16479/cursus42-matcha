@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import type {Msg_t} from '../types/shared_type/msg';
+import type {MsgInput_t} from '../types/shared_type/msg';
 import { connectedUser, generateRoomId } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
@@ -29,8 +29,12 @@ export const initSocketEvents = (io: Server) => {
   });
 
   io.on('connection', (socket: Socket) => {
-    console.log('A user connected: ', socket.user.id, "socket.handshake.headers", socket.handshake.headers.token);
+    console.log("A user connected: ", socket.user.id,
+                "socket.handshake.headers", socket.handshake.headers.token,
+                "the user joined his id's room", 
+                );
     connectedUser.push(socket.user.id);
+    socket.join(`room_${socket.user.id}`)
 
     socket.on("error", (error) => {
       console.error("Socket error:", error.message);
@@ -44,7 +48,12 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_visit', async (visitedUserId, callback) => {
       console.log(`C_VISIT: visiterUserId ${socket.user.id}, visitedUserId ${visitedUserId}`);
       try {
-        await addNewUserVisit(visitedUserId, socket.user.id);
+        if (!visitedUserId)
+          throw Error(`visitedUserId: ${visitedUserId}`);
+        /** PROBLEME ne retourne pas le user */
+        const user = await addNewUserVisit(visitedUserId, socket.user.id);
+        if (connectedUser.includes(visitedUserId))
+          socket.to(`room_${visitedUserId}`).emit('s_visit', user);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });
@@ -54,8 +63,12 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_like', async (likedUserId, callback) => {
       console.log(`C_LIKE: likedUserId ${likedUserId}, likerUserId ${socket.user.id}`);
       try {
-        await addNewUserLike(likedUserId, socket.user.id);
-        callback({ success: true });
+        if (!likedUserId)
+          throw Error(`likedUserId: ${likedUserId}`);
+        const chatId = await addNewUserLike(likedUserId, socket.user.id);
+        if (connectedUser.includes(likedUserId))
+          socket.to(`room_${likedUserId}`).emit('s_like', chatId);
+        callback({ success: true, data: chatId });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
@@ -111,30 +124,21 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_sendTxtMsg',  async(msg: Msg_t, callback) => {
-      console.log(`C_SENDTXTMSG received`);
-      // if ()
-      // const { chatId, content, userId } = msg;
-      // const message = {
-      //   chatId,
-      //   userId,
-      //   content,
-      //   createdAt: new Date().toISOString()
-      // };
-
+    socket.on('c_send_msg', async (msg: MsgInput_t, callback) => {
+      console.log(`c_send_msg received`, msg);
       // Émettre le message à la room appropriée s'il y a l'autre user connecté
-      // socket.to(`${chatId}`).emit('s_receiveMsg', message);
-      // io.to(`${chatId}`).emit('s_receiveMsg', message); // Ceci emet à tous
-
-      // Ajouter le message à la base de données
       try {
-        // saveChatMsg(message)
-        // if (!chats[chatId]) {
-        //     chats[chatId] = { id: chatId, messages: [] };
-        // }
-        // chats[chatId].messages.push(message);
+
+        if (connectedUser.includes(msg.userId))
+          socket.to(`room_${msg.destId}`).emit('s_send_msg', msg);
+        // io.to(`${chatId}`).emit('s_receiveMsg', message); // Ceci emet à tous
+        else
+          true;
+      // Ajouter le message à la base de données
+        // saveChatMsg(msg)
         callback({ success: true });
       } catch (error) {
+        callback({ success: false, error: error.message });
         console.log(`error`, error);
       }
     });
