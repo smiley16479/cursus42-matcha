@@ -16,7 +16,8 @@ export type Notif_T = {
      * The user who liked/visited/sent a msg etc
      */
     involvedUser: IUserOutput,
-    date: Date
+    date: Date,
+    payload: any
 }
 
 // Helpers

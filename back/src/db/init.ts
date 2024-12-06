@@ -149,7 +149,7 @@ export default async function initDb() {
         userId INT NOT NULL,
         involvedUserId INT NOT NULL,
         type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
-        isRead BOOLEAN NOT NULL,
+        payloadId INT NOT NULL
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -259,7 +259,7 @@ export default async function initDb() {
                 user_notifications AS (
                     SELECT
                         n.userId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "isRead", n.isRead)) AS notifications
+                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "payloadId", n.payloadId)) AS notifications
                     FROM
                         notifications n
                     GROUP BY

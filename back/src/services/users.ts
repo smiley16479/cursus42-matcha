@@ -464,10 +464,10 @@ export async function addNewReport(reportedUserId: number, reporterUserId: numbe
  * ============ NOTIFICATIONS MANAGEMENT =================
  *********************************************************/
 
-export async function addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E) {
+export async function addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E, payloadId: number) {
     const block = await getUserBlock(involvedUserId, userId);
     if (!block)
-        insertNotification(userId, involvedUserId, type, false);
+        insertNotification(userId, involvedUserId, type, payloadId);
 }
 
 export async function markNotificationRead(notifId: number) {

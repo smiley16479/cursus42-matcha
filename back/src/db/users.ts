@@ -558,31 +558,21 @@ export async function insertUserReport(reportedUserId: number, reporterUserId: n
  * ============ NOTIFICATIONS MANAGEMENT =================
  *********************************************************/
 
-export async function insertNotification(userId: number, involvedUserId: number, type: Notif_t_E, isRead: boolean) {
+export async function insertNotification(userId: number, involvedUserId: number, type: Notif_t_E, payloadId: number) {
     const connection = await pool.getConnection();
 
     const sqlQuery = sql`INSERT INTO notifications (
         userId,
         involvedUserId,
         type,
-        isRead
+        payloadId
     )
     VALUES (
         ${userId},
         ${involvedUserId},
         ${type},
-        ${isRead}
+        ${payloadId}
     );`
-
-    await connection.query(sqlQuery);
-
-    connection.release();
-}
-
-export async function updateNotificationRead(notifId: number) {
-    const connection = await pool.getConnection();
-
-    const sqlQuery = sql`UPDATE notifications SET isRead = true WHERE id = ${notifId};`;
 
     await connection.query(sqlQuery);
 
