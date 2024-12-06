@@ -119,7 +119,7 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_read_notif', async (notifId, callback) => {
       console.log(`C_read_notif_id: read_notifId ${notifId}`);
       try {
-        await markNotificationRead(notifId);
+        // await markNotificationRead(notifId);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });

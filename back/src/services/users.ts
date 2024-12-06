@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
-import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateNotificationRead, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
@@ -468,10 +468,6 @@ export async function addNewNotification(userId: number, involvedUserId: number,
     const block = await getUserBlock(involvedUserId, userId);
     if (!block)
         insertNotification(userId, involvedUserId, type, payloadId);
-}
-
-export async function markNotificationRead(notifId: number) {
-    updateNotificationRead(notifId);
 }
 
 export async function removeNotification(notifId: number) {

@@ -6,13 +6,13 @@ import * as crypto from "node:crypto";
 import { insertUser, retrieveUserFromUserName } from '../db/users';
 import { jwtAuthCheck } from '../middleware/auth';
 import { errorHandler } from '../middleware/error';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, logoutUser, manageUploadedPicture, markNotificationRead, patchUser, removeNotification, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { createMessage } from '../services/chats';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, logoutUser, manageUploadedPicture, patchUser, removeNotification, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
 import { InternalError, ValidationError } from '../types/error';
+import { string2Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref } from '../types/shared_type/user';
 import { getEnv } from '../util/envvars';
 import { askResetPasswordValidator, createUserValidator, deletePictureValidator, getUserValidator, loginValidator, patchUserValidator } from '../validators/users';
-import { string2Notif_t_E } from '../types/shared_type/notification';
-import { createChat, createMessage } from '../services/chats';
 
 
 let router = express.Router();
@@ -298,12 +298,7 @@ if (getEnv("DEBUG") == "true") {
     })
 
     router.post('/addnotification', async function (req: Request, res: Response) {
-        await addNewNotification(req.body.userId, req.body.involvedUserId, string2Notif_t_E(req.body.type));
-        res.status(200).send();
-    })
-
-    router.get('/markNotificationRead/:notifId', async function (req: Request, res: Response) {
-        await markNotificationRead(parseInt(req.params.notifId));
+        await addNewNotification(req.body.userId, req.body.involvedUserId, string2Notif_t_E(req.body.type), req.body.payloadId);
         res.status(200).send();
     })
 
