@@ -149,7 +149,7 @@ export default async function initDb() {
         userId INT NOT NULL,
         involvedUserId INT NOT NULL,
         type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
-        payloadId INT NOT NULL
+        payloadId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
