@@ -412,6 +412,10 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number): 
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {
+    const reciprocalLike = await retrieveUserLikeFromUsers(likerUserId, likedUserId);
+    if (reciprocalLike) {
+        addNewBlock(likedUserId, likerUserId);
+    }
     deleteUserLike(likedUserId, likerUserId);
 }
 
