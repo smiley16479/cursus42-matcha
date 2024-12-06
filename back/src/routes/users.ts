@@ -313,7 +313,7 @@ if (getEnv("DEBUG") == "true") {
     })
 
     router.post('/createMessage', async function (req: Request, res: Response) {
-        await createMessage(parseInt(req.body.chatId), parseInt(req.body.userId), req.body.content);
+        await createMessage(req.body);
         res.status(200).send();
     })
 }

@@ -184,6 +184,28 @@ export default async function initDb() {
 
     await connection.query(chatMessagesTableQuery);
 
+    // Create uniformized chats view
+
+    const uniformizedChatViewQuery = `
+        CREATE OR REPLACE VIEW uniformizedChats AS (
+            SELECT
+                uc.user1Id AS userId,
+                uc.user2Id AS otherUserId,
+                uc.id
+            FROM
+                userChats uc
+            UNION
+            SELECT
+                uc.user2Id AS userId,
+                uc.user1Id AS otherUserId,
+                uc.id
+            FROM
+                userChats uc
+        );
+    `;
+
+    await connection.query(uniformizedChatViewQuery);
+
     // Create full users view
 
     const fullUserViewQuery = `
