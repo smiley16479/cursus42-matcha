@@ -83,6 +83,18 @@ export async function loginUser(credentials: IUserCredentials) {
     patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
 
+    for (const visit of user.visits) {
+        const visiterUser = await retrieveUserFromId(visit.visiterUserId);
+        visit.visiterUser = prepareUserForOutput(visiterUser, false);
+        delete visit.visiterUserId;
+    }
+
+    for (const like of user.likedBy) {
+        const likerUser = await retrieveUserFromId(like.likerUserId);
+        like.likerUser = prepareUserForOutput(likerUser, false);
+        delete like.likerUserId;
+    }
+
     return [token, outputUser];
 }
 

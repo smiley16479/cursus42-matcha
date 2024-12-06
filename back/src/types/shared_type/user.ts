@@ -1,7 +1,7 @@
-// Enums
-
 import { Chat_c } from "./chat"
 import { Notif_t_E } from "./notification"
+
+// Enums
 
 export enum EGender {
     Female = "Female",
@@ -111,7 +111,7 @@ export type UserPic_t = {
 
 export type UserVisit_t = {
     date: Date,
-    visiterUserId: number
+    visiterUser: IUserOutput
 }
 
 export type UserBlocking_t = {
@@ -121,7 +121,7 @@ export type UserBlocking_t = {
 
 export type UserLikedBy_t = {
     date: Date,
-    likerUserId: number
+    likerUser: IUserOutput
 }
 
 export type UserLiking_t = {
