@@ -6,9 +6,8 @@
 	import { ESexualPref, type IUserOutput } from '@/type/shared_type/user';
 	import { app } from '@/store/appStore';
 	import MultiSelect2 from '@/lib/component/setting/multiSelect2.svelte';
-	import MultiSelect from '@/lib/component/setting/multiSelect.svelte';
 	import { haversine } from '@/service/util/sharedFunction';
-  
+
   // Données fictives pour les correspondances
   let result: IUserOutput[] | null = [];
   const matches = writable<IUserOutput[]>([]);
@@ -35,12 +34,15 @@
 
     const pref = {
       requiredGender: genre,
-      minAge: $us.user.age - ageGap > 0   ? $us.user.age - ageGap : 0,
-      maxAge: $us.user.age + ageGap < 100 ? $us.user.age + ageGap : 100,
+      sexualPref: genre,
+      matchAgeMin: $us.user.age - ageGap > 0   ? $us.user.age - ageGap : 0,
+      matchAgeMax: $us.user.age + ageGap < 100 ? $us.user.age + ageGap : 100,
       minFameRate: $us.user.fameRate - fameRatingGap > 0   ? $us.user.fameRate - fameRatingGap : 0,
       maxFameRate: $us.user.fameRate + fameRatingGap < 100 ? $us.user.fameRate + fameRatingGap : 100,
       maxDistance: distanceGap,
       interests,
+      latitude: pos.lat,
+      longitude: pos.lng,
       nbRequiredProfiles: 1000,
       offset: 0,
       sortingOn:  "score",
@@ -49,7 +51,7 @@
 
     try {
       $app.loadingSpinner = true;
-      result = await browse({...pref, ...$us.user});
+      result = await browse({...pref});
       if (result)
         matches.set(result);
     } catch (error) {
@@ -65,7 +67,7 @@
         if (sortKey === 'age') return a.age - b.age;
         if (sortKey === 'genre') return parseInt(a.gender) - parseInt(b.gender); // PROBLEM
         if (sortKey === 'distance') return haversine(pos.lat, pos.lng, a.latitude, a.longitude) - haversine(pos.lat, pos.lng, b.latitude, b.longitude);
-        if (sortKey === 'fameRating') return a.fameRate - b.fameRate;
+        if (sortKey === 'fameRating') return  b.fameRate - a.fameRate;
         if (sortKey === 'tags') return b.interests.filter(interest => interests.includes(interest)).length - a.interests.filter(interest => interests.includes(interest)).length;
         return 0;
       })
