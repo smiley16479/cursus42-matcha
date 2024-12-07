@@ -17,151 +17,6 @@ import { askResetPasswordValidator, createUserValidator, deletePictureValidator,
 
 let router = express.Router();
 
-/*********************************************************
- * ================== USER MANAGEMENT ====================
- *********************************************************/
-
-router.post('/create', createUserValidator, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    await createUser(req.body);
-
-    res.sendStatus(200);
-}));
-
-router.post('/login', loginValidator, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    const [token, user] = await loginUser(req.body);
-
-    const exp = getEnv("JWT_EXP")
-    res.cookie("token", token, {
-        httpOnly: false,
-        sameSite: 'lax',
-        maxAge: parseInt(exp) * 60 *60 * 1000,
-    }).status(200).json(user);
-}));
-
-router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
-    logoutUser(res.locals.user.id);
-    res.clearCookie("token").sendStatus(200);
-});
-
-router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
-    const user = await getUser(parseInt(res.locals.user.id), true);
-    res.status(200).json(user);
-}));
-
-router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    const user = await getUser(parseInt(req.params.id), false);
-
-    res.status(200).json(user);
-}));
-
-router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
-    await removeUser(res.locals.user.id);
-    res.clearCookie("token").sendStatus(200);
-}));
-
-router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    const matched = matchedData(req);
-    await patchUser(res.locals.user.id, matched);
-
-    res.sendStatus(200);
-}));
-
-/*********************************************************
- * =========== EMAIL VERIFICATION MANAGEMENT =============
- *********************************************************/
-
-router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Response) => {
-    await verifyEmail(req.params.token);
-    res.sendStatus(200);
-}));
-
-/*********************************************************
- * ============== PASSWORD RESET MANAGEMENT ==============
- *********************************************************/
-
-router.get('/askresetpassword/:email', askResetPasswordValidator, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    await sendResetPasswordEmail(req.params.email);
-
-    res.sendStatus(200);
-}));
-
-router.patch('/resetpassword/:token', errorHandler(async (req: Request, res: Response) => {
-    await resetPassword(req.params.token, req.body);
-    res.sendStatus(200);
-}));
-
-/*********************************************************
- * ================ PICTURE MANAGEMENT ===================
- *********************************************************/
-
-const uploadDir = getEnv("UPLOAD_DIR");
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const newFilename = crypto.randomBytes(20).toString('hex');
-        cb(null, newFilename);
-    }
-});
-
-const upload = multer({
-    storage,
-    limits: { fileSize: 10000000 }, // 10 Mo
-    fileFilter: function (req, file, cb) {
-        const filetypes = /jpeg|jpg|png|gif|webp/;
-        if (filetypes.test(file.mimetype))
-            cb(null, true);
-        else
-            cb(null, false);
-    }
-});
-const uploadMiddleware = upload.single("picture");
-
-router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
-    uploadMiddleware(req, res, async function (error) {
-        if (error || !req.file) {
-            throw new InternalError();
-        }
-        await manageUploadedPicture(req, res);
-        res.sendStatus(200);
-    });
-}));
-
-router.delete('/picture/delete/:pictureIndex', deletePictureValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty())
-        throw new ValidationError(validationErrors.array());
-
-    await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
-
-    res.sendStatus(200);
-}));
-
-// Pictures are served as static files in index.ts
-
-
 /****** Debug routes *******/
 
 if (getEnv("DEBUG") == "true") {
@@ -312,5 +167,149 @@ if (getEnv("DEBUG") == "true") {
         res.status(200).send();
     })
 }
+
+/*********************************************************
+ * ================== USER MANAGEMENT ====================
+ *********************************************************/
+
+router.post('/create', createUserValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    await createUser(req.body);
+
+    res.sendStatus(200);
+}));
+
+router.post('/login', loginValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    const [token, user] = await loginUser(req.body);
+
+    const exp = getEnv("JWT_EXP")
+    res.cookie("token", token, {
+        httpOnly: false,
+        sameSite: 'lax',
+        maxAge: parseInt(exp) * 60 *60 * 1000,
+    }).status(200).json(user);
+}));
+
+router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
+    logoutUser(res.locals.user.id);
+    res.clearCookie("token").sendStatus(200);
+});
+
+router.get('/me', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const user = await getUser(parseInt(res.locals.user.id), true);
+    res.status(200).json(user);
+}));
+
+router.get('/:id', jwtAuthCheck, getUserValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    const user = await getUser(parseInt(req.params.id), false);
+
+    res.status(200).json(user);
+}));
+
+router.delete('/delete', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    await removeUser(res.locals.user.id);
+    res.clearCookie("token").sendStatus(200);
+}));
+
+router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    const matched = matchedData(req);
+    await patchUser(res.locals.user.id, matched);
+
+    res.sendStatus(200);
+}));
+
+/*********************************************************
+ * =========== EMAIL VERIFICATION MANAGEMENT =============
+ *********************************************************/
+
+router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Response) => {
+    await verifyEmail(req.params.token);
+    res.sendStatus(200);
+}));
+
+/*********************************************************
+ * ============== PASSWORD RESET MANAGEMENT ==============
+ *********************************************************/
+
+router.get('/askresetpassword/:email', askResetPasswordValidator, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    await sendResetPasswordEmail(req.params.email);
+
+    res.sendStatus(200);
+}));
+
+router.patch('/resetpassword/:token', errorHandler(async (req: Request, res: Response) => {
+    await resetPassword(req.params.token, req.body);
+    res.sendStatus(200);
+}));
+
+/*********************************************************
+ * ================ PICTURE MANAGEMENT ===================
+ *********************************************************/
+
+const uploadDir = getEnv("UPLOAD_DIR");
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const newFilename = crypto.randomBytes(20).toString('hex');
+        cb(null, newFilename);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 10000000 }, // 10 Mo
+    fileFilter: function (req, file, cb) {
+        const filetypes = /jpeg|jpg|png|gif|webp/;
+        if (filetypes.test(file.mimetype))
+            cb(null, true);
+        else
+            cb(null, false);
+    }
+});
+const uploadMiddleware = upload.single("picture");
+
+router.post('/picture/upload', jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    uploadMiddleware(req, res, async function (error) {
+        if (error || !req.file) {
+            throw new InternalError();
+        }
+        await manageUploadedPicture(req, res);
+        res.sendStatus(200);
+    });
+}));
+
+router.delete('/picture/delete/:pictureIndex', deletePictureValidator, jwtAuthCheck, errorHandler(async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty())
+        throw new ValidationError(validationErrors.array());
+
+    await removeUserPicture(res.locals.user.id, parseInt(req.params.pictureIndex));
+
+    res.sendStatus(200);
+}));
+
+// Pictures are served as static files in index.ts
 
 export default router;
