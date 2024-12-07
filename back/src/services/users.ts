@@ -95,6 +95,11 @@ export async function loginUser(credentials: IUserCredentials) {
         delete like.likerUserId;
     }
 
+    for (const chat of user.chats) {
+        const interlocutor = await retrieveUserFromId(chat.interlocutor);
+        chat.interlocutor = prepareUserForOutput(interlocutor, false);
+    }
+
     return [token, outputUser];
 }
 
