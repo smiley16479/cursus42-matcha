@@ -6,6 +6,7 @@ export enum EChatStatus {
 export type MsgOutput_t = {
 	id: number,
 	userId: number,
+	chatId: number,
 	content: string,
 	status: EChatStatus,
 	date: string
