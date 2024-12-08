@@ -412,6 +412,17 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number): 
     if (reciprocalLike) {
         const chatId = await createChat(likedUserId, likerUserId);
         const chat = await getChat(chatId);
+        if (chat.user1Id == likerUserId) {
+            chat.interlocutor = chat.user2Id;
+        } else {
+            const user = await retrieveUserFromId(chat.user1Id);
+            chat.interlocutor = prepareUserForOutput(user, false);
+        }
+        delete chat.user1Id;
+        delete chat.user2Id;
+        delete chat.createdAt;
+        if (chat.msg[0].id == null)
+            chat.msg = [];
         return chat;
     }
     else
@@ -446,7 +457,7 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
     const existingUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
 
     if (existingUserBlock)
-        throw new RessourceAlreadyExistsError();
+        return;
 
     insertUserBlock(blockedUserId, blockerUserId);
 
@@ -484,7 +495,7 @@ export async function addNewReport(reportedUserId: number, reporterUserId: numbe
     const existingUserReport = await retrieveUserReportFromUsers(reportedUserId, reporterUserId);
 
     if (existingUserReport)
-        throw new RessourceAlreadyExistsError();
+        return;
 
     insertUserReport(reportedUserId, reporterUserId);
 }
