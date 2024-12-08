@@ -60,7 +60,7 @@
 	}
   </script>
 
-	<!-- {JSON.stringify($us, null, 2)} -->
+	<pre>{JSON.stringify($us, null, 2)}</pre>
 
 <div class="h-full flex flex-col items-center justify-center pb-12 px-6 lg:px-8 bg-custom">
 	<div class="max-w-md w-full space-y-8">

@@ -1,6 +1,5 @@
 <script lang="ts">
   import  CardSwiper  from '$lib/elem/swiper/CardSwiper.svelte'
-	import type { CardData, Direction } from '$lib/elem/swiper/';
   import type { SwipeEvent } from '@/type/event';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -8,24 +7,33 @@
 	import Nope from "$lib/component/animation/nope.svelte";
 	import { browse } from '@/service/browse';
 	import { us } from '@/store/userStore';
-	import { ESexualPref, type IUserOutput } from '@/type/shared_type/user';
+	import { type IUserOutput } from '@/type/shared_type/user';
 	import { app } from '@/store/appStore';
 	import Match from '@/lib/component/animation/match.svelte';
 	import { like } from '@/store/socketStore';
+	import AdvancedSearch from '@/lib/elem/frida/advancedSearch.svelte';
+	import Profil from '@/lib/elem/profil/profil.svelte';
 
-	let showBox = false;
+  let showBox = false;
   let showNopeBox = false;
   let showMatchBox = false;
-  let matchArrayID = [1,2,3,4,5,6,7,8,9]
+  let swipingSearch = true;
+  let matchArrayID = [1,2,3,4,5,6,7,8,9];
 
-  let description=  writable<string[]>([]);
-  let browseItems=  writable<IUserOutput[]>([]);
+  let offset = 0;
+
+  let description = writable<string[]>([]);
+  let browseItems = writable<IUserOutput[]>([]);
   let data1: any
   onMount(async ()=> {
     // getLocalProfil();
-    await get_db_Profil();
-    // if ($app.cardIndex >= $browseItems.length)
-      // $app.cardIndex = 0;
+    $app.profilConsult = false;
+    // $app.cardIndex = 0;
+    offset = $app.cardIndex;
+    if ($app.cardIndex >= $browseItems.length) {
+      await get_db_Profil();
+      $app.cardIndex = 0;
+    }
   })
 
   function getLocalProfil() {
@@ -33,11 +41,7 @@
       fetch(`/profil/${index}/bio.json`)
       .then(response => response.json()) // Convertir la réponse en JSON
       .then(data => {
-        // Manipuler les données JSON
-        // console.log(data.description);
-        // description.push(data.description);
         description.update(currentItems => {
-          // Créer une nouvelle copie du tableau avec l'élément ajouté
           return [...currentItems, data.description];
         });
       })
@@ -48,73 +52,35 @@
   }
 
   async function get_db_Profil() {
-// what I have
-/* let user ={
-  age: 0 ,
-  biography: "" ,
-  email: "" ,
-  emailNotifications: false ,
-  emailVerified: false ,
-  fameRate: 0 ,
-  firstName: "" ,
-  gender: "Unknown" ,
-  interests: [] ,
-  lastConnection: new Date(),
-  lastName: "" ,
-  latitude: 48.8534 ,
-  longitude: 2.3488 ,
-  matchAgeMax: 100 ,
-  matchAgeMin: 18 ,
-  maxDistance: 0 ,
-  password: "" ,
-  prefGeoloc: "Never" ,
-  profileVisibility: true ,
-  sexualPref: "Both" ,
-  userName: "",
-}
+  // const pref = {
+  //   minFameRate: 0,
+  //   maxFameRate: 100,
+  //   nbRequiredProfiles : 50,
+  //   offset:  0,
+  //   sortingOn:  "score",
+  //   sortingType:  "desc",
+  // }
 
-// NEEDED
-let obj = {
-  sexualPref: "Female",
-  matchAgeMin: 0,
-  matchAgeMax: 99,
-  minFameRate: 0,
-  maxFameRate: 100,
-  latitude: 48.865800402991646,
-  longitude: 2.3514035501401054,
-  maxDistance: 200000,
-  interests: [
-      "Walking",
-      "Dancing"
-  ],
-  nbRequiredProfiles: 20,
-  offset: 0,
-  sortingOn: "score",
-  sortingType: "desc"
-}
- */
-const { 
-    sexualPref, 
-    matchAgeMin,
-    matchAgeMax,
-    latitude,
-    longitude,
-    maxDistance,
-    interests  
-} = $us.user
   const pref = {
     minFameRate: 0,
     maxFameRate: 100,
-    nbRequiredProfiles:  20,
-    offset:  0,
+    matchAgeMin: 0,
+    matchAgeMax: 99,
+    maxDistance: 200000,
+    nbRequiredProfiles : 50,
+    offset: offset += 10,
     sortingOn:  "score",
     sortingType:  "desc",
+    sexualPref: $us.user.sexualPref,
+    latitude: $us.user.latitude,
+    longitude: $us.user.longitude,
+    interests: [],
   }
   const user = $us.user;
-  console.log(`{pref, user}`, {...pref, ...user});
+  console.log(`{pref, user}`, {...pref});
   try {
     $app.loadingSpinner = true;
-    const profils = await browse({...pref, ...user});
+    const profils = await browse({...pref});
     $app.loadingSpinner = false;
     console.log(`profils:\n`, profils);
     if (profils)
@@ -125,9 +91,7 @@ const {
   }
 }
 
-
   data1 =  (index: number) => {
-
     console.log(`Swiping`);
     // retourne les slides à CardSwiper
     return {
@@ -139,7 +103,6 @@ const {
     }
   }
 
-
   function onSwipe(event : SwipeEvent) {
     console.log(`event OnSwipe`, event.detail.data);
     showStamp(event.detail.direction);
@@ -150,7 +113,7 @@ const {
 
 // Fonction pour déclencher l'animation
 function showStamp(direction: string) {
-  const current_Viewed_UserId = $browseItems?.[$app.cardIndex-2]?.id;
+  const current_Viewed_UserId = $browseItems?.[$app.cardIndex]?.id;
   if (direction === "right") {
     if (matchArrayID.includes(current_Viewed_UserId) ) {
       showMatchBox = true;
@@ -170,17 +133,42 @@ function resfreshProfils() {
     const pref = {
       minFameRate: 0,
       maxFameRate: 100,
-      nbRequiredProfiles:  50,
-      offset:  0,
+      matchAgeMin: 0,
+      matchAgeMax: 99,
+      maxDistance: 200000,
+      nbRequiredProfiles : 50,
+      offset: offset += 10,
       sortingOn:  "score",
       sortingType:  "desc",
+      sexualPref: $us.user.sexualPref,
+      latitude: $us.user.latitude,
+      longitude: $us.user.longitude,
+      interests: [],
     }
-    browse({...pref, ...$us.user}).then(data => {
+    /* 
+      "requiredGender": "Female",
+      "minAge": 0,
+      "maxAge": 99,
+      "minFameRate": 0,
+      "maxFameRate": 100,
+      "locationLatitude": 48.865800402991646,
+      "locationLongitude": 2.3514035501401054,
+      "maxDistance": 200000,
+      "interests": [
+        "Walking",
+        "Dancing"
+      ],
+      "nbRequiredProfiles": 20,
+      "offset": 0,
+      "sortingOn": "score",
+      "sortingType": "desc"
+     */
+    browse({...pref}).then(data => {
       // console.log(`profils data FETCH:\n`, data);
       // console.log(`$browseItems data FETCH:\n`, $browseItems);
-      if ((!data?.length || data?.length < 20) && $app.offset > 0)
-        $app.offset -= 20;
-      if ($app.cardIndex > 20) {
+      if ((!data?.length || data?.length < pref.nbRequiredProfiles / 2) && offset > 0)
+        offset = 0;
+      if ($app.cardIndex >= $browseItems.length) {
         $app.cardIndex = 0;
         browseItems.set(data!);
       } else
@@ -194,23 +182,61 @@ function resfreshProfils() {
 }
 </script>
 
-<!-- {$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName}  data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
+<!-- {$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName} -->  <!-- data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
 <section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
-  {#if !$us.user.pictures.length}
-    <div class="flex h-[80vh] w-[80vw] items-center justify-center">
-      <span class="text-gray-500 text-lg font-semibold">
-        Uploader au moins une image pour pouvoir liker
-      </span>
-    </div>
-  {:else if $browseItems.length > $app.cardIndex}
-    <div class="h-[80vh] w-[80vw]">
-      <CardSwiper on:swiped={onSwipe} cardData={data1} />
-    </div>
-  {:else}
+
+  <div class="absolute top-8">
+    <button
+      on:click={()=> swipingSearch = !swipingSearch}
+      class="inline-block px-4 py-2 bg-gray-200 text-gray-800 text-3xl font-semibold rounded-lg no-underline hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition border border-black"
+    >
+      <div class="flex justify-between items-center">
+        <svg 
+          version="1.1" id="Layer_1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 121.7 122.88"
+          style="enable-background:new 0 0 121.7 122.88"
+          xml:space="preserve"
+          class="h-5 w-5"
+        >
+          <style type="text/css">
+            .st0 { fill: #263036; }
+            .st1 { fill-rule:evenodd; clip-rule:evenodd; fill: #90CAF8; }
+          </style>
+          <g>
+            <path class="st0" d="M53.62,0c14.81,0,28.21,6,37.91,15.71c9.7,9.7,15.7,23.11,15.7,37.91c0,10.83-3.21,20.91-8.74,29.34 l23.2,25.29l-7.62,6.96l-8.38,7.66L83.32,98.26c-8.5,5.67-18.72,8.98-29.7,8.98c-14.81,0-28.21-6-37.91-15.71 C6,81.82,0,68.42,0,53.62C0,38.81,6,25.41,15.7,15.7C25.41,6,38.81,0,53.62,0L53.62,0L53.62,0z M87.3,19.93 C78.68,11.31,66.77,5.98,53.62,5.98c-13.15,0-25.06,5.33-33.68,13.95C11.31,28.55,5.98,40.46,5.98,53.62 c0,13.15,5.33,25.06,13.95,33.68c8.62,8.62,20.53,13.95,33.68,13.95c13.15,0,25.06-5.33,33.68-13.95 c8.62-8.62,13.95-20.53,13.95-33.68S95.92,28.55,87.3,19.93L87.3,19.93L87.3,19.93z"/>
+            <path class="st1" d="M53.67,5.96c26.31,0,47.63,21.33,47.63,47.63c0,26.31-21.33,47.63-47.63,47.63S6.03,79.9,6.03,53.59 C6.03,27.28,27.36,5.96,53.67,5.96L53.67,5.96z M29.13,45.74c-0.99,2.1-3.49,3-5.59,2.01c-2.1-0.99-3-3.49-2.01-5.59 c1.53-3.22,3.36-6.25,5.5-9.08c2.13-2.81,4.59-5.45,7.39-7.92c1.73-1.53,4.39-1.37,5.92,0.36c1.53,1.73,1.37,4.39-0.36,5.92 c-2.33,2.06-4.41,4.3-6.23,6.7C31.94,40.53,30.4,43.06,29.13,45.74L29.13,45.74z"/>
+          </g>
+        </svg>
+        &nbsp;{swipingSearch ? "Advanced" : "Swiping"} Search
+      </div>
+    </button>
+  </div>
+
+  {#if $browseItems.length <= $app.cardIndex && swipingSearch}
     <div class="flex h-[80vh] w-[80vw] items-center justify-center">
       <span class="text-gray-500 text-lg font-semibold">
         Il n'y a plus de Match à proximité
       </span>
+    </div>
+  {:else if $app.profilConsult}
+    <Profil profil={$browseItems?.[$app.cardIndex]}/> <!--  userNum={parseInt($page.params.id)} -->
+  {:else}
+    <div class={`flex h-[80vh] w-[80vw] items-center justify-center ${$us.user.pictures.length ? "hidden": ""}`}>
+      <span class="text-gray-500 text-lg font-semibold">
+        Uploader au moins une image pour pouvoir liker
+      </span>
+    </div>
+    <div class={`h-[80vh] w-[80vw] ${swipingSearch && $us.user.pictures.length ? "" :"hidden"}`}>
+      {#key $app.cardIndex}
+        <CardSwiper on:swiped={onSwipe} cardData={data1} />
+      {/key}
+    </div>
+    <div class={`${swipingSearch || !$us.user.pictures.length ? "hidden": ""}`}>
+      <AdvancedSearch bind:matches={browseItems}/>
     </div>
   {/if}
 </section>

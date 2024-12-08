@@ -30,7 +30,7 @@
     Matcha
   </button>
   {#if $page.url.pathname === "/app/frida"}
-    <div class="pointer-events-auto">
+<!--     <div class="pointer-events-auto">
       <Btn href={`/app/frida/search`}>
       <div slot="icon">
         <svg 
@@ -56,11 +56,11 @@
       </div>
         &nbsp;Advanced Search
       </Btn>
-    </div>
+    </div> -->
   {/if}
   <span class="end pointer-events-auto">
     <button on:click={signOut}>
-      <img class="h-16" src="/svg.svg" alt="Matcha-Frida">
+      <img class="h-16" src="/svg.svg" alt="Matcha-Frida" title="Déconnexion">
     </button>
   </span>
 </header>

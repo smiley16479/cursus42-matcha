@@ -1,34 +1,36 @@
 <script lang="ts">
+import { page } from "$app/stores";
+import { like } from "@/store/socketStore";
 import { app } from "../../../store/appStore";
-export let profil = false;
 export let showBox = false;
 export let showNopeBox = false;
 
 // Fonction pour déclencher l'affichage et l'animation du "NOPE"
 function showNopeStamp() {
-  console.log(`Nope`);
   showNopeBox = true;
 
   // Réinitialise l'animation après un certain temps si besoin
   setTimeout(() => {
     $app.cardIndex = $app.cardIndex + 1;
     showNopeBox = false;
-    if (profil)
-      window.history.back()
+    // if (profil)
+      // window.history.back()
+    $app.profilConsult = false;
   }, 1000);  // Cache l'encart après 3 secondes
 }
 
 // Fonction pour déclencher l'affichage et l'animation
 function showStamp() {
-  $app.cardIndex = $app.cardIndex + 1;
   showBox = true;
-  console.log(`Like`);
+  like(+$page.params.id);
 
   // Réinitialise l'animation après un certain temps si besoin
   setTimeout(() => {
+    $app.cardIndex = $app.cardIndex + 1;
     showBox = false;
-    if (profil)
-        window.history.back()
+    // if (profil)
+        // window.history.back()
+    $app.profilConsult = false;
   }, 1000);  // Cache l'encart après 3 secondes
 }
 </script>

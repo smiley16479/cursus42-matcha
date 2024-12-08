@@ -18,8 +18,8 @@
 	let currentZ = 100000;
 
 	onMount(async () => {
-		card1Data = cardData($app.cardIndex++);
-		card2Data = cardData($app.cardIndex++);
+		card1Data = cardData($app.cardIndex);
+		card2Data = cardData($app.cardIndex + 1);
 
 		[card1, card2].forEach(function (el) {
 			el.style.zIndex = currentZ.toString();
@@ -158,7 +158,7 @@
 
 <div class="w-full h-full">
 	<div class="w-full h-full relative hidden z-0" bind:this={container}>
-		<svelte:component this={Card} bind:element={card1} {...card1Data} />
-		<svelte:component this={Card} bind:element={card2} {...card2Data} />
+		<svelte:component this={Card} on:swipe{swipe} bind:element={card1} {...card1Data} />
+		<svelte:component this={Card} on:swipe{swipe} bind:element={card2} {...card2Data} />
 	</div>
 </div>

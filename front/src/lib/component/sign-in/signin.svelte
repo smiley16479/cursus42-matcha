@@ -36,11 +36,12 @@ async function signIn() {
     if (resp?.status === 200) {
       $us.logState = LoggingState.logged;
       $app.footer = true;
-      $us.user = resp.data;
+      $us.user = {...resp.data};
       // Garde la password sinon on ne peut pas resignIn sur app/accueil
       $us.user.password = pwd;
       $us.avatar = "http://localhost:3000/api/user/picture/" + $us.user.pictures[0]?.filename;
       goto("/app/accueil");
+      console.log(`$us.user`, $us.user);
     } else
       alert('Failed to login. Please check your credentials.');
   } catch (error) {

@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import Like from '$lib/component/animation/like.svelte';
 	import Nope from '$lib/component/animation/nope.svelte';
   import LikeNopeBtn from '$lib/component/btn/like_nopeBtn.svelte';
 	import { getUser } from '@/service/user';
 	import { decodeHtmlEntities, haversine } from '@/service/util/sharedFunction';
 	import { app } from '@/store/appStore';
+	import { visit } from '@/store/socketStore';
 	import { us } from '@/store/userStore';
 	import type { IUserOutput } from '@/type/shared_type/user';
 	import { onMount } from 'svelte';
@@ -14,11 +16,15 @@
   let description=  writable<any[]>([]);
   let showBox = false;
   let showNopeBox = false;
-  let profil : IUserOutput | undefined = undefined;
+  export let profil : IUserOutput | undefined = undefined;
 
   onMount(()=> {
-    getLocalProfil();
-    getProfil(userNum);
+    // getLocalProfil();
+    console.log(`$page.params.id`, $page.params.id);
+    if (userNum)
+      getProfil(userNum);
+    else if (profil?.id)
+      visit(profil.id);
   })
 
   async function getProfil(id: number) {
@@ -90,8 +96,8 @@
 
 <!-- Si != tab Matcha on peut liker -->
 {#if $app.tabIdx !== 1}
-  <div class="fixed bottom-20 left-0 right-0 ">
-    <LikeNopeBtn bind:showBox bind:showNopeBox profil={true}></LikeNopeBtn>
+  <div class="fixed bottom-20 left-0 right-0">
+    <LikeNopeBtn bind:showBox bind:showNopeBox></LikeNopeBtn>
   </div>
 {/if}
 

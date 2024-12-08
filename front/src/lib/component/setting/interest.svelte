@@ -2,31 +2,35 @@
   import { writable } from 'svelte/store';
   import { EInterest } from '@/type/shared_type/user';
 	import { us } from '@/store/userStore';
+	import { onMount } from 'svelte';
 
-  const selectedOptions = writable<string[]>([]);
+  const selectedOptions = writable<string[]>($us.user.interests);
   const options = Object.keys(EInterest).filter(key => isNaN(Number(key)))
   .map(key => ({ id: key, label: EInterest[key as keyof typeof EInterest] }));
   let isOpen = false; // État pour ouvrir/fermer le menu
+  let choices: string[] = $us.user.interests;
 
   const toggleOption = (newInterest: string) => {
-      selectedOptions.update(current => {
-          if (current.includes(newInterest)) {
-              return current.filter(option => option !== newInterest); // Désélectionner
-          } else {
-              return [...current, newInterest]; // Sélectionner
-          }
-      });
+    selectedOptions.update(current => {
+      if (current.includes(newInterest)) {
+        return current.filter(option => option !== newInterest); // Désélectionner
+      } else {
+        return [...current, newInterest]; // Sélectionner
+      }
+    });
   };
 
   const toggleDropdown = () => {
       isOpen = !isOpen; // Ouvrir ou fermer le menu
   };
 
-  let choices: string[] = [];
-  selectedOptions.subscribe(value => {
+  onMount(()=> {
+    choices = $us.user.interests;
+    selectedOptions.subscribe(value => {
       choices = value; // Mettez à jour les choix lorsque le store change
       $us.user.interests = value;
-  });
+    });
+  })
 </script>
 
 <div>

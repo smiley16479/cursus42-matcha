@@ -230,4 +230,19 @@ function printError(err: unknown) {
 	}
 }
 
+/*
+  onMount(() => {
+    // Si des listeners spécifiques sont nécessaires
+    socket.on('user_connected', (user) => {
+      console.log(`${user} connected`);
+    });
+
+    return () => {
+      // Nettoyer les listeners si nécessaire
+      socket.off('user_connected');
+    };
+  });
+
+*/
+
 export default soc;

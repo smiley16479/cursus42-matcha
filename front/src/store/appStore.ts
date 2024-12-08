@@ -6,5 +6,6 @@ export class AppStore {
   offset = 0;
   tabIdx = 0;
   loadingSpinner = false;
+  profilConsult = false;
 }
 export const app = writable<AppStore>(new AppStore());

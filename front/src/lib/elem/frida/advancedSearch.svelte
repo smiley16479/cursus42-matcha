@@ -1,17 +1,15 @@
 <script lang="ts">
 	import { browse } from '@/service/browse';
 	import { us } from '@/store/userStore';
-  import { writable } from 'svelte/store';
+  import { writable, type Writable } from 'svelte/store';
   import MapLocation from '@/lib/component/map/mapLocation.svelte';
 	import { ESexualPref, type IUserOutput } from '@/type/shared_type/user';
 	import { app } from '@/store/appStore';
 	import MultiSelect2 from '@/lib/component/setting/multiSelect2.svelte';
 	import { haversine } from '@/service/util/sharedFunction';
+  import { getContext, onMount } from 'svelte';
 
-  // Données fictives pour les correspondances
-  let result: IUserOutput[] | null = [];
-  const matches = writable<IUserOutput[]>([]);
-
+  export let matches: Writable<IUserOutput[]>;
   // Critères de recherche
   let ageGap = 5;
   let fameRatingGap = 10;
@@ -51,9 +49,10 @@
 
     try {
       $app.loadingSpinner = true;
-      result = await browse({...pref});
+      const result = await browse({...pref});
       if (result)
         matches.set(result);
+      $app.cardIndex = 0
     } catch (error) {
       console.log(`error`, error);
     }
