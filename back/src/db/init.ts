@@ -286,7 +286,7 @@ export default async function initDb() {
                 chat_messages AS (
                     SELECT
                         cm.chatId,
-                        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "status", cm.status, "content", cm.content, "date", cm.createdAt)) AS messages
+                        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "chatId", cm.chatId, "status", cm.status, "content", cm.content, "date", cm.createdAt)) AS messages
                     FROM
                         chatMessages cm
                     GROUP BY
