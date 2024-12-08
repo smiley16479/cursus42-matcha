@@ -22,11 +22,13 @@ export async function insertChat(user1Id: number, user2Id: number) {
 export async function retrieveChatFromId(chatId: number) {
     const sqlQuery = sql`
     SELECT
-        *
+        uc.*,
+        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "chatId", cm.chatId, "status", cm.status, "content", cm.content, "date", cm.createdAt)) AS msg
     FROM
-        userChats
+        userChats uc
+        LEFT JOIN chatMessages cm ON cm.chatId = uc.id
     WHERE (
-        id = ${chatId}
+        uc.id = ${chatId}
     );`;
 
     const connection = await pool.getConnection();
