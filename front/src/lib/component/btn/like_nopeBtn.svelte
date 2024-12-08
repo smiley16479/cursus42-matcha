@@ -2,8 +2,10 @@
 import { page } from "$app/stores";
 import { like } from "@/store/socketStore";
 import { app } from "../../../store/appStore";
+import type { IUserOutput } from "@/type/shared_type/user";
 export let showBox = false;
 export let showNopeBox = false;
+export let profil : IUserOutput;
 
 // Fonction pour déclencher l'affichage et l'animation du "NOPE"
 function showNopeStamp() {
@@ -22,7 +24,7 @@ function showNopeStamp() {
 // Fonction pour déclencher l'affichage et l'animation
 function showStamp() {
   showBox = true;
-  like(+$page.params.id);
+  like(profil.id || +$page.params.id);
 
   // Réinitialise l'animation après un certain temps si besoin
   setTimeout(() => {

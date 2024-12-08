@@ -5,6 +5,8 @@ import { initMsg } from '@/service/util/sharedFunction';
 import { type MsgInput_t, type MsgOutput_t } from '@/type/shared_type/msg';
 import { parseCookies } from '@/service/util/sharedFunction';
 import type { SocketResponse } from '@/type/event';
+import { us } from './userStore';
+import type { Chat_c } from '@/type/shared_type/chat';
 
 export const soc = writable<{socket: Socket | null, msg: MsgOutput_t | null, notif: Notif_T | null}>({
 	socket: null, //io(import.meta.env.VITE_SOCKET_URL, { withCredentials: true }),
@@ -43,20 +45,23 @@ export function initializeSocket() {
 
 	store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
 		console.log(`s_send_msg`, msg);
-		soc.update(store1 => {
+		us.update((store) => {
+			const chat = store.user.chats.find(e => e.id === msg.chatId)
+			chat?.msg.push(msg);
 			return {
-				...store1,
-				msg
+				...store
 			};
-		});
+		})
 	});
 
 	
-	store1.socket.on('s_like', (chatId: number) => {
-		console.log(`s_like new ChatId`, chatId);
-		soc.update(store1 => {
+	store1.socket.on('s_like', (chat: Chat_c) => {
+		console.log(`s_like new Chat`, chat);
+		if (chat)
+		us.update((store) => {
+			store.user.chats.push(chat);
 			return {
-				...store1,
+				...store
 			};
 		});
 	});
@@ -198,8 +203,10 @@ export function sendVocalMsg(msg: string) {
 // Fonction pour fermer la connexion
 export function closeSocket() {
 	soc.update(store => {
-			if (store && store.socket)
-					store.socket.disconnect();
+			if (store && store.socket) {
+				store.socket.removeAllListeners();
+				store.socket.disconnect();
+			}
 			return { socket: null, msg: null, notif: null };
 	});
 }

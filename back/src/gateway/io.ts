@@ -4,6 +4,7 @@ import { connectedUser, generateRoomId } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
 import { addNewBlock, addNewReport, addNewUserLike, addNewUserVisit, markNotificationRead, removeUserBlock, removeUserLike } from '../services/users';
+import { createMessage } from '../services/chats';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -60,17 +61,18 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
+    // 👌
     socket.on('c_like', async (likedUserId, callback) => {
       console.log(`C_LIKE: likedUserId ${likedUserId}, likerUserId ${socket.user.id}`);
       try {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
-        const chatId = await addNewUserLike(likedUserId, socket.user.id);
-        if (!chatId) // actuellement le chat n'est pas créé : on a une erreur
-          throw Error(`Chat non créé`); // Il 'sagit d'une id je ne peux pas m'en servir
+        const chat = await addNewUserLike(likedUserId, socket.user.id);
+        // if (!chat) // actuellement le chat n'est pas créé : on a une erreur
+        //   throw Error(`Chat non créé`); // Il 'sagit d'une id je ne peux pas m'en servir
         if (connectedUser.includes(likedUserId))
-          socket.to(`room_${likedUserId}`).emit('s_like', chatId);
-        callback({ success: true, data: chatId });
+          socket.to(`room_${likedUserId}`).emit('s_like', {likerId: socket.user.id, chat});
+        callback({ success: true, data: chat });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
@@ -126,6 +128,7 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
+    // 👌
     socket.on('c_send_msg', async (msg: MsgInput_t, callback) => {
       console.log(`c_send_msg received`, msg);
       // Émettre le message à la room appropriée s'il y a l'autre user connecté
@@ -134,10 +137,7 @@ export const initSocketEvents = (io: Server) => {
         if (connectedUser.includes(msg.userId))
           socket.to(`room_${msg.destId}`).emit('s_send_msg', msg);
         // io.to(`${chatId}`).emit('s_receiveMsg', message); // Ceci emet à tous
-        else
-          true;
-      // Ajouter le message à la base de données
-        // saveChatMsg(msg)
+        await createMessage(msg);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });

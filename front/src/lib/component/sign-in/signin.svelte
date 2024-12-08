@@ -6,6 +6,7 @@ import { createUser, login } from "@/service/user";
 import { us } from "@/store/userStore";
 import { LoggingState } from '@/type/user';
 import { app } from "@/store/appStore";
+	import type { MsgOutput_t } from "@/type/shared_type/msg";
 
 let signUpMode = false;
 let showModalPW = false;
@@ -28,6 +29,13 @@ async function handleFormSubmit() {
   // $us.user.password = "";
 }
 
+function orderTabs() {
+  $us.user.liking.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+  $us.user.likedBy.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+  $us.user.notifications.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+  $us.user.chats.forEach(e => { e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime())});
+}
+
 async function signIn() {
   try {
     const pwd = $us.user.password;
@@ -41,6 +49,7 @@ async function signIn() {
       $us.user.password = pwd;
       $us.avatar = "http://localhost:3000/api/user/picture/" + $us.user.pictures[0]?.filename;
       goto("/app/accueil");
+      orderTabs();
       console.log(`$us.user`, $us.user);
     } else
       alert('Failed to login. Please check your credentials.');

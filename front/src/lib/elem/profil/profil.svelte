@@ -16,7 +16,7 @@
   let description=  writable<any[]>([]);
   let showBox = false;
   let showNopeBox = false;
-  export let profil : IUserOutput | undefined = undefined;
+  export let profil : IUserOutput;
 
   onMount(()=> {
     // getLocalProfil();
@@ -97,7 +97,7 @@
 <!-- Si != tab Matcha on peut liker -->
 {#if $app.tabIdx !== 1}
   <div class="fixed bottom-20 left-0 right-0">
-    <LikeNopeBtn bind:showBox bind:showNopeBox></LikeNopeBtn>
+    <LikeNopeBtn bind:showBox bind:showNopeBox {profil}></LikeNopeBtn>
   </div>
 {/if}
 

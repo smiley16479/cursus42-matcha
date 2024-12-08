@@ -14,11 +14,10 @@
 	import AdvancedSearch from '@/lib/elem/frida/advancedSearch.svelte';
 	import Profil from '@/lib/elem/profil/profil.svelte';
 
-  let showBox = false;
+  let showLikeBox = false;
   let showNopeBox = false;
   let showMatchBox = false;
   let swipingSearch = true;
-  let matchArrayID = [1,2,3,4,5,6,7,8,9];
 
   let offset = 0;
 
@@ -115,12 +114,12 @@
 function showStamp(direction: string) {
   const current_Viewed_UserId = $browseItems?.[$app.cardIndex]?.id;
   if (direction === "right") {
-    if (matchArrayID.includes(current_Viewed_UserId) ) {
+    if ($us.user.likedBy.some(e => e.likerUser.id === current_Viewed_UserId) ) {
       showMatchBox = true;
       setTimeout(() => (showMatchBox = false), 1000);
     } else {
-      showBox = true;
-      setTimeout(() => (showBox = false), 1000);
+      showLikeBox = true;
+      setTimeout(() => (showLikeBox = false), 1000);
     }
   } else if (direction === "left") {
     showNopeBox = true;
@@ -182,7 +181,7 @@ function resfreshProfils() {
 }
 </script>
 
-<!-- {$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName} -->  <!-- data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
+{$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName}  <!-- data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
 <section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
 
   <div class="absolute top-8">
@@ -242,7 +241,7 @@ function resfreshProfils() {
 </section>
 
 <!-- SVG avec animation pour LIKE -->
-{#if showBox}
+{#if showLikeBox}
 	<Like/>
 {/if}
 

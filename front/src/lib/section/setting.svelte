@@ -10,6 +10,7 @@
 	import { deleteUser, getCurrentUser, logout, updateUser } from "@/service/user";
 	import { goto } from "$app/navigation";
 	import { app } from "@/store/appStore";
+	import { closeSocket } from "@/store/socketStore";
 
 	/** Fonction pour soumettre les modifications du userAccount */
 	async function saveChanges() {
@@ -25,6 +26,7 @@
 	async function disconnect() {
 		try {
 			await logout();
+      closeSocket();
 			$us.logState = LoggingState.unlogged;
 			$app.tabIdx = 0;
 			goto('/')

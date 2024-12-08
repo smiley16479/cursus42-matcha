@@ -1,25 +1,16 @@
 import type { IUserOutput } from "./user"
 import type { MsgInput_t } from "./msg"
-
-export enum ChatStatus {
-  READ = 'read',
-  UNREAD = 'unread',
-}
+import type { MsgOutput_t } from "./msg"
 
 export class Chat_c {
 
-  constructor({
-    id = undefined,
-    interlocutor = undefined,
-    msg = [],
-  } = {}) {
-      // console.log(`constructor Chat_c ${debug}`);
-      this.id = id;
-      this.interlocutor = interlocutor;
-      this.msg = msg;
+    constructor(id: number, interlocutor: IUserOutput, msg: MsgOutput_t[]) {
+        this.id = id;
+        this.interlocutor = interlocutor;
+        this.msg = msg;
     }
 
-  id?: number
-  interlocutor?: Partial<IUserOutput>
-  msg: MsgInput_t[]
+    id: number
+    interlocutor: IUserOutput
+    msg: MsgInput_t[]
 }
