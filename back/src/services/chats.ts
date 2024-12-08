@@ -1,4 +1,4 @@
-import { insertChat, insertMessage, retrieveChatFromUsers } from "../db/chats";
+import { insertChat, insertMessage, retrieveChatFromId, retrieveChatFromUsers } from "../db/chats";
 import { retrieveUserBlockFromUsers } from "../db/users";
 import { InternalError } from "../types/error";
 import { EChatStatus, MsgInput_t } from "../types/shared_type/msg";
@@ -9,6 +9,12 @@ export async function createChat(user1Id: number, user2Id: number) {
         return chatId;
     else
         throw new InternalError();
+}
+
+export async function getChat(chatId: number) {
+    const chat = await retrieveChatFromId(chatId);
+
+    return chat;
 }
 
 export async function createMessage(message: MsgInput_t) {

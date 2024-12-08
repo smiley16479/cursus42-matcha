@@ -13,7 +13,7 @@ import { Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { getEnv } from '../util/envvars';
-import { createChat } from './chats';
+import { createChat, getChat } from './chats';
 import { ConnectedUsers } from './connectedUsers';
 import { updateUserFameRate } from './fameRating';
 
@@ -410,7 +410,8 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number): 
     const reciprocalLike = await retrieveUserLikeFromUsers(likerUserId, likedUserId);
     if (reciprocalLike) {
         const chatId = await createChat(likedUserId, likerUserId);
-        return chatId;
+        const chat = await getChat(chatId);
+        return chat;
     }
     else
         return null;
