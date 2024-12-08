@@ -7,7 +7,7 @@ import { insertUser, retrieveUserFromUserName } from '../db/users';
 import { jwtAuthCheck } from '../middleware/auth';
 import { errorHandler } from '../middleware/error';
 import { createMessage } from '../services/chats';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, logoutUser, manageUploadedPicture, patchUser, removeNotification, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, verifyEmail } from '../services/users';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, createUser, getUser, loginUser, logoutUser, manageUploadedPicture, patchUser, removeNotification, removeUser, removeUserBlock, removeUserLike, removeUserPicture, resetPassword, sendResetPasswordEmail, toggleBlock, toggleLike, verifyEmail } from '../services/users';
 import { InternalError, ValidationError } from '../types/error';
 import { string2Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref } from '../types/shared_type/user';
@@ -137,6 +137,11 @@ if (getEnv("DEBUG") == "true") {
         res.status(200).send();
     })
 
+    router.post('/toggleLike', async function (req: Request, res: Response) {
+        await toggleLike(req.body.likedUserId, req.body.likerUserId);
+        res.status(200).send();
+    })
+
     router.post('/addBlock', async function (req: Request, res: Response) {
         await addNewBlock(req.body.blockedUserId, req.body.blockerUserId);
         res.status(200).send();
@@ -144,6 +149,11 @@ if (getEnv("DEBUG") == "true") {
 
     router.post('/removeBlock', async function (req: Request, res: Response) {
         await removeUserBlock(req.body.blockedUserId, req.body.blockerUserId);
+        res.status(200).send();
+    })
+
+    router.post('/toggleBlock', async function (req: Request, res: Response) {
+        await toggleBlock(req.body.blockedUserId, req.body.blockerUserId);
         res.status(200).send();
     })
 
