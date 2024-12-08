@@ -19,6 +19,23 @@ export async function insertChat(user1Id: number, user2Id: number) {
     return result.insertId;
 }
 
+export async function retrieveChatFromId(chatId: number) {
+    const sqlQuery = sql`
+    SELECT
+        *
+    FROM
+        userChats
+    WHERE (
+        id = ${chatId}
+    );`;
+
+    const connection = await pool.getConnection();
+    const [ rows ] = await connection.query(sqlQuery);
+    connection.release();
+
+    return rows[0];
+}
+
 export async function retrieveChatFromUsers(user1Id: number, user2Id: number) {
     const sqlQuery = sql`
     SELECT
