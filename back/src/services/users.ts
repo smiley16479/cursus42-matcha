@@ -16,6 +16,7 @@ import { getEnv } from '../util/envvars';
 import { createChat, getChat } from './chats';
 import { ConnectedUsers } from './connectedUsers';
 import { updateUserFameRate } from './fameRating';
+import { Chat_c } from '../types/shared_type/chat';
 
 
 /*********************************************************
@@ -393,7 +394,7 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
  * ================ LIKES MANAGEMENT =====================
  *********************************************************/
 
-export async function addNewUserLike(likedUserId: number, likerUserId: number): Promise<number | null> {
+export async function addNewUserLike(likedUserId: number, likerUserId: number): Promise<Chat_c | null> {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike)
@@ -425,13 +426,15 @@ export async function removeUserLike(likedUserId: number, likerUserId: number) {
     deleteUserLike(likedUserId, likerUserId);
 }
 
-export async function toggleLike(likedUserId: number, likerUserId: number) {
+export async function toggleLike(likedUserId: number, likerUserId: number): Promise<Chat_c | null> {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike) {
         removeUserLike(likedUserId, likerUserId);
+        return null;
     } else {
-        addNewUserLike(likedUserId, likerUserId);
+        const chat = await addNewUserLike(likedUserId, likerUserId);
+        return chat;
     }
 }
 
