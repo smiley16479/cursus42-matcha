@@ -95,6 +95,11 @@ export async function loginUser(credentials: IUserCredentials) {
         delete like.likerUserId;
     }
 
+    for (const chat of user.chats) {
+        const interlocutor = await retrieveUserFromId(chat.interlocutor);
+        chat.interlocutor = prepareUserForOutput(interlocutor, false);
+    }
+
     return [token, outputUser];
 }
 
@@ -419,6 +424,16 @@ export async function removeUserLike(likedUserId: number, likerUserId: number) {
     deleteUserLike(likedUserId, likerUserId);
 }
 
+export async function toggleLike(likedUserId: number, likerUserId: number) {
+    const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
+
+    if (existingUserLike) {
+        removeUserLike(likedUserId, likerUserId);
+    } else {
+        addNewUserLike(likedUserId, likerUserId);
+    }
+}
+
 /**********************************************************
  * ================ BLOCKS MANAGEMENT =====================
  *********************************************************/
@@ -445,6 +460,16 @@ export async function getUserBlock(blockedUserId: number, blockerUserId: number)
 
 export async function removeUserBlock(blockedUserId: number, blockerUserId: number) {
     deleteUserBlock(blockedUserId, blockerUserId);
+}
+
+export async function toggleBlock(blockedUserId: number, blockerUserId: number) {
+    const existingUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
+
+    if (existingUserBlock) {
+        removeUserBlock(blockedUserId, blockerUserId);
+    } else {
+        addNewBlock(blockedUserId, blockerUserId);
+    }
 }
 
 /**********************************************************
