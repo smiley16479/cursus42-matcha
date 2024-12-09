@@ -401,8 +401,6 @@ export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterU
 }
 
 export async function insertUserVisit(visitedUserId: number, visiterUserId: number) {
-    const connection = await pool.getConnection();
-
     const sqlQuery = sql`INSERT INTO userVisits (
         visitedUserId,
         visiterUserId
@@ -412,9 +410,15 @@ export async function insertUserVisit(visitedUserId: number, visiterUserId: numb
         ${visiterUserId}
     );`
 
-    await connection.query(sqlQuery);
-
+    const connection = await pool.getConnection();
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    if (!result) {
+        return null;
+    } else {
+        return result.insertId;
+    }
 }
 
 /*********************************************************

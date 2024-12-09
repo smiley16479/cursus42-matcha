@@ -385,9 +385,10 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     if (existingUserVisit)
         throw new RessourceAlreadyExistsError();
 
-    insertUserVisit(visitedUserId, visiterUserId);
-
+    const visitId = insertUserVisit(visitedUserId, visiterUserId);
     updateUserFameRate(visitedUserId);
+
+    return visitId;
 }
 
 /*********************************************************
