@@ -295,7 +295,7 @@ export default async function initDb() {
                 user_chats AS (
                     SELECT
                         uc.userId,
-                        JSON_ARRAYAGG(JSON_OBJECT("id", uc.id, "interlocutor", uc.otherUserId, "msg", cm.messages)) AS chats
+                        JSON_ARRAYAGG(JSON_OBJECT("id", uc.id, "user1Id", uc.otherUserId, "user2Id", uc.userId , "msg", cm.messages)) AS chats
                     FROM
                         uniformizedChats AS uc
                         LEFT JOIN chat_messages cm ON cm.chatId = uc.id

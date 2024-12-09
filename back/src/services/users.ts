@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer';
 import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { Notif_t_E } from '../types/shared_type/notification';
-import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref, UserVisit_t } from "../types/shared_type/user";
+import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, IUserSelf, string2EGender, string2ESexualPref, UserVisit_t } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { getEnv } from '../util/envvars';
 import { createChat, getChat } from './chats';
@@ -79,26 +79,29 @@ export async function loginUser(credentials: IUserCredentials) {
     const secret = getEnv("JWT_SECRET");
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: getEnv("JWT_EXP") });
 
-    const outputUser: IUserOutput = prepareUserForOutput(user, true);
+    const outputUser: IUserSelf = prepareUserForOutput(user, true);
 
     patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
 
-    for (const visit of user.visits) {
+    for (const visit of outputUser.visits) {
         const visiterUser = await retrieveUserFromId(visit.visiterUserId);
         visit.visiterUser = prepareUserForOutput(visiterUser, false);
         delete visit.visiterUserId;
     }
 
-    for (const like of user.likedBy) {
+    for (const like of outputUser.likedBy) {
         const likerUser = await retrieveUserFromId(like.likerUserId);
         like.likerUser = prepareUserForOutput(likerUser, false);
         delete like.likerUserId;
     }
 
-    for (const chat of user.chats) {
-        const interlocutor = await retrieveUserFromId(chat.interlocutor);
-        chat.interlocutor = prepareUserForOutput(interlocutor, false);
+    for (const chat of outputUser.chats) {
+        const user1 = prepareUserForOutput(await retrieveUserFromId(chat.user1Id), false);
+        const user2 = prepareUserForOutput(await retrieveUserFromId(chat.user2Id), false);
+        chat.interlocutors = [user1, user2];
+        delete chat.user1Id;
+        delete chat.user2Id;
     }
 
     return [token, outputUser];
@@ -149,7 +152,7 @@ export async function patchUser(id: number, rawUser: any) {
         sendVerificationEmail(id);
 }
 
-export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput {
+export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput | IUserSelf {
     const outputUser: IUserOutput = user;
 
     if (!isSelf) {
@@ -422,12 +425,10 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     if (reciprocalLike) {
         const chatId = await createChat(likedUserId, likerUserId);
         const chat = await getChat(chatId);
-        if (chat.user1Id == likerUserId) {
-            chat.interlocutor = chat.user2Id;
-        } else {
-            const user = await retrieveUserFromId(chat.user1Id);
-            chat.interlocutor = prepareUserForOutput(user, false);
-        }
+
+        const user1 = prepareUserForOutput(await retrieveUserFromId(chat.user1Id), false);
+        const user2 = prepareUserForOutput(await retrieveUserFromId(chat.user2Id), false);
+        chat.interlocutors = [user1, user2];
         delete chat.user1Id;
         delete chat.user2Id;
         delete chat.createdAt;

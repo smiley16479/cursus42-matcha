@@ -129,8 +129,8 @@ if (getEnv("DEBUG") == "true") {
     })
 
     router.post('/addlike', async function (req: Request, res: Response) {
-        await addNewUserLike(req.body.likedUserId, req.body.likerUserId);
-        res.status(200).send();
+        const chat = await addNewUserLike(req.body.likedUserId, req.body.likerUserId);
+        res.status(200).json(chat);
     })
 
     router.post('/removeLike', async function (req: Request, res: Response) {

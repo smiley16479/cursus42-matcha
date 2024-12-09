@@ -3,13 +3,13 @@ import type { MsgOutput_t } from "./msg"
 
 export class Chat_c {
 
-    constructor(id: number, interlocutor: IUserOutput, msg: MsgOutput_t[]) {
+    constructor(id: number, interlocutors: [IUserOutput, IUserOutput], msg: MsgOutput_t[]) {
         this.id = id;
-        this.interlocutor = interlocutor;
+        this.interlocutors = interlocutors;
         this.msg = msg;
     }
-
+    
     id: number
-    interlocutor: IUserOutput
+    interlocutors: [IUserOutput, IUserOutput]
     msg: MsgOutput_t[]
 }
