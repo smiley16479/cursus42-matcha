@@ -50,6 +50,20 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             break;
     }
 
+    let requiredSexualPrefSqlQuery: Sql;
+
+    switch(user.gender) {
+        case EGender.Female:
+            requiredSexualPrefSqlQuery = sql`AND (fu.sexualPref = ${ESexualPref.Female} OR fu.sexualPref = ${ESexualPref.Both})`;
+            break;
+        case EGender.Male:
+            requiredSexualPrefSqlQuery = sql`AND (fu.sexualPref = ${ESexualPref.Male} OR fu.sexualPref = ${ESexualPref.Both})`;
+            break;
+        case EGender.Unknown:
+            requiredSexualPrefSqlQuery = sql``;
+            break;
+    }
+
     const sqlQuery = sql`
         WITH
             user_distance AS
@@ -96,6 +110,7 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
             AND (NOT JSON_CONTAINS(JSON_EXTRACT(${JSON.stringify(user.blocking)}, '$[*].blockedUserId'), JSON_ARRAY(fu.id)) OR JSON_LENGTH(${JSON.stringify(user.blocking)}) = 0)
             AND (NOT JSON_CONTAINS(JSON_EXTRACT(${JSON.stringify(user.liking)}, '$[*].likedUserId'), JSON_ARRAY(fu.id)) OR JSON_LENGTH(${JSON.stringify(user.liking)}) = 0)
             ${requiredGenderSqlQuery}
+            ${requiredSexualPrefSqlQuery}
             AND fu.age BETWEEN ${criterias.matchAgeMin} AND ${criterias.matchAgeMax}
             AND fu.fameRate BETWEEN ${criterias.minFameRate} AND ${criterias.maxFameRate}
             AND distance < ${criterias.maxDistance * 1000}
