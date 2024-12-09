@@ -395,7 +395,7 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
  * ================ LIKES MANAGEMENT =====================
  *********************************************************/
 
-export async function addNewUserLike(likedUserId: number, likerUserId: number): Promise<Chat_c | null> {
+export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike)
@@ -438,7 +438,7 @@ export async function removeUserLike(likedUserId: number, likerUserId: number) {
     deleteUserLike(likedUserId, likerUserId);
 }
 
-export async function toggleLike(likedUserId: number, likerUserId: number): Promise<Chat_c | null> {
+export async function toggleLike(likedUserId: number, likerUserId: number) {
     const existingUserLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
 
     if (existingUserLike) {
