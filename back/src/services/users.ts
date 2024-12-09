@@ -56,7 +56,7 @@ export async function createUser(inputUser: IUserInput) {
     const id = await insertUser(user);
 
     if (id) {
-        await sendVerificationEmail(id);
+        sendVerificationEmail(id);
     } else {
         throw new InternalError();
     }

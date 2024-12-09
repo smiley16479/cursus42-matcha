@@ -21,7 +21,7 @@ MALE_PICTURES_FOLDER = PICTURES_FOLDER + "Male/"
 FEMALE_PICTURES_FOLDER = PICTURES_FOLDER + "Female/"
 PICTURES_PROFIL_FOLDER = './front/static/profil/'
 
-DEFAULT_EMAIL = "francois@42l.fr"
+DEFAULT_EMAIL = "francoisdescamps40@gmail.com"
 
 class EGender(Enum):
     Female = "Female"
