@@ -6,17 +6,31 @@
 	import { onMount } from 'svelte';
 	import { us } from '@/store/userStore';
 	import { goto } from '$app/navigation';
-	import { initializeSocket } from '@/store/socketStore';
+	import { beforeNavigate } from '$app/navigation';
+	import Spinner from '@/lib/component/animation/spinner.svelte';
+	import { logout } from '@/service/user';
+	import { closeSocket } from '@/store/socketStore';
+	import { LoggingState } from '@/type/user';
 
 	onMount(()=> {
 		if (!$us.user.id) {
 			alert("Vous avez été déconnecté");
-			goto("/");
+			signOut();
 		}
 	})
 
-	import { beforeNavigate } from '$app/navigation';
-	import Spinner from '@/lib/component/animation/spinner.svelte';
+	async function signOut() {
+    try {
+      await logout();
+      closeSocket();
+      $us.logState = LoggingState.unlogged;
+      $app.tabIdx = 0;
+      goto('/')
+    } catch (error) {
+      console.warn(`error`, error);
+      throw error;
+    }
+  }
 
 	beforeNavigate((navigation) => {
 		if (!navigation.to) {
@@ -24,7 +38,6 @@
 				console.log(`beforeNavigate(navigation)`);
 				return;
 		}
-		initializeSocket();
 
 		// Vérifier l'état de l'utilisateur à chaque navigation
 		console.log('Navigation vers : ', navigation.to.url.pathname);

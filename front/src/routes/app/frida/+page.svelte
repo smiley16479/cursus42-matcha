@@ -67,7 +67,7 @@
     matchAgeMax: 99,
     maxDistance: 200000,
     nbRequiredProfiles : 50,
-    offset: offset += 10,
+    offset,
     sortingOn:  "score",
     sortingType:  "desc",
     sexualPref: $us.user.sexualPref,

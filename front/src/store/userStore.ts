@@ -3,7 +3,7 @@ import { type IUserSelf, EGender, ESexualPref, type UserPic_t, EGeoPref } from '
 import { LoggingState } from '@/type/user';
 
 export class UserStore {
-	user: IUserSelf & {password: string, prefGeoloc: EGeoPref, likes: []} = {
+	user: IUserSelf & {password: string, prefGeoloc: EGeoPref} = {
 		id: 0,
 		userName:  "",
 		firstName:  "",
@@ -27,7 +27,6 @@ export class UserStore {
 		prefGeoloc: EGeoPref.Never,
 		age: 0,
 		visits: [],
-		likes: [],
 		blocking: [],
 		liking: [],
 		likedBy: [],

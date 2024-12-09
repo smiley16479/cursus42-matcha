@@ -10,6 +10,7 @@
 	import { EChatStatus, type MsgInput_t } from "@/type/shared_type/msg";
 	import { onMount } from "svelte";
   import { page } from "$app/stores";
+	import type { IUserOutput } from "@/type/shared_type/user";
   
 /* const fakeChat: Chat_c = {
     interlocutor: {
@@ -82,7 +83,7 @@
     const newMsg: MsgInput_t = {
       chatId: chat.id,
       userId: $us.user.id,
-      destId: chat.interlocutor.id, //chat.interlocutor?.id, // Pour test PROBLEM 
+      destId: chat.interlocutors.find(e => e.id !== $us.user.id)?.id, //chat.interlocutor?.id, // Pour test PROBLEM 
       content: _msg
     };
     console.log(`newMsg`, newMsg);

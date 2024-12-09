@@ -62,13 +62,25 @@
 </script>
 
 {#if profil}
+
   <!-- Utilisation des classes Tailwind pour styliser le composant -->
   <div class="flex flex-col p-4 border border-gray-300 rounded-lg bg-white w-full mx-auto"> <!-- max-w-lg -->
     <!-- En-tête avec nom et distance -->
     <div class="justify-between items-center bg-white p-2"> <!-- sticky top-0 -->
-      <div class="text-xl font-bold">{profil?.userName}, {profil?.age}</div>
-      <!-- {profil?.photo} -->
-      <div class="text-gray-500 text-sm">{computeDistance()} km</div>
+
+      <div class="flex flex-col rounded-lg bg-white w-full">
+        <div class="flex justify-between items-center bg-white">
+          <div class="flex flex-col text-left">
+            <div class="text-xl font-bold">{profil?.userName}, {profil?.age}</div>
+            <div class="text-gray-500 text-sm">{computeDistance()} km</div>
+          </div>
+          <button 
+            class="bg-blue-500 text-white text-sm px-4 py-2 rounded-md h-auto flex items-center justify-center"
+            style="height: auto;">
+            Unmatch
+          </button>
+        </div>
+      </div>
 
       <!-- Bio -->
       <div class="mt-4 text-base">{decodeHtmlEntities(profil.biography)}</div>

@@ -14,6 +14,9 @@
   let tabsContainer: HTMLUListElement;
   let movingTab: HTMLElement;
   
+	// NOTIFICATIONS
+	$: chatCount = $us.user.chats.length;
+
   // Positionne le surlignage lors de la première montée du composant
   onMount(() => {
     setActiveTab($app.tabIdx);

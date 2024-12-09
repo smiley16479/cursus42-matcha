@@ -6,7 +6,7 @@ import { createUser, login } from "@/service/user";
 import { us } from "@/store/userStore";
 import { LoggingState } from '@/type/user';
 import { app } from "@/store/appStore";
-	import type { MsgOutput_t } from "@/type/shared_type/msg";
+import { initializeSocket } from '@/store/socketStore';
 
 let signUpMode = false;
 let showModalPW = false;
@@ -33,7 +33,19 @@ function orderTabs() {
   $us.user.liking.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.likedBy.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.notifications.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
-  $us.user.chats.forEach(e => { e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime())});
+  $us.user.chats.forEach(e => {
+    e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+    e.interlocutors.forEach(i => {
+      $us.user.liking.forEach( el => {
+      if (el.likedUserId === i.id)
+        $us.user.liking = $us.user.liking.filter(ele => ele.likedUserId !== i.id)
+      })
+      $us.user.likedBy.forEach( el => {
+      if (el.likerUser.id === i.id)
+        $us.user.likedBy = $us.user.likedBy.filter(ele => ele.likerUser.id !== i.id)
+      })
+    })
+  });
 }
 
 async function signIn() {
@@ -50,6 +62,7 @@ async function signIn() {
       $us.avatar = "http://localhost:3000/api/user/picture/" + $us.user.pictures[0]?.filename;
       goto("/app/accueil");
       orderTabs();
+      initializeSocket();
       console.log(`$us.user`, $us.user);
     } else
       alert('Failed to login. Please check your credentials.');

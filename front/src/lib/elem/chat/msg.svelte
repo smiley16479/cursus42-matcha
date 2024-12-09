@@ -5,10 +5,10 @@
 
   export let chat: Chat_c;
   let msgContainer: HTMLElement;
-  let pic = chat.interlocutor?.pictures?.[0].filename;
+  let pic = chat.interlocutors.find(e => (e.id !== $us.user.id))?.pictures?.[0].filename;
 
   onMount(()=> {
-    console.log(`chat.interlocutor?.userName `, chat.interlocutor?.userName );
+    console.log(`chat.interlocutors.find(e => (e.id !== $us.user.id))?.userName `, chat.interlocutors.find(e => (e.id !== $us.user.id))?.userName );
   })
 
 
@@ -41,7 +41,7 @@ current userId: {$us.user.id}
           {/if}
           <div class="grid">
             {#if !index || chat.msg[index -1].userId !== chat.msg[index].userId }
-              <h5 class="text-gray-900 text-sm font-semibold leading-snug pb-1">{chat.interlocutor?.userName || "Shanay cruz"}</h5>
+              <h5 class="text-gray-900 text-sm font-semibold leading-snug pb-1">{chat.interlocutors.find(e => (e.id !== $us.user.id))?.userName || "Shanay cruz"}</h5>
               <div class="w-max grid">
                 <div class="px-3.5 py-2 bg-gray-100 rounded justify-start items-center gap-3 inline-flex">
                   <h5 class="text-gray-900 text-sm font-normal leading-snug">{msg.content}</h5>

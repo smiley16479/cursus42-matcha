@@ -1,10 +1,12 @@
 import { Server, Socket } from 'socket.io';
-import type {MsgInput_t} from '../types/shared_type/msg';
-import { connectedUser, generateRoomId } from '../util/io.utils';
+import type { MsgInput_t } from '../types/shared_type/msg';
+import { connectedUser } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
-import { addNewBlock, addNewReport, addNewUserLike, addNewUserVisit, markNotificationRead, removeUserBlock, removeUserLike } from '../services/users';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
 import { createMessage } from '../services/chats';
+import { Notif_t_E } from '../types/shared_type/notification';
+import { UserLiking_t } from '../types/shared_type/user';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -49,30 +51,39 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_visit', async (visitedUserId, callback) => {
       console.log(`C_VISIT: visiterUserId ${socket.user.id}, visitedUserId ${visitedUserId}`);
       try {
+
         if (!visitedUserId)
           throw Error(`visitedUserId: ${visitedUserId}`);
-        /** PROBLEME ne retourne pas le user */
-        const user = await addNewUserVisit(visitedUserId, socket.user.id);
+
+        const userVisit = await addNewUserVisit(visitedUserId, socket.user.id);
+
         if (connectedUser.includes(visitedUserId))
-          socket.to(`room_${visitedUserId}`).emit('s_visit', user);
-        callback({ success: true });
+          socket.to(`room_${visitedUserId}`).emit('s_visit', userVisit);
+
+        callback({ success: true, data: userVisit });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
     });
 
-    // 👌
     socket.on('c_like', async (likedUserId, callback) => {
       console.log(`C_LIKE: likedUserId ${likedUserId}, likerUserId ${socket.user.id}`);
       try {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
-        const chat = await addNewUserLike(likedUserId, socket.user.id);
-        // if (!chat) // actuellement le chat n'est pas créé : on a une erreur
-        //   throw Error(`Chat non créé`); // Il 'sagit d'une id je ne peux pas m'en servir
+
+        const like = await addNewUserLike(likedUserId, socket.user.id);
+        console.log(`likedUserId obj returned`, like);
+        // S'il s'agit d'un chat ou d'un like:
+        const notifType = "likedUserId" in like ? Notif_t_E.LIKE : Notif_t_E.MATCH;
+        const payload = "likedUserId" in like ? like : like.id;
+        addNewNotification(socket.user.id, likedUserId, notifType, payload);
+
         if (connectedUser.includes(likedUserId))
-          socket.to(`room_${likedUserId}`).emit('s_like', {likerId: socket.user.id, chat});
-        callback({ success: true, data: chat });
+          socket.to(`room_${likedUserId}`).emit('s_like', like);
+
+        const userLiking: UserLiking_t = {date: new Date(), likedUserId};
+        callback({ success: true, data: userLiking });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
