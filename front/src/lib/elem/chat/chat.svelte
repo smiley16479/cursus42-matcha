@@ -4,55 +4,11 @@
 	import { Chat_c } from "@/type/shared_type/chat";
   import RtCcall from "./RTCcall.svelte";
 	import { app } from "../../../store/appStore";
-	import { soc, send_msg, sendVocalMsg } from "../../../store/socketStore";
+	import { send_msg, sendVocalMsg } from "../../../store/socketStore";
 	import { us } from "../../../store/userStore";
 	import Msg from "./msg.svelte";
-	import { EChatStatus, type MsgInput_t } from "@/type/shared_type/msg";
+	import { type MsgInput_t } from "@/type/shared_type/msg";
 	import { onMount } from "svelte";
-  import { page } from "$app/stores";
-	import type { IUserOutput } from "@/type/shared_type/user";
-  
-/* const fakeChat: Chat_c = {
-    interlocutor: {
-	  	userName: "Alice",
-	  },
-    msg: [{
-    	chatId: 0,
-    	userId: 1,
-      destId: 1,
-    	content: 'salut',
-    },
-    {
-    	chatId: 0,
-    	userId: 1,
-      destId: 1,
-    	content: 'Comment vas tu ?',
-    },
-    {
-    	chatId: 0,
-    	userId: 1,
-      destId: 1,
-    	content: "J'ai mangé une pomme hier",
-    },
-    {
-    	chatId: 0,
-    	userId: 2,
-      destId: 2,
-    	content: "hey",
-    },
-    {
-    	chatId: 0,
-    	userId: 2,
-      destId: 2,
-    	content: "Ça va et toi ?",
-    },
-    {
-    	chatId: 0,
-    	userId: 2,
-      destId: 2,
-    	content: "Moi je me suis gratté les fesses",
-    }],
-  }  */
 
   export let chat: Chat_c; // fakeChat//
   export let matchOrChat: Boolean;

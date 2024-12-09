@@ -39,15 +39,7 @@
     for (let index = 0; index < 15; index++) {  
       fetch(`/profil/${index}/bio.json`)
       .then(response => response.json()) // Convertir la réponse en JSON
-      .then(data => {
-        // Manipuler les données JSON
-        // console.log(data.description);
-        // description.push(data.description);
-        description.update(currentItems => {
-      // Créer une nouvelle copie du tableau avec l'élément ajouté
-      return [...currentItems, data];
-    });
-      })
+      .then(data => description.update(currentItems => {return [...currentItems, data]}))
       .catch(error => {
         console.error('Erreur lors du chargement du JSON:', error);
       });
@@ -95,10 +87,6 @@
 
     <!-- Galerie de photos avec défilement vertical -->
     <div class="h-[90%] mt-4 mb-9 flex flex-col gap-4 overflow-y-auto"> <!-- max-h-80 -->
-<!--       {#each user.photos as photo}
-        <img src={photo} alt="User" class="w-full rounded-lg" />
-      {/each}
-       -->
       {#each profil?.pictures as item}
         <img src={`http://localhost:3000/api/user/picture/${item.filename}`} alt="User" class="w-full rounded-lg" />
       {/each}

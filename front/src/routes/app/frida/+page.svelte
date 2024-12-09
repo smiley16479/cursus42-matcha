@@ -51,15 +51,6 @@
   }
 
   async function get_db_Profil() {
-  // const pref = {
-  //   minFameRate: 0,
-  //   maxFameRate: 100,
-  //   nbRequiredProfiles : 50,
-  //   offset:  0,
-  //   sortingOn:  "score",
-  //   sortingType:  "desc",
-  // }
-
   const pref = {
     minFameRate: 0,
     maxFameRate: 100,
@@ -144,24 +135,7 @@ function resfreshProfils() {
       longitude: $us.user.longitude,
       interests: [],
     }
-    /* 
-      "requiredGender": "Female",
-      "minAge": 0,
-      "maxAge": 99,
-      "minFameRate": 0,
-      "maxFameRate": 100,
-      "locationLatitude": 48.865800402991646,
-      "locationLongitude": 2.3514035501401054,
-      "maxDistance": 200000,
-      "interests": [
-        "Walking",
-        "Dancing"
-      ],
-      "nbRequiredProfiles": 20,
-      "offset": 0,
-      "sortingOn": "score",
-      "sortingType": "desc"
-     */
+
     browse({...pref}).then(data => {
       // console.log(`profils data FETCH:\n`, data);
       // console.log(`$browseItems data FETCH:\n`, $browseItems);

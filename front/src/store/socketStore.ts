@@ -286,6 +286,8 @@ function updateLikeOrMatch(like: Chat_c | UserLikedBy_t) {
 	us.update((store) => {
 		if ("msg" in like) {
 			console.log(`instance of Chat_c`);
+			const otherUser = like.interlocutors[0].id !== store.user.id ? like.interlocutors[0].id : like.interlocutors[1].id;
+			store.user.likedBy = store.user.likedBy.filter(e => e.id !== otherUser);
 			store.user.chats.push(like);
 		}
 		else //if ("likedUserId" in like) 
