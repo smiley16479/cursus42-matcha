@@ -15,10 +15,8 @@ function showNopeStamp() {
   setTimeout(() => {
     $app.cardIndex = $app.cardIndex + 1;
     showNopeBox = false;
-    // if (profil)
-      // window.history.back()
     $app.profilConsult = false;
-  }, 1000);  // Cache l'encart après 3 secondes
+  }, 1000);  // Cache l'encart après 1 secondes
 }
 
 // Fonction pour déclencher l'affichage et l'animation
@@ -30,10 +28,8 @@ function showStamp() {
   setTimeout(() => {
     $app.cardIndex = $app.cardIndex + 1;
     showBox = false;
-    // if (profil)
-        // window.history.back()
     $app.profilConsult = false;
-  }, 1000);  // Cache l'encart après 3 secondes
+  }, 1000);  // Cache l'encart après 1 secondes
 }
 </script>
 

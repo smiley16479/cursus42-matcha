@@ -1,8 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import { app } from "@/store/appStore";
-  import Btn from "@/lib/component/btn/btn.svelte";
   import { logout } from "@/service/user";
   import { us } from "@/store/userStore";
   import { LoggingState } from "@/type/user";
