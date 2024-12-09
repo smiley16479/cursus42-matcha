@@ -110,6 +110,7 @@ export type UserPic_t = {
 }
 
 export type UserVisit_t = {
+    id: number,
     date: Date,
     visiterUser: IUserOutput
 }
@@ -120,6 +121,7 @@ export type UserBlocking_t = {
 }
 
 export type UserLikedBy_t = {
+    id: number,
     date: Date,
     likerUser: IUserOutput
 }

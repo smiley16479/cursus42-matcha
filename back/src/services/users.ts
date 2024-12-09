@@ -393,7 +393,6 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     const visiter = await retrieveUserFromId(userVisit.visiterUserId);
     userVisit.visiterUser = prepareUserForOutput(visiter, false);
 
-    delete userVisit.id;
     delete userVisit.createdAt;
     delete userVisit.visitedUserId;
     delete userVisit.visiterUserId;
@@ -443,7 +442,6 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
         const liker = await retrieveUserFromId(userLike.likerUserId);
         userLike.likerUser = prepareUserForOutput(liker, false);
     
-        delete userLike.id;
         delete userLike.createdAt;
         delete userLike.likedUserId;
         delete userLike.likerUserId;
