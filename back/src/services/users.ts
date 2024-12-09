@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer';
 import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { Notif_t_E } from '../types/shared_type/notification';
-import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref } from "../types/shared_type/user";
+import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, string2EGender, string2ESexualPref, UserVisit_t } from "../types/shared_type/user";
 import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
 import { getEnv } from '../util/envvars';
 import { createChat, getChat } from './chats';
@@ -385,10 +385,20 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     if (existingUserVisit)
         throw new RessourceAlreadyExistsError();
 
-    const visitId = insertUserVisit(visitedUserId, visiterUserId);
+    await insertUserVisit(visitedUserId, visiterUserId);
+    const userVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
     updateUserFameRate(visitedUserId);
 
-    return visitId;
+    userVisit.date = userVisit.createdAt;
+    const visiter = await retrieveUserFromId(userVisit.visiterUserId);
+    userVisit.visiterUser = prepareUserForOutput(visiter, false);
+
+    delete userVisit.id;
+    delete userVisit.createdAt;
+    delete userVisit.visitedUserId;
+    delete userVisit.visiterUserId;
+
+    return userVisit;
 }
 
 /*********************************************************
@@ -405,7 +415,7 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     if (liker.pictures.length == 0)
         throw new AppError(403, 'No Picture No Like');
 
-    const likeId = insertUserLike(likedUserId, likerUserId);
+    await insertUserLike(likedUserId, likerUserId);
 
     updateUserFameRate(likedUserId);
 
@@ -426,8 +436,20 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
             chat.msg = [];
         return chat;
     }
-    else
-        return likeId;
+    else {
+        const userLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId)
+
+        userLike.date = userLike.createdAt;
+        const liker = await retrieveUserFromId(userLike.likerUserId);
+        userLike.likerUser = prepareUserForOutput(liker, false);
+    
+        delete userLike.id;
+        delete userLike.createdAt;
+        delete userLike.likedUserId;
+        delete userLike.likerUserId;
+
+        return userLike;
+    }
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {
