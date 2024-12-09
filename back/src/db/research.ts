@@ -5,8 +5,6 @@ import pool, { cleanUserDb, sql } from "./dbUtils";
 import { EGender, ESexualPref } from "../types/shared_type/user";
 
 export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearchCriterias): Promise<IUserDb[]> {
-    const connection = await pool.getConnection();
-
     let sortingSqlQuery: Sql;
 
     switch (criterias.sortingOn) {
@@ -102,12 +100,13 @@ export async function retrieveResearchedUsers(user: IUserDb, criterias: IResearc
         OFFSET ${criterias.offset};
     `;
 
+    const connection = await pool.getConnection();
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+    connection.release();
 
     rows.forEach((user, index, array) => {
         array[index] = cleanUserDb(user);
     });
 
-    connection.release();
     return rows;
 }

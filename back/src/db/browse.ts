@@ -5,8 +5,6 @@ import { Sql } from "sql-template-tag";
 import { EGender, ESexualPref } from "../types/shared_type/user";
 
 export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCriterias): Promise<IUserDb[]> {
-    const connection = await pool.getConnection();
-
     let sortingSqlQuery: Sql;
 
     switch (criterias.sortingOn) {
@@ -121,7 +119,9 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
         OFFSET ${criterias.offset};
     `;
 
+    const connection = await pool.getConnection();
     const [rows] = await connection.query<IUserDb[]>(sqlQuery);
+    connection.release();
     
 
     rows.forEach((user, index, array) => {
@@ -129,6 +129,5 @@ export async function retrieveMatchingUsers(user: IUserDb, criterias: IBrowseCri
         array[index] = cleanUserDb(user);
     });
 
-    connection.release();
     return (rows);
 }
