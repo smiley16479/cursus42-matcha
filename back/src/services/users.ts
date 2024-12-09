@@ -404,7 +404,7 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number): 
     if (liker.pictures.length == 0)
         throw new AppError(403, 'No Picture No Like');
 
-    insertUserLike(likedUserId, likerUserId);
+    const likeId = insertUserLike(likedUserId, likerUserId);
 
     updateUserFameRate(likedUserId);
 
@@ -426,7 +426,7 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number): 
         return chat;
     }
     else
-        return null;
+        return likeId;
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {

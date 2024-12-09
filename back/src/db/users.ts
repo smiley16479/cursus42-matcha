@@ -437,8 +437,6 @@ export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId
 }
 
 export async function insertUserLike(likedUserId: number, likerUserId: number) {
-    const connection = await pool.getConnection();
-
     const sqlQuery = sql`INSERT INTO userLikes (
         likedUserId,
         likerUserId
@@ -448,9 +446,15 @@ export async function insertUserLike(likedUserId: number, likerUserId: number) {
         ${likerUserId}
     );`
 
-    await connection.query(sqlQuery);
-
+    const connection = await pool.getConnection();
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    if (!result) {
+        return null;
+    } else {
+        return result.insertId;
+    }
 }
 
 export async function deleteUserLike(likedUserId: number, likerUserId: number) {
