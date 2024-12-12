@@ -5,8 +5,8 @@ export interface IChatDb extends RowDataPacket {
     id: number,
     user1Id: number,
     user2Id: number,
-    status: EChatStatus,
-    createdAt: Date
+    createdAt: Date,
+    msg: []
 }
 
 export interface IMesssageDb extends RowDataPacket {

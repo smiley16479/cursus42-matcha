@@ -75,6 +75,23 @@ export async function insertMessage(chatId: number, userId: number, content: str
     connection.release();
 }
 
+export async function retrieveMessageFromId(messageId: number) {
+    const sqlQuery = sql`
+    SELECT
+        *
+    FROM
+        chatMessages
+    WHERE (
+        id = ${messageId}
+    );`;
+
+    const connection = await pool.getConnection();
+    const [ rows ] = await connection.query(sqlQuery);
+    connection.release();
+
+    return rows[0];
+}
+
 export async function updateMessageStatus(messageId: number, status: EChatStatus) {
     const sqlQuery = sql`
         UPDATE chatMessages SET

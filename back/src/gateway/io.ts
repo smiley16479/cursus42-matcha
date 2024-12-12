@@ -3,10 +3,12 @@ import type { MsgInput_t } from '../types/shared_type/msg';
 import { connectedUser } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
-import { createMessage } from '../services/chats';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, getNotification, getUserVisit, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
+import { createMessage, prepareUserChatForOutput } from '../services/chats';
 import { Notif_t_E } from '../types/shared_type/notification';
-import { UserLiking_t } from '../types/shared_type/user';
+import { UserLiking_t, UserNotification_t } from '../types/shared_type/user';
+import { Chat_c } from '../types/shared_type/chat';
+import { deleteNotification } from '../db/users';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -57,8 +59,8 @@ export const initSocketEvents = (io: Server) => {
 
         const userVisit = await addNewUserVisit(visitedUserId, socket.user.id);
 
-        if (connectedUser.includes(visitedUserId))
-          socket.to(`room_${visitedUserId}`).emit('s_visit', userVisit);
+        const notification = await addNewNotification(visitedUserId, socket.user.id, Notif_t_E.VISIT, userVisit.id);
+        sendNotification(socket, visitedUserId, notification);
 
         callback({ success: true, data: userVisit });
       } catch (error) {
@@ -72,18 +74,23 @@ export const initSocketEvents = (io: Server) => {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
 
-        const like = await addNewUserLike(likedUserId, socket.user.id);
-        console.log(`likedUserId obj returned`, like);
-        // S'il s'agit d'un chat ou d'un like:
-        const notifType = "likedUserId" in like ? Notif_t_E.LIKE : Notif_t_E.MATCH;
-        const payload = "likedUserId" in like ? like : like.id;
-        addNewNotification(socket.user.id, likedUserId, notifType, payload);
+        const [match, like] = await addNewUserLike(likedUserId, socket.user.id);
+        console.log(`match : `, match);
+        console.log(`like : `, like);
 
-        if (connectedUser.includes(likedUserId))
-          socket.to(`room_${likedUserId}`).emit('s_like', like);
+        const notification = await addNewNotification(likedUserId, socket.user.id, Notif_t_E.LIKE, like.id);
+        sendNotification(socket, likedUserId, notification);
 
-        const userLiking: UserLiking_t = {date: new Date(), likedUserId};
-        callback({ success: true, data: userLiking });
+        if (match) {
+          const notification = await addNewNotification(likedUserId, socket.user.id, Notif_t_E.MATCH, match.id);
+          sendNotification(socket, likedUserId, notification);
+        }
+
+        const userLiking: UserLiking_t = prepareLikeForOutputForLiker(like);
+        const outputMatch: Chat_c = await prepareUserChatForOutput(match);
+        console.log('liking : ', userLiking);
+        console.log('match : ', outputMatch);
+        callback({ success: true, data: [userLiking, outputMatch] });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
@@ -132,7 +139,7 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_read_notif', async (notifId, callback) => {
       console.log(`C_read_notif_id: read_notifId ${notifId}`);
       try {
-        // await markNotificationRead(notifId);
+        deleteNotification(notifId);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });
@@ -178,3 +185,9 @@ export const initSocketEvents = (io: Server) => {
     });
   });
 };
+
+async function sendNotification(socket: Socket, userId: number, notification: UserNotification_t) {
+  console.log('sending notif : ', notification);
+  if (connectedUser.includes(userId))
+    socket.to(`room_${userId}`).emit('s_new_notification', notification);
+}

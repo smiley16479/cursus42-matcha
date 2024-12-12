@@ -11,6 +11,8 @@
 	import { logout } from '@/service/user';
 	import { closeSocket } from '@/store/socketStore';
 	import { LoggingState } from '@/type/user';
+	import { markNotificationRead } from '../../store/socketStore';
+	import { Notif_t_E } from '../../type/shared_type/notification';
 
 	onMount(()=> {
 		if (!$us.user.id) {
@@ -37,6 +39,18 @@
 				// La navigation est annulée ou interne (comme un scroll dans la page)
 				console.log(`beforeNavigate(navigation)`);
 				return;
+		}
+
+		// marquer les notifications LIKE, VISIT, MATCH comme lues dès l'arrivée sur la page matcha
+		if (navigation.to.url.pathname == "/app/matcha") {
+			for (const notif of $us.user.notifications) {
+				if (notif.type == Notif_t_E.LIKE
+					|| notif.type == Notif_t_E.VISIT
+					|| notif.type == Notif_t_E.MATCH) {
+						console.log(notif);
+						markNotificationRead(notif.id);
+					}
+			}
 		}
 
 		// Vérifier l'état de l'utilisateur à chaque navigation

@@ -1,6 +1,6 @@
 import pool, { cleanUserDb, sql } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
-import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisit, IUserInputInternal, IUserLike, IUserBlock, IUserReport } from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisitDb, IUserInputInternal, IUserLikeDb, IUserBlock, IUserReport, IUserNotifDb } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 import { Notif_t_E } from '../types/shared_type/notification';
 import { UserNotFoundError } from '../types/error';
@@ -377,10 +377,23 @@ export async function retrieveUserVisitFromUsers(visitedUserId: number, visiterU
         SELECT * FROM userVisits
         WHERE visitedUserId = ${visitedUserId}
         AND visiterUserId = ${visiterUserId}
-    ;`
+    ;`;
 
     const connection = await pool.getConnection();
-    const [rows] = await connection.query<IUserVisit[]>(sqlQuery);
+    const [rows] = await connection.query<IUserVisitDb[]>(sqlQuery);
+    connection.release();
+
+    return rows[0];
+}
+
+export async function retrieveUserVisitFromId(visitId: number) {
+    const sqlQuery = sql`
+        SELECT * FROM userVisits
+        WHERE id = ${visitId}
+    ;`;
+
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query<IUserVisitDb[]>(sqlQuery);
     connection.release();
 
     return rows[0];
@@ -394,7 +407,7 @@ export async function insertUserVisit(visitedUserId: number, visiterUserId: numb
     VALUES (
         ${visitedUserId},
         ${visiterUserId}
-    );`
+    );`;
 
     const connection = await pool.getConnection();
     const [result] = await connection.query(sqlQuery);
@@ -411,6 +424,19 @@ export async function insertUserVisit(visitedUserId: number, visiterUserId: numb
  * ================ LIKES MANAGEMENT =====================
  *********************************************************/
 
+export async function retrieveUserLikeFromId(likeId: number) {
+    const sqlQuery = sql`
+        SELECT * FROM userLikes
+        WHERE id = ${likeId}
+    ;`
+
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query<IUserLikeDb[]>(sqlQuery);
+    connection.release();
+
+    return rows[0];
+}
+
 export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId: number) {
     const sqlQuery = sql`
         SELECT * FROM userLikes
@@ -419,7 +445,7 @@ export async function retrieveUserLikeFromUsers(likedUserId: number, likerUserId
     ;`
 
     const connection = await pool.getConnection();
-    const [rows] = await connection.query<IUserLike[]>(sqlQuery);
+    const [rows] = await connection.query<IUserLikeDb[]>(sqlQuery);
     connection.release();
 
     return rows[0];
@@ -556,8 +582,14 @@ export async function insertNotification(userId: number, involvedUserId: number,
     );`
 
     const connection = await pool.getConnection();
-    await connection.query(sqlQuery);
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    if (!result) {
+        return null;
+    } else {
+        return result.insertId;
+    }
 }
 
 export async function deleteNotification(notifId: number) {
@@ -567,4 +599,14 @@ export async function deleteNotification(notifId: number) {
     await connection.query(sqlQuery);
     connection.release();
 
+}
+
+export async function retrieveNotificationFromId(notifId: number) {
+    const sqlQuery = sql`SELECT * FROM notifications WHERE id = ${notifId}`
+
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query<IUserNotifDb[]>(sqlQuery);
+    connection.release();
+
+    return rows[0];
 }

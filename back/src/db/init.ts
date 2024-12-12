@@ -259,7 +259,7 @@ export default async function initDb() {
                 user_notifications AS (
                     SELECT
                         n.userId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "payloadId", n.payloadId)) AS notifications
+                        JSON_ARRAYAGG(JSON_OBJECT("id", n.id, "date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "payloadId", n.payloadId)) AS notifications
                     FROM
                         notifications n
                     GROUP BY
