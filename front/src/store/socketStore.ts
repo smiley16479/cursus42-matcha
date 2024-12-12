@@ -74,7 +74,7 @@ export function initializeSocket() {
 					store.user?.visits?.push(notif.payload);
 					break;
 				case Notif_t_E.UNLIKE:
-					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload);
+					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload.id);
 					break;
 		    	}
 			return {

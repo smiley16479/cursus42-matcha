@@ -621,7 +621,7 @@ async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
             payload = prepareMessageForOutput(await retrieveMessageFromId(notificationDb.payloadId));
             break;
         case Notif_t_E.UNLIKE:
-            payload = notificationDb.payloadId;
+            payload = {id: notificationDb.payloadId};
             break;
     }
 
