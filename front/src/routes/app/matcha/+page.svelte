@@ -6,13 +6,56 @@
 	import { goto } from "$app/navigation";
   import Schedule from "@/lib/section/matcha/schedule.svelte";
 	import Chat from "$lib/elem/chat/chat.svelte";
+	import { type Notif_T, Notif_t_E } from "@/type/shared_type/notification";
+	import { markNotificationRead } from "@/store/socketStore";
+	import type { UserLikedBy_t, UserVisit_t } from "@/type/shared_type/user";
+	import { get } from "svelte/store";
 
 	// Données simulées pour les matchs
 	let matchOrChat = true;
 	let chat : Chat_c;
 
-	function markAsRead(notification: any) {
-			
+	function markNotificationReadIfExists(notifType: Notif_t_E, payloadId: number) {
+		const store = get(us);
+		
+		const notifToMarkRead = store.user?.notifications?.find((notif: Notif_T) => 
+			notif.type === notifType && notif.payload.id == payloadId
+		);
+
+		if (notifToMarkRead)
+			markNotificationRead(notifToMarkRead.id);
+
+		if (notifType === Notif_t_E.MATCH) {
+			const messagesNotifsToMarkRead = store.user?.notifications?.filter((notif: Notif_T) =>
+				notif.type === Notif_t_E.MSG && notif.payload.chatId == payloadId
+			);
+
+			messagesNotifsToMarkRead.forEach((notif: Notif_T) => {
+				markNotificationRead(notif.id);
+			});
+		}
+	}
+
+	function isThereANotificationAboutThis(notifType: Notif_t_E, payloadId: number) {
+		const store = get(us);
+
+		console.log(store);
+
+		const notif = store.user?.notifications?.find((notif: Notif_T) => 
+			notif.type === notifType && notif.payload.id == payloadId
+		);
+
+		if ((!notif) && notifType === Notif_t_E.MATCH) {
+			const messagesNotifs = store.user?.notifications?.filter((notif: Notif_T) =>
+				notif.type === Notif_t_E.MSG && notif.payload.chatId == payloadId
+			);
+			if (messagesNotifs.length != 0)
+				return true;
+		}
+
+		if (notif)
+			return true;
+		return false;
 	}
 
 	// Fonction pour gérer un clic sur un match
@@ -23,7 +66,26 @@
 
 	}
 
+	// Fonction pour gérer un clic sur un like
+	function viewLikeProfil(like: UserLikedBy_t) {
+	  // alert(`Afficher les détails pour ${match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}`);
+		// goto(`/app/frida/${match.interlocutors.find(e => (e.id !== $us.user.id))?.id}}`)
+		markNotificationReadIfExists(Notif_t_E.LIKE, like.id);
+		goto(`/app/frida/${like.likerUser.id}`)
+
+	}
+
+	// Fonction pour gérer un clic sur une visite
+	function viewVisitProfil(visit: UserVisit_t) {
+	  // alert(`Afficher les détails pour ${match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}`);
+		// goto(`/app/frida/${match.interlocutors.find(e => (e.id !== $us.user.id))?.id}}`)
+		markNotificationReadIfExists(Notif_t_E.VISIT, visit.id);
+		goto(`/app/frida/${visit.visiterUser.id}`)
+
+	}
+
 	function viewChat(match: Chat_c) {
+		markNotificationReadIfExists(Notif_t_E.MATCH, match.id);
 		console.log(`viewChat function`);
 		chat = match;
 		matchOrChat = false;
@@ -34,6 +96,8 @@
 		if (confirm(`Vous êtes sur le point d'unmatch avec ${match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}`)) {
 			unlike(match.interlocutors[0].id == $us.user.id? match.interlocutors[1].id : match.interlocutors[0].id);
 			$us.user.chats = $us.user.chats.filter(e => (e.id !== match.id))
+			
+			markNotificationReadIfExists(Notif_t_E.MATCH, match.id);
 		}
 	}
 
@@ -60,7 +124,7 @@
 			<h1 class="text-2xl font-bold text-gray-800 mb-6">Mes Matchs</h1>
 			<div class="space-y-4">
 				{#each $us.user.chats as match, index}
-					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${index === 0 ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
+					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${isThereANotificationAboutThis(Notif_t_E.MATCH, match.id) ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
 						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewMatchProfil(match.interlocutors[0].id === $us.user.id ? match.interlocutors[1].id : match.interlocutors[0].id)} >
 							{#if match.interlocutors.find(e => (e.id !== $us.user.id))?.pictures?.[0].filename}
 								<img src={"http://localhost:3000/api/user/picture/" + match.interlocutors.find(e => (e.id !== $us.user.id))?.pictures[0].filename} alt={match.interlocutors.find(e => (e.id !== $us.user.id))?.userName} class="w-16 h-16 rounded-full object-cover mr-4">
@@ -97,8 +161,8 @@
 			<h1 class="text-2xl font-bold text-gray-800 mb-6" title="Profil(s) qui ont liké le mien">Mes Likes</h1>
 			<div class="space-y-4">
 				{#each $us.user.likedBy as like, index}
-					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${index === 0 ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
-						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewMatchProfil(like.likerUser.id)} >
+					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${isThereANotificationAboutThis(Notif_t_E.LIKE, like.id) ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
+						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewLikeProfil(like)} >
 							{#if like.likerUser.pictures?.[0].filename}
 								<img src={"http://localhost:3000/api/user/picture/" + like.likerUser.pictures[0].filename} alt={like.likerUser.userName} class="w-16 h-16 rounded-full object-cover mr-4">
 							{:else}
@@ -107,7 +171,7 @@
 								</svg>
 							{/if}
 						</button>
-						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewMatchProfil(like.likerUser.id)} >
+						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewLikeProfil(like)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{like.likerUser.userName}</h2>
 								<p class="hidden md:block text-gray-600 text-sm">{like.likerUser.biography}</p>
@@ -131,8 +195,8 @@
 			<h1 class="text-2xl font-bold text-gray-800 mb-6" title="Profil(s) qui ont visité le mien">Mes Visites</h1>
 			<div class="space-y-4">
 				{#each $us.user.visits as visit, index}
-					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${index === 0 ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
-						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewMatchProfil(visit.visiterUser.id)} >
+					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${isThereANotificationAboutThis(Notif_t_E.VISIT, visit.id) ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
+						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewVisitProfil(visit)} >
 							{#if visit.visiterUser.pictures?.[0].filename}
 								<img src={"http://localhost:3000/api/user/picture/" + visit.visiterUser.pictures[0].filename} alt={visit.visiterUser.userName} class="w-16 h-16 rounded-full object-cover mr-4">
 							{:else}
@@ -141,7 +205,7 @@
 								</svg>
 							{/if}
 						</button>
-						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewMatchProfil(visit.visiterUser.id)} >
+						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewVisitProfil(visit)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{visit.visiterUser.userName}</h2>
 								<p class="hidden md:block text-gray-600 text-sm">{visit.visiterUser.biography}</p>
