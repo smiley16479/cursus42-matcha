@@ -10,8 +10,10 @@ export async function getResearchResults(userId: number, researchCriterias: IRes
 
     const users: IUserDb[] = await retrieveResearchedUsers(user, researchCriterias);
 
-    const outputUsers: IUserOutput[] = users.map((user): IUserOutput => {
-        return (prepareUserForOutput(user, false));
-    });
+    const outputUsers: IUserOutput[] = await Promise.all(
+        users.map(async (user): Promise<IUserOutput> => {
+            return await prepareUserForOutput(user, false);
+        })
+    );
     return outputUsers;
 }

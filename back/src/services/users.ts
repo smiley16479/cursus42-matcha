@@ -81,30 +81,10 @@ export async function loginUser(credentials: IUserCredentials) {
     const secret = getEnv("JWT_SECRET");
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: getEnv("JWT_EXP") });
 
-    const outputUser: IUserSelf = prepareUserForOutput(user, true);
+    const outputUser: IUserSelf = await prepareUserForOutput(user, true);
 
     patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
-
-    for (const visit of outputUser.visits) {
-        const visiterUser = await retrieveUserFromId(visit.visiterUserId);
-        visit.visiterUser = prepareUserForOutput(visiterUser, false);
-        delete visit.visiterUserId;
-    }
-
-    for (const like of outputUser.likedBy) {
-        const likerUser = await retrieveUserFromId(like.likerUserId);
-        like.likerUser = prepareUserForOutput(likerUser, false);
-        delete like.likerUserId;
-    }
-
-    for (const chat of outputUser.chats) {
-        const user1 = prepareUserForOutput(await retrieveUserFromId(chat.user1Id), false);
-        const user2 = prepareUserForOutput(await retrieveUserFromId(chat.user2Id), false);
-        chat.interlocutors = [user1, user2];
-        delete chat.user1Id;
-        delete chat.user2Id;
-    }
 
     return [token, outputUser];
 }
@@ -119,7 +99,7 @@ export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput 
         throw new UserNotFoundError();
     }
 
-    const outputUser: IUserOutput = prepareUserForOutput(user, isSelf);
+    const outputUser: IUserOutput = await prepareUserForOutput(user, isSelf);
 
     return outputUser;
 }
@@ -154,8 +134,8 @@ export async function patchUser(id: number, rawUser: any) {
         sendVerificationEmail(id);
 }
 
-export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput | IUserSelf {
-    const outputUser: IUserOutput = user;
+export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Promise<IUserOutput | IUserSelf> {
+    const outputUser: any = user;
 
     if (!isSelf) {
         delete outputUser['email'];
@@ -171,12 +151,36 @@ export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutpu
         delete outputUser['likedBy'];
         delete outputUser['liking'];
         delete outputUser['chats'];
+    } else {
+        outputUser.visits = await Promise.all(
+            outputUser.visits.map(async (visit: IUserVisitDb) => {
+                return await prepareVisitForOutput(visit);
+            })
+        );
+
+        outputUser.likedBy = await Promise.all(
+            outputUser.likedBy.map(async (like: IUserLikeDb) => {
+                return await prepareLikeForOutputForLiked(like);
+            })
+        );
+
+        outputUser.chats = await Promise.all(
+            outputUser.chats.map(async (chat: IChatDb) => {
+                return await prepareUserChatForOutput(chat);
+            })
+        );
+
+        outputUser.notifications = await Promise.all(
+            outputUser.notifications.map(async (notification: IUserNotifDb) => {
+                return await prepareNotifForOutput(notification);
+            })
+        );
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
     delete outputUser['blockedBy'];
 
-    user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
+    outputUser.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 
     return outputUser;
 }
@@ -410,7 +414,7 @@ async function prepareVisitForOutput(userVisitDb: IUserVisitDb) {
     if (!userVisitDb)
         return userVisitDb;
 
-    const visiterUser = prepareUserForOutput(await retrieveUserFromId(userVisitDb.visiterUserId), false);
+    const visiterUser = await prepareUserForOutput(await retrieveUserFromId(userVisitDb.visiterUserId), false);
 
     const outputVisit : UserVisit_t = {
         id: userVisitDb.id,
@@ -482,7 +486,8 @@ async function prepareLikeForOutputForLiked(userLikeDb: IUserLikeDb) {
     if (!userLikeDb)
         return userLikeDb;
 
-    const likerUser = prepareUserForOutput(await retrieveUserFromId(userLikeDb.likerUserId), false);
+    const likerUser = await prepareUserForOutput(await retrieveUserFromId(userLikeDb.likerUserId), false);
+    
 
     const outputLike : UserLikedBy_t = {
         id: userLikeDb.id,
@@ -551,7 +556,7 @@ export async function prepareBlockForOutput(blockDb: IUserBlockDb) {
     if (!blockDb)
         return blockDb
 
-    const blockedUser = prepareUserForOutput(await retrieveUserFromId(blockDb.blockedUserId), false);
+    const blockedUser = await prepareUserForOutput(await retrieveUserFromId(blockDb.blockedUserId), false);
 
     const outputBlock: UserBlocking_t = {
         date: blockDb.createdAt,
@@ -603,7 +608,7 @@ export async function getNotification(notifId: number) {
 // Helpers
 
 async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
-    const involvedUser = prepareUserForOutput(await retrieveUserFromId(notificationDb.involvedUserId), false);
+    const involvedUser = await prepareUserForOutput(await retrieveUserFromId(notificationDb.involvedUserId), false);
 
     let payload: any;
 
