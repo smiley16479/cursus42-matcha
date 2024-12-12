@@ -50,8 +50,8 @@ export interface IUserPicture extends RowDataPacket, IUserPictureInput {
 
 export interface IUserVisitDb extends RowDataPacket {
     id: number,
-    visited: number,
-    visiter: number,
+    visitedUserId: number,
+    visiterUserId: number,
     createdAt: Date
 }
 
@@ -62,17 +62,17 @@ export interface IUserLikeDb extends RowDataPacket {
     createdAt: Date
 }
 
-export interface IUserBlock extends RowDataPacket {
+export interface IUserBlockDb extends RowDataPacket {
     id: number,
-    blocked: number,
-    blocker: number,
+    blockedUserId: number,
+    blockerUserId: number,
     createdAt: Date
 }
 
-export interface IUserReport extends RowDataPacket {
+export interface IUserReportDb extends RowDataPacket {
     id: number,
-    reported: number,
-    reporter: number,
+    reportedUserId: number,
+    reporterUserId: number,
     createdAt: Date
 }
 

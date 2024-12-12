@@ -148,7 +148,7 @@ export default async function initDb() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         userId INT NOT NULL,
         involvedUserId INT NOT NULL,
-        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
+        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH', 'UNLIKE') NOT NULL,
         payloadId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );

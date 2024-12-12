@@ -1,6 +1,6 @@
 import pool, { cleanUserDb, sql } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
-import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisitDb, IUserInputInternal, IUserLikeDb, IUserBlock, IUserReport, IUserNotifDb } from '../types/user'
+import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisitDb, IUserInputInternal, IUserLikeDb, IUserBlockDb, IUserReportDb, IUserNotifDb } from '../types/user'
 import { QueryResult, FieldPacket } from 'mysql2';
 import { Notif_t_E } from '../types/shared_type/notification';
 import { UserNotFoundError } from '../types/error';
@@ -496,10 +496,22 @@ export async function retrieveUserBlockFromUsers(blockedUserId: number, blockerU
     ;`
 
     const connection = await pool.getConnection();
-    const [rows] = await connection.query<IUserBlock[]>(sqlQuery);
+    const [rows] = await connection.query<IUserBlockDb[]>(sqlQuery);
     connection.release();
 
     return rows[0];
+}
+
+export async function retrieveUserBlockFromId(blockId: number) {
+    const sqlQuery = sql`
+        SELECT * FROM userBlocks WHERE id = ${blockId}
+    ;`
+
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query<IUserBlockDb[]>(sqlQuery);
+    connection.release();
+
+    return rows[0];   
 }
 
 export async function insertUserBlock(blockedUserId: number, blockerUserId: number) {
@@ -513,8 +525,14 @@ export async function insertUserBlock(blockedUserId: number, blockerUserId: numb
     );`
 
     const connection = await pool.getConnection();
-    await connection.query(sqlQuery);
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    if (!result) {
+        return null;
+    } else {
+        return result.insertId;
+    }
 }
 
 export async function deleteUserBlock(blockedUserId: number, blockerUserId: number) {
@@ -541,7 +559,7 @@ export async function retrieveUserReportFromUsers(reportedUserId: number, report
     ;`
 
     const connection = await pool.getConnection();
-    const [rows] = await connection.query<IUserReport[]>(sqlQuery);
+    const [rows] = await connection.query<IUserReportDb[]>(sqlQuery);
     connection.release();
 
     return rows[0];

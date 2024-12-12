@@ -71,8 +71,10 @@ export async function insertMessage(chatId: number, userId: number, content: str
     );`;
 
     const connection = await pool.getConnection();
-    await connection.query(sqlQuery);
+    const [result] = await connection.query(sqlQuery);
     connection.release();
+
+    return result.insertId;
 }
 
 export async function retrieveMessageFromId(messageId: number) {

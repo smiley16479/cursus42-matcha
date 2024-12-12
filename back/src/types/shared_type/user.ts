@@ -117,7 +117,7 @@ export type UserVisit_t = {
 
 export type UserBlocking_t = {
     date: Date,
-    blockedUserId: number
+    blockedUser: IUserOutput
 }
 
 export type UserLikedBy_t = {

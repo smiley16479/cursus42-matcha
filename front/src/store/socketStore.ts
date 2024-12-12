@@ -45,16 +45,16 @@ export function initializeSocket() {
 		console.log('Socket connecté:', store1.socket?.id);
 	});
 
-	store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
-		console.log(`s_send_msg`, msg);
-		us.update((store) => {
-			const chat = store.user.chats.find(e => e.id === msg.chatId)
-			chat?.msg.push(msg);
-			return {
-				...store
-			};
-		})
-	});
+	// store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
+	// 	console.log(`s_send_msg`, msg);
+	// 	us.update((store) => {
+	// 		const chat = store.user.chats.find(e => e.id === msg.chatId)
+	// 		chat?.msg.push(msg);
+	// 		return {
+	// 			...store
+	// 		};
+	// 	})
+	// });
 
 	store1.socket.on('s_new_notification', (notif: Notif_T) => {
 		us.update((store) => {
@@ -65,19 +65,16 @@ export function initializeSocket() {
 					break;
 				case Notif_t_E.MATCH:
 		        	store.user?.chats?.push(notif.payload);
-					console.log(store.user.chats);
 					break;
 				case Notif_t_E.MSG:
-		        	// store.user.notifications.push(notif);
+					const chat = store.user?.chats?.find(e => e.id === notif.payload.chatId)
+		        	chat?.msg?.push(notif.payload);
 					break;
 				case Notif_t_E.VISIT:
-		        	store.user?.visits?.push(notif.payload);
+					store.user?.visits?.push(notif.payload);
 					break;
 				case Notif_t_E.UNLIKE:
-		        	// return notif.payload;
-					break;
-				case Notif_t_E.UNKNOWN:
-		        	// return notif.payload;
+					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload);
 					break;
 		    	}
 			return {
@@ -157,10 +154,9 @@ export function like(likedUserId: number) {
 			if (response.success) {
 				console.log("Socket like completed", response.data);
 				us.update((store) => {
-					const [userLinking, chat] = response.data;
-					store.user.liking.push(userLinking);
-					if (chat)
-						store.user.chats.push(chat)
+					store.user.liking.push(response.data.newLiking);
+					if (response.data.newChat)
+						store.user.chats.push(response.data.newChat)
 					return {
 						...store
 					};
@@ -185,7 +181,9 @@ export function unlike(unlikedUserId: number) {
 			if (response.success) {
 				console.log("Socket unlike completed");
 				us.update((store) => {
-					store.user.likedBy = store.user.likedBy.filter(item => item.id !== unlikedUserId);
+					store.user.liking = store.user.liking.filter(item => item.id !== response.data.removedLikeId);
+					if (response.data.newBlock)
+						store.user.blocking.push(response.data.newBlock);
 					return {
 						...store
 					};

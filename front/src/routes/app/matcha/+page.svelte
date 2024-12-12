@@ -32,7 +32,7 @@
 
 	function deleteMatch(match: Chat_c) {
 		if (confirm(`Vous êtes sur le point d'unmatch avec ${match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}`)) {
-			unlike(match.id);
+			unlike(match.interlocutors[0].id == $us.user.id? match.interlocutors[1].id : match.interlocutors[0].id);
 			$us.user.chats = $us.user.chats.filter(e => (e.id !== match.id))
 		}
 	}
