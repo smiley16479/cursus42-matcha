@@ -8,6 +8,7 @@ import { us } from './userStore';
 import { Chat_c } from '@/type/shared_type/chat';
 import type { UserLikedBy_t } from '@/type/shared_type/user';
 import { type Notif_T, Notif_t_E } from '@/type/shared_type/notification';
+import { app } from "@/store/appStore";
 
 
 export const soc = writable<{socket: Socket | null, msg: MsgOutput_t | null, notif: Notif_T | null}>({
@@ -69,6 +70,10 @@ export function initializeSocket() {
 				case Notif_t_E.MSG:
 					const chat = store.user?.chats?.find(e => e.id === notif.payload.chatId)
 		        	chat?.msg?.push(notif.payload);
+					const appStore = get(app);
+					if (appStore.userViewingChat == notif.payload.chatId) {
+						store.user.notifications = store.user.notifications.filter(item => item.id !== notif.id);
+					}
 					break;
 				case Notif_t_E.VISIT:
 					store.user?.visits?.push(notif.payload);
