@@ -45,7 +45,7 @@ export async function prepareUserChatForOutput(chatDb: IChatDb | null) {
     const user1 = await prepareUserForOutput(await retrieveUserFromId(chatDb.user1Id), false);
     const user2 = await prepareUserForOutput(await retrieveUserFromId(chatDb.user2Id), false);
 
-    if (!chatDb.msg.id)
+    if (chatDb.msg.id === null)
         chatDb.msg = [];
 
     const outputChat: Chat_c = {
