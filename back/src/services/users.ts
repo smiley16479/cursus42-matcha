@@ -201,7 +201,6 @@ async function convertValues(rawUser: any): Promise<[string, EGender, ESexualPre
     let biography: string;
     let latitude: number;
     let longitude: number;
-    let emailVerified: boolean;
 
     if ('latitude' in rawUser) {
         latitude = parseFloat(rawUser.latitude);
@@ -267,15 +266,19 @@ async function sendVerificationEmail(id: number) {
         },
     });
 
-    const info = await transporter.sendMail({
-        from: '"Matcha!" <matcha@42l.fr>',
-        to: user.email,
-        subject: "Confirm your email!",
-        text: "Confirm your email by using this link : http://localhost:3000/api/user/confirmemail/" + confirmToken,
-        html: "<b>To confirm your email, click this <u><a href='http://localhost:3000/api/user/confirmemail/" + confirmToken + "'>link<a></u></b>",
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: '"Matcha!" <matcha@42l.fr>',
+            to: user.email,
+            subject: "Confirm your email!",
+            text: "Confirm your email by using this link : http://localhost:3000/api/user/confirmemail/" + confirmToken,
+            html: "<b>To confirm your email, click this <u><a href='http://localhost:3000/api/user/confirmemail/" + confirmToken + "'>link<a></u></b>",
+        });
 
-    console.log("Message sent: %s", info.messageId);
+        console.log("Message sent: %s", info.messageId);
+    } catch (error) {
+        console.log('Error sending validation email');
+    }
 }
 
 /*********************************************************
