@@ -13,8 +13,9 @@ import { fly } from "svelte/transition";
 
 let signUpMode = false;
 let showModalPW = false;
+let passwordRecovery = false;
 let showEmailValidatedMessage = true;
-let email = $page.url.searchParams.get('emailVerified');
+let emailVerified = $page.url.searchParams.get('emailVerified');
 
 onMount(()=> {
   setTimeout(() => {
@@ -108,10 +109,17 @@ async function signIn() {
 </script>
 
 <Background>
-  {#if email !== null && showEmailValidatedMessage}
+  {#if emailVerified !== null && showEmailValidatedMessage}
   <div class="absolute w-full px-6 py-4 lg:px-8" transition:fly={{ x: 0, y: -200 }}>
     <div class="flex flex-row justify-center bg-green-400/50 backdrop-blur shadow-lg rounded-lg min-h-12">
       <p class="flex flex-col justify-center text-gray-900"><b class="align-middle">Your email has been verified 👍</b></p>
+    </div>
+  </div>
+  {/if}
+  {#if passwordRecovery}
+  <div class="absolute w-full px-6 py-4 lg:px-8" transition:fly={{ x: 0, y: -200 }}>
+    <div class="flex flex-row justify-center bg-green-400/50 backdrop-blur shadow-lg rounded-lg min-h-12">
+      <p class="flex flex-col justify-center text-gray-900"><b class="align-middle">Recovery email was sent 👍</b></p>
     </div>
   </div>
   {/if}
@@ -198,5 +206,5 @@ async function signIn() {
     <p class="flex w-full fixed bottom-0 bg-white justify-center">Developped with love 💟 of Matcha's Team</p>
   </footer>
 
-  <ForgotPWmodal bind:showModalPW/>
+  <ForgotPWmodal bind:showModalPW bind:passwordRecovery/>
 </Background>
