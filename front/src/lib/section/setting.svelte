@@ -79,6 +79,12 @@
 		<!-- Informations Personnelles -->
 		<div class="rounded-md shadow-sm -space-y-px">
 			<h1 class="text-2xl font-bold mb-4">Mes Informations</h1>
+			<div>
+				<label for="famerate" class="sr-only">fameRate</label>
+				<input value={"fameRate " + $us.user.fameRate} id="famerate" name="famerate" type="text" autocomplete="name" disabled
+				  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+				  placeholder="Votre Famerate n'est pas encore déterminé">
+		  </div>
 		  <div>
 				<label for="first-name" class="sr-only">Prénom</label>
 				<input bind:value={$us.user.firstName} id="first-name" name="first-name" type="text" autocomplete="name" required
