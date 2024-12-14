@@ -12,33 +12,12 @@ export async function browse(searchPref: any): Promise<IUserOutput[]| null>{
 	}
 }
 
-// /** Créer un match  */
-// export async function newMatch(param : any): Promise<Match_c | null> {
-// 	console.log('creating new Match', param);
-// 	try {
-// 		return (await axios.post('match/create', param, {withCredentials: true})).data;
-// 	} catch (error) {
-// 		console.log('error', error);
-// 		return null;
-// 	}
-// }
-
-// /** Get all matchs from an entity */
-// export async function getMatch(entityId : number): Promise<Match_c[]| null>{
-// 	try {
-// 		return await axios.get(`match/entity/${entityId}`) as Match_c[];
-// 	} catch (error) {
-// 		console.log('error', error);
-// 		return null;
-// 	}
-// }
-
-// /** delete un match  */
-// export async function deleteMatch(matchId : number) {
-// 	console.log('deleting match', matchId);
-// 	try {
-// 		return (await axios.delete(`match/del/${matchId}`, {withCredentials: true})).data;
-// 	} catch (error) {
-// 		console.log('error', error);
-// 	}
-// }
+/** Get all candidates from specified pref */
+export async function research(searchPref: any): Promise<IUserOutput[]| null>{
+	try {
+		return (await axios.post(`research`, searchPref, {withCredentials: true})).data as IUserOutput[];
+	} catch (error) {
+		console.log('error', error);
+		return null;
+	}
+}
