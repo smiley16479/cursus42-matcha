@@ -250,7 +250,7 @@ router.patch('/patch', patchUserValidator, jwtAuthCheck, errorHandler(async (req
 
 router.get('/confirmemail/:token', errorHandler(async (req: Request, res: Response) => {
     await verifyEmail(req.params.token);
-    res.redirect('http://localhost:8080?emailVerified=true');
+    res.redirect('http://localhost:8080?emailVerified');
 }));
 
 /*********************************************************

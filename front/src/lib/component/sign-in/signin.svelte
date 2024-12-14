@@ -7,9 +7,20 @@ import { us } from "@/store/userStore";
 import { LoggingState } from '@/type/user';
 import { app } from "@/store/appStore";
 import { initializeSocket } from '@/store/socketStore';
+import { page } from '$app/stores';
+import { onMount } from "svelte";
+import { fly } from "svelte/transition";
 
 let signUpMode = false;
 let showModalPW = false;
+let showEmailValidatedMessage = true;
+let email = $page.url.searchParams.get('emailVerified');
+
+onMount(()=> {
+  setTimeout(() => {
+    showEmailValidatedMessage = false;
+  }, 5000);
+});
 
 function openModal() {
     showModalPW = true;
@@ -97,6 +108,13 @@ async function signIn() {
 </script>
 
 <Background>
+  {#if email !== null && showEmailValidatedMessage}
+  <div class="absolute w-full px-6 py-4 lg:px-8" transition:fly={{ x: 0, y: -200 }}>
+    <div class="flex flex-row justify-center bg-green-400/50 backdrop-blur shadow-lg rounded-lg min-h-12">
+      <p class="flex flex-col justify-center text-gray-900"><b class="align-middle">Your email has been verified 👍</b></p>
+    </div>
+  </div>
+  {/if}
   <div class="flex h-full flex-col justify-center px-6 py-12 lg:px-8 bg">
     <div class="backdrop-blur bg-white/50 shadow-lg rounded-lg">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm">
