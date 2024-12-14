@@ -3,10 +3,13 @@ import type { MsgInput_t } from '../types/shared_type/msg';
 import { connectedUser } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
-import { createMessage } from '../services/chats';
-import { Notif_t_E } from '../types/shared_type/notification';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, getNotification, getUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
+import { createMessage, prepareMessageForOutput, prepareUserChatForOutput } from '../services/chats';
+import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
 import { UserLiking_t } from '../types/shared_type/user';
+import { Chat_c } from '../types/shared_type/chat';
+import { deleteNotification } from '../db/users';
+import { retrieveMessageFromId } from '../db/chats';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -37,7 +40,11 @@ export const initSocketEvents = (io: Server) => {
                 "the user joined his id's room", 
                 );
     connectedUser.push(socket.user.id);
-    socket.join(`room_${socket.user.id}`)
+    socket.join(`room_${socket.user.id}`);
+
+    // Notif le nouveau connecté à tous les user déjà connectés
+    socket.emit('s_connected_users', connectedUser );
+    socket.broadcast.emit('s_user_connection', socket.user.id );
 
     socket.on("error", (error) => {
       console.error("Socket error:", error.message);
@@ -57,10 +64,10 @@ export const initSocketEvents = (io: Server) => {
 
         const userVisit = await addNewUserVisit(visitedUserId, socket.user.id);
 
-        if (connectedUser.includes(visitedUserId))
-          socket.to(`room_${visitedUserId}`).emit('s_visit', userVisit);
+        const notification = await addNewNotification(visitedUserId, socket.user.id, Notif_t_E.VISIT, userVisit.id);
+        sendNotification(socket, visitedUserId, notification);
 
-        callback({ success: true, data: userVisit });
+        callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
@@ -72,29 +79,40 @@ export const initSocketEvents = (io: Server) => {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
 
-        const like = await addNewUserLike(likedUserId, socket.user.id);
-        console.log(`likedUserId obj returned`, like);
-        // S'il s'agit d'un chat ou d'un like:
-        const notifType = "likedUserId" in like ? Notif_t_E.LIKE : Notif_t_E.MATCH;
-        const payload = "likedUserId" in like ? like : like.id;
-        addNewNotification(socket.user.id, likedUserId, notifType, payload);
+        const [chat, like] = await addNewUserLike(likedUserId, socket.user.id);
+        console.log(`chat : `, chat);
+        console.log(`like : `, like);
 
-        if (connectedUser.includes(likedUserId))
-          socket.to(`room_${likedUserId}`).emit('s_like', like);
+        const notification = await addNewNotification(likedUserId, socket.user.id, Notif_t_E.LIKE, like.id);
+        sendNotification(socket, likedUserId, notification);
 
-        const userLiking: UserLiking_t = {date: new Date(), likedUserId};
-        callback({ success: true, data: userLiking });
+        if (chat) {
+          const notification = await addNewNotification(likedUserId, socket.user.id, Notif_t_E.MATCH, chat.id);
+          sendNotification(socket, likedUserId, notification);
+        }
+
+        const userLiking: UserLiking_t = prepareLikeForOutputForLiker(like);
+        const outputChat: Chat_c = await prepareUserChatForOutput(chat);
+
+        callback({ success: true, data: {newLiking: userLiking, newChat: outputChat} });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
     });
 
     socket.on('c_unlike', async (unlikedUserId, callback) => {
-      console.log(`C_UNLIKE: unlikedUserId ${unlikedUserId}, unlikerUserId ${unlikedUserId}`);
+      console.log(`C_UNLIKE: unlikedUserId ${unlikedUserId}, unlikerUserId ${unlikedUserId}`); // twice unlikedUserId ?
       try {
-        await removeUserLike(unlikedUserId, socket.user.id);
-        callback({ success: true });
+        const [removedLikeId, blockDb] = await removeUserLike(unlikedUserId, socket.user.id);
+
+        const notification = await addNewNotification(unlikedUserId, socket.user.id, Notif_t_E.UNLIKE, removedLikeId);
+        sendNotification(socket, unlikedUserId, notification);
+
+        const outputBlock = await prepareBlockForOutput(blockDb);
+
+        callback({ success: true, data: {removedLikeId, newBlock: outputBlock} });
       } catch (error) {
+        console.log(error);
         callback({ success: false, error: error.message });
       }
     });
@@ -132,7 +150,7 @@ export const initSocketEvents = (io: Server) => {
     socket.on('c_read_notif', async (notifId, callback) => {
       console.log(`C_read_notif_id: read_notifId ${notifId}`);
       try {
-        // await markNotificationRead(notifId);
+        deleteNotification(notifId);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });
@@ -145,11 +163,18 @@ export const initSocketEvents = (io: Server) => {
       // Émettre le message à la room appropriée s'il y a l'autre user connecté
       try {
 
-        if (connectedUser.includes(msg.userId))
-          socket.to(`room_${msg.destId}`).emit('s_send_msg', msg);
+        const msgDb = await createMessage(msg);
+
+        const notification = await addNewNotification(msg.destId, socket.user.id, Notif_t_E.MSG, msgDb.id);
+        sendNotification(socket, msg.destId, notification);
+
+        const outputMessage = prepareMessageForOutput(await retrieveMessageFromId(msgDb.id));
+
+        // if (connectedUser.includes(msg.userId))
+        //   socket.to(`room_${msg.destId}`).emit('s_send_msg', msg);
         // io.to(`${chatId}`).emit('s_receiveMsg', message); // Ceci emet à tous
-        await createMessage(msg);
-        callback({ success: true });
+
+        callback({ success: true, data: outputMessage });
       } catch (error) {
         callback({ success: false, error: error.message });
         console.log(`error`, error);
@@ -174,7 +199,16 @@ export const initSocketEvents = (io: Server) => {
           connectedUser.splice(i, 1);
           break;
         }
+
+      // Notif la déconnexion à tous les user connectés
+      socket.broadcast.emit('s_user_disconnection', socket.user.id);
       console.log(`User ${socket.user.id} disconnected; socket.id: ${socket.id}`);
     });
   });
 };
+
+async function sendNotification(socket: Socket, userId: number, notification: Notif_T) {
+  console.log('sending notif : ', notification);
+  if (notification && connectedUser.includes(userId))
+    socket.to(`room_${userId}`).emit('s_new_notification', notification);
+}

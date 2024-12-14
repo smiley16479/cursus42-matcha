@@ -7,16 +7,18 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
-import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveNotificationFromId, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromId, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromId, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromId, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
-import { Notif_t_E } from '../types/shared_type/notification';
-import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, IUserSelf, string2EGender, string2ESexualPref, UserVisit_t } from "../types/shared_type/user";
-import { IEmailConfirmToken, IResetPasswordToken, IUserBlock, IUserDb, IUserInputInternal } from '../types/user';
+import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
+import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, IUserSelf, string2EGender, string2ESexualPref, UserBlocking_t, UserLikedBy_t, UserLiking_t, UserVisit_t } from "../types/shared_type/user";
+import { IEmailConfirmToken, IResetPasswordToken, IUserBlockDb, IUserDb, IUserInputInternal, IUserLikeDb, IUserNotifDb, IUserVisitDb } from '../types/user';
 import { getEnv } from '../util/envvars';
-import { createChat, getChat } from './chats';
+import { createChat, getChat, prepareMessageForOutput, prepareUserChatForOutput } from './chats';
 import { ConnectedUsers } from './connectedUsers';
 import { updateUserFameRate } from './fameRating';
 import { Chat_c } from '../types/shared_type/chat';
+import { IChatDb } from '../types/chats';
+import { retrieveChatFromId, retrieveMessageFromId } from '../db/chats';
 
 
 /*********************************************************
@@ -79,30 +81,10 @@ export async function loginUser(credentials: IUserCredentials) {
     const secret = getEnv("JWT_SECRET");
     const token = jwt.sign({ id: user.id }, secret, { expiresIn: getEnv("JWT_EXP") });
 
-    const outputUser: IUserSelf = prepareUserForOutput(user, true);
+    const outputUser: IUserSelf = await prepareUserForOutput(user, true);
 
     patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
-
-    for (const visit of outputUser.visits) {
-        const visiterUser = await retrieveUserFromId(visit.visiterUserId);
-        visit.visiterUser = prepareUserForOutput(visiterUser, false);
-        delete visit.visiterUserId;
-    }
-
-    for (const like of outputUser.likedBy) {
-        const likerUser = await retrieveUserFromId(like.likerUserId);
-        like.likerUser = prepareUserForOutput(likerUser, false);
-        delete like.likerUserId;
-    }
-
-    for (const chat of outputUser.chats) {
-        const user1 = prepareUserForOutput(await retrieveUserFromId(chat.user1Id), false);
-        const user2 = prepareUserForOutput(await retrieveUserFromId(chat.user2Id), false);
-        chat.interlocutors = [user1, user2];
-        delete chat.user1Id;
-        delete chat.user2Id;
-    }
 
     return [token, outputUser];
 }
@@ -117,7 +99,7 @@ export async function getUser(id: number, isSelf: boolean): Promise<IUserOutput 
         throw new UserNotFoundError();
     }
 
-    const outputUser: IUserOutput = prepareUserForOutput(user, isSelf);
+    const outputUser: IUserOutput = await prepareUserForOutput(user, isSelf);
 
     return outputUser;
 }
@@ -152,8 +134,8 @@ export async function patchUser(id: number, rawUser: any) {
         sendVerificationEmail(id);
 }
 
-export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutput | IUserSelf {
-    const outputUser: IUserOutput = user;
+export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Promise<IUserOutput | IUserSelf> {
+    const outputUser: any = user;
 
     if (!isSelf) {
         delete outputUser['email'];
@@ -169,12 +151,36 @@ export function prepareUserForOutput(user: IUserDb, isSelf: boolean): IUserOutpu
         delete outputUser['likedBy'];
         delete outputUser['liking'];
         delete outputUser['chats'];
+    } else {
+        outputUser.visits = await Promise.all(
+            outputUser.visits.map(async (visit: IUserVisitDb) => {
+                return await prepareVisitForOutput(visit);
+            })
+        );
+
+        outputUser.likedBy = await Promise.all(
+            outputUser.likedBy.map(async (like: IUserLikeDb) => {
+                return await prepareLikeForOutputForLiked(like);
+            })
+        );
+
+        outputUser.chats = await Promise.all(
+            outputUser.chats.map(async (chat: IChatDb) => {
+                return await prepareUserChatForOutput(chat);
+            })
+        );
+
+        outputUser.notifications = await Promise.all(
+            outputUser.notifications.map(async (notification: IUserNotifDb) => {
+                return await prepareNotifForOutput(notification);
+            })
+        );
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
     delete outputUser['blockedBy'];
 
-    user.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
+    outputUser.isConnected = ConnectedUsers.instance.isUserConnected(user.id);
 
     return outputUser;
 }
@@ -391,19 +397,35 @@ export async function addNewUserVisit(visitedUserId: number, visiterUserId: numb
     if (existingUserVisit)
         throw new RessourceAlreadyExistsError();
 
-    await insertUserVisit(visitedUserId, visiterUserId);
-    const userVisit = await retrieveUserVisitFromUsers(visitedUserId, visiterUserId);
+    const userVisitId = await insertUserVisit(visitedUserId, visiterUserId);
     updateUserFameRate(visitedUserId);
 
-    userVisit.date = userVisit.createdAt;
-    const visiter = await retrieveUserFromId(userVisit.visiterUserId);
-    userVisit.visiterUser = prepareUserForOutput(visiter, false);
+    return getUserVisit(userVisitId);
+}
 
-    delete userVisit.createdAt;
-    delete userVisit.visitedUserId;
-    delete userVisit.visiterUserId;
+export async function getUserVisit(visitId: number) {
+    const userVisitDb = await retrieveUserVisitFromId(visitId);
+
+    const userVisit = await prepareVisitForOutput(userVisitDb);
 
     return userVisit;
+}
+
+// Helpers
+
+async function prepareVisitForOutput(userVisitDb: IUserVisitDb) {
+    if (!userVisitDb)
+        return userVisitDb;
+
+    const visiterUser = await prepareUserForOutput(await retrieveUserFromId(userVisitDb.visiterUserId), false);
+
+    const outputVisit : UserVisit_t = {
+        id: userVisitDb.id,
+        date: userVisitDb.createdAt,
+        visiterUser
+    }
+
+    return outputVisit;
 }
 
 /*********************************************************
@@ -420,46 +442,33 @@ export async function addNewUserLike(likedUserId: number, likerUserId: number) {
     if (liker.pictures.length == 0)
         throw new AppError(403, 'No Picture No Like');
 
-    await insertUserLike(likedUserId, likerUserId);
+    const likeId = await insertUserLike(likedUserId, likerUserId);
 
     updateUserFameRate(likedUserId);
 
+    const like = await retrieveUserLikeFromId(likeId);
+
     const reciprocalLike = await retrieveUserLikeFromUsers(likerUserId, likedUserId);
+    let chat: IChatDb | null = null;
     if (reciprocalLike) {
         const chatId = await createChat(likedUserId, likerUserId);
-        const chat = await getChat(chatId);
-
-        const user1 = prepareUserForOutput(await retrieveUserFromId(chat.user1Id), false);
-        const user2 = prepareUserForOutput(await retrieveUserFromId(chat.user2Id), false);
-        chat.interlocutors = [user1, user2];
-        delete chat.user1Id;
-        delete chat.user2Id;
-        delete chat.createdAt;
-        if (chat.msg[0].id == null)
-            chat.msg = [];
-        return chat;
+        chat = await getChat(chatId);
     }
-    else {
-        const userLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId)
 
-        userLike.date = userLike.createdAt;
-        const liker = await retrieveUserFromId(userLike.likerUserId);
-        userLike.likerUser = prepareUserForOutput(liker, false);
-    
-        delete userLike.createdAt;
-        delete userLike.likedUserId;
-        delete userLike.likerUserId;
-
-        return userLike;
-    }
+    return [chat, like];
 }
 
 export async function removeUserLike(likedUserId: number, likerUserId: number) {
     const reciprocalLike = await retrieveUserLikeFromUsers(likerUserId, likedUserId);
+
+    let block = null;
     if (reciprocalLike) {
-        addNewBlock(likedUserId, likerUserId);
+        block = await addNewBlock(likedUserId, likerUserId);
     }
-    deleteUserLike(likedUserId, likerUserId);
+    const removedLike = await retrieveUserLikeFromUsers(likedUserId, likerUserId);
+    await deleteUserLike(likedUserId, likerUserId);
+
+    return [removedLike.id, block];
 }
 
 export async function toggleLike(likedUserId: number, likerUserId: number) {
@@ -474,6 +483,36 @@ export async function toggleLike(likedUserId: number, likerUserId: number) {
     }
 }
 
+// Helpers
+
+async function prepareLikeForOutputForLiked(userLikeDb: IUserLikeDb) {
+    if (!userLikeDb)
+        return userLikeDb;
+
+    const likerUser = await prepareUserForOutput(await retrieveUserFromId(userLikeDb.likerUserId), false);
+    
+
+    const outputLike : UserLikedBy_t = {
+        id: userLikeDb.id,
+        date: userLikeDb.createdAt,
+        likerUser
+    }
+
+    return outputLike;
+}
+
+export function prepareLikeForOutputForLiker(userLikeDb: IUserLikeDb) {
+    if (!userLikeDb)
+        return userLikeDb;
+
+    const outputLike : UserLiking_t = {
+        date: userLikeDb.createdAt,
+        likedUserId: userLikeDb.likedUserId
+    }
+
+    return outputLike;
+}
+
 /**********************************************************
  * ================ BLOCKS MANAGEMENT =====================
  *********************************************************/
@@ -484,13 +523,17 @@ export async function addNewBlock(blockedUserId: number, blockerUserId: number) 
     if (existingUserBlock)
         return;
 
-    insertUserBlock(blockedUserId, blockerUserId);
+    const blockId = await insertUserBlock(blockedUserId, blockerUserId);
 
     updateUserFameRate(blockedUserId);
+
+    const block = await retrieveUserBlockFromId(blockId);
+    
+    return block;
 }
 
 export async function getUserBlock(blockedUserId: number, blockerUserId: number) {
-    const userBlock: IUserBlock = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
+    const userBlock: IUserBlockDb = await retrieveUserBlockFromUsers(blockedUserId, blockerUserId);
     if (!userBlock || !userBlock.id) {
         return null;
     }
@@ -512,6 +555,20 @@ export async function toggleBlock(blockedUserId: number, blockerUserId: number) 
     }
 }
 
+export async function prepareBlockForOutput(blockDb: IUserBlockDb) {
+    if (!blockDb)
+        return blockDb
+
+    const blockedUser = await prepareUserForOutput(await retrieveUserFromId(blockDb.blockedUserId), false);
+
+    const outputBlock: UserBlocking_t = {
+        date: blockDb.createdAt,
+        blockedUser
+    }
+
+    return outputBlock;
+}
+
 /**********************************************************
  * ================ REPORTS MANAGEMENT ====================
  *********************************************************/
@@ -531,10 +588,58 @@ export async function addNewReport(reportedUserId: number, reporterUserId: numbe
 
 export async function addNewNotification(userId: number, involvedUserId: number, type: Notif_t_E, payloadId: number) {
     const block = await getUserBlock(involvedUserId, userId);
-    if (!block)
-        insertNotification(userId, involvedUserId, type, payloadId);
+    if (block) {
+        return;
+    }
+    const notificationId = await insertNotification(userId, involvedUserId, type, payloadId);
+
+    return getNotification(notificationId);
 }
 
 export async function removeNotification(notifId: number) {
     deleteNotification(notifId);
+}
+
+export async function getNotification(notifId: number) {
+    const notificationDb = await retrieveNotificationFromId(notifId);
+
+    const notification = await prepareNotifForOutput(notificationDb);
+
+    return notification
+}
+
+// Helpers
+
+async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
+    const involvedUser = await prepareUserForOutput(await retrieveUserFromId(notificationDb.involvedUserId), false);
+
+    let payload: any;
+
+    switch(notificationDb.type) {
+        case Notif_t_E.VISIT:
+            payload = await prepareVisitForOutput(await retrieveUserVisitFromId(notificationDb.payloadId));
+            break;
+        case Notif_t_E.LIKE:
+            payload = await prepareLikeForOutputForLiked(await retrieveUserLikeFromId(notificationDb.payloadId));
+            break;
+        case Notif_t_E.MATCH:
+            payload = await prepareUserChatForOutput(await retrieveChatFromId(notificationDb.payloadId));
+            break;
+        case Notif_t_E.MSG:
+            payload = prepareMessageForOutput(await retrieveMessageFromId(notificationDb.payloadId));
+            break;
+        case Notif_t_E.UNLIKE:
+            payload = {id: notificationDb.payloadId};
+            break;
+    }
+
+    const outputNotif : Notif_T = {
+        id: notificationDb.id,
+        type: notificationDb.type,
+        involvedUser,
+        date: notificationDb.createdAt,
+        payload
+    }
+
+    return outputNotif;
 }

@@ -148,7 +148,7 @@ export default async function initDb() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         userId INT NOT NULL,
         involvedUserId INT NOT NULL,
-        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH') NOT NULL,
+        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH', 'UNLIKE') NOT NULL,
         payloadId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -232,7 +232,7 @@ export default async function initDb() {
                 user_visits AS (
                     SELECT
                         uv.visitedUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", uv.createdAt, "visiterUserId", uv.visiterUserId)) AS visits
+                        JSON_ARRAYAGG(JSON_OBJECT("id", uv.id, "createdAt", uv.createdAt, "visiterUserId", uv.visiterUserId)) AS visits
                     FROM
                         userVisits uv
                     GROUP BY
@@ -241,7 +241,7 @@ export default async function initDb() {
                 user_liked AS (
                     SELECT
                         ul.likedUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likerUserId", ul.likerUserId)) AS likedBy
+                        JSON_ARRAYAGG(JSON_OBJECT("id", ul.id, "createdAt", ul.createdAt, "likerUserId", ul.likerUserId)) AS likedBy
                     FROM
                         userLikes ul
                     GROUP BY
@@ -250,7 +250,7 @@ export default async function initDb() {
                 user_liker AS (
                     SELECT
                         likerUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ul.createdAt, "likedUserId", ul.likedUserId)) AS liking
+                        JSON_ARRAYAGG(JSON_OBJECT("createdAt", ul.createdAt, "likedUserId", ul.likedUserId)) AS liking
                     FROM
                         userLikes ul
                     GROUP BY
@@ -259,7 +259,7 @@ export default async function initDb() {
                 user_notifications AS (
                     SELECT
                         n.userId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "payloadId", n.payloadId)) AS notifications
+                        JSON_ARRAYAGG(JSON_OBJECT("id", n.id, "createdAt", n.createdAt, "involvedUserId", n.involvedUserId, "type", n.type, "payloadId", n.payloadId)) AS notifications
                     FROM
                         notifications n
                     GROUP BY
@@ -268,7 +268,7 @@ export default async function initDb() {
                 user_blocked AS (
                     SELECT
                         blockedUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockerUserId", ub.blockerUserId)) AS blockedBy
+                        JSON_ARRAYAGG(JSON_OBJECT("createdAt", ub.createdAt, "blockerUserId", ub.blockerUserId)) AS blockedBy
                     FROM
                         userBlocks ub
                     GROUP BY
@@ -277,7 +277,7 @@ export default async function initDb() {
                 user_blocker AS (
                     SELECT
                         blockerUserId,
-                        JSON_ARRAYAGG(JSON_OBJECT("date", ub.createdAt, "blockedUserId", ub.blockedUserId)) AS blocking
+                        JSON_ARRAYAGG(JSON_OBJECT("createdAt", ub.createdAt, "blockedUserId", ub.blockedUserId)) AS blocking
                     FROM
                         userBlocks ub
                     GROUP BY
@@ -286,7 +286,7 @@ export default async function initDb() {
                 chat_messages AS (
                     SELECT
                         cm.chatId,
-                        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "chatId", cm.chatId, "status", cm.status, "content", cm.content, "date", cm.createdAt)) AS messages
+                        JSON_ARRAYAGG(JSON_OBJECT("id", cm.id, "userId", cm.userId, "chatId", cm.chatId, "status", cm.status, "content", cm.content, "createdAt", cm.createdAt)) AS messages
                     FROM
                         chatMessages cm
                     GROUP BY

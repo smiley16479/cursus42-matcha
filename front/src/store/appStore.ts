@@ -7,5 +7,6 @@ export class AppStore {
   tabIdx = 0;
   loadingSpinner = false;
   profilConsult = false;
+  userViewingChat = null;
 }
 export const app = writable<AppStore>(new AppStore());

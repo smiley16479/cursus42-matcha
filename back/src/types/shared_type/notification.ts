@@ -7,10 +7,10 @@ export enum Notif_t_E {
     VISIT = "VISIT",
     LIKE = "LIKE",
     UNLIKE = "UNLIKE",
-    UNKNOWN = "UNKNOWN"
 }
 
 export type Notif_T = {
+    id: number,
     type: Notif_t_E,
     /**
      * The user who liked/visited/sent a msg etc
@@ -34,8 +34,6 @@ export function string2Notif_t_E(notifTypeString: string): Notif_t_E {
             return Notif_t_E.LIKE;
         case "UNLIKE":
             return Notif_t_E.UNLIKE;
-        case "UNKNOWN":
-            return Notif_t_E.UNKNOWN;
         default:
             throw new TypeError;
     }

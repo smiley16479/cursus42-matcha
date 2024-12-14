@@ -9,7 +9,7 @@ export type MsgOutput_t = {
 	chatId: number,
 	content: string,
 	status: EChatStatus,
-	date: string
+	date: Date
 }
 
 export type MsgInput_t = {

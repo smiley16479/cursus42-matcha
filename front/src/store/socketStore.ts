@@ -1,13 +1,15 @@
 import { writable, get } from 'svelte/store';
 import { io, type Socket } from "socket.io-client";
-import type { Notif_T } from '@/type/shared_type/notification';
 import { initMsg } from '@/service/util/sharedFunction';
 import { type MsgInput_t, type MsgOutput_t } from '@/type/shared_type/msg';
 import { parseCookies } from '@/service/util/sharedFunction';
 import type { SocketResponse } from '@/type/event';
-import { us } from './userStore';
+import { refreshNotif, us } from './userStore';
 import { Chat_c } from '@/type/shared_type/chat';
 import type { UserLikedBy_t } from '@/type/shared_type/user';
+import { type Notif_T, Notif_t_E } from '@/type/shared_type/notification';
+import { app } from "@/store/appStore";
+
 
 export const soc = writable<{socket: Socket | null, msg: MsgOutput_t | null, notif: Notif_T | null}>({
 	socket: null, //io(import.meta.env.VITE_SOCKET_URL, { withCredentials: true }),
@@ -44,22 +46,79 @@ export function initializeSocket() {
 		console.log('Socket connecté:', store1.socket?.id);
 	});
 
-	store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
-		console.log(`s_send_msg`, msg);
+	// store1.socket.on('s_send_msg', (msg: MsgOutput_t) => {
+	// 	console.log(`s_send_msg`, msg);
+	// 	us.update((store) => {
+	// 		const chat = store.user.chats.find(e => e.id === msg.chatId)
+	// 		chat?.msg.push(msg);
+	// 		return {
+	// 			...store
+	// 		};
+	// 	})
+	// });
+
+	store1.socket.on('s_new_notification', (notif: Notif_T) => {
 		us.update((store) => {
-			const chat = store.user.chats.find(e => e.id === msg.chatId)
-			chat?.msg.push(msg);
+			store.user?.notifications?.push(notif);
+		    switch(notif.type) {
+				case Notif_t_E.LIKE:
+					store.user?.likedBy?.push(notif.payload);
+					break;
+				case Notif_t_E.MATCH:
+		        	store.user?.chats?.push(notif.payload);
+					break;
+				case Notif_t_E.MSG:
+					const chat = store.user?.chats?.find(e => e.id === notif.payload.chatId)
+		        	chat?.msg?.push(notif.payload);
+					const appStore = get(app);
+					if (appStore.userViewingChat == notif.payload.chatId) {
+						store.user.notifications = store.user.notifications.filter(item => item.id !== notif.id);
+					}
+					break;
+				case Notif_t_E.VISIT:
+					store.user?.visits?.push(notif.payload);
+					break;
+				case Notif_t_E.UNLIKE:
+					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload.id);
+					break;
+		    	}
+			refreshNotif();
 			return {
 				...store
 			};
 		})
 	});
 
-	
-	store1.socket.on('s_like', ( like: UserLikedBy_t | Chat_c ) => {
-		console.log(`s_like new Chat`, like);
-		updateLikeOrMatch(like);
+	store1.socket.on("s_connected_users", (allConnectedUser) => {
+		console.log(`allConnectedUser`, allConnectedUser);
+		us.update((store) => {
+			store.user.connectedUser = allConnectedUser
+			return {...store};
+		})
 	});
+
+	store1.socket.on("s_user_connection", (newConnectedUserId) => {
+		us.update((store) => {
+			store.user.connectedUser.push(newConnectedUserId)
+			return {...store};
+		})
+	});
+
+	store1.socket.on("s_user_disconnection", (newDisconnectedUserId) => {
+		us.update((store) => {
+      for (let i = store.user.connectedUser.length - 1; i >= 0; --i)
+        if (store.user.connectedUser[i] === newDisconnectedUserId) {
+          store.user.connectedUser.splice(i, 1);
+          break;
+        }
+			return {...store};
+		})
+	});
+	
+	// store1.socket.on('s_like', ( like: UserLikedBy_t | Chat_c ) => {
+	// 	console.log(`s_like new Chat`, like);
+	// 	updateLikeOrMatch(like);
+	// });
 }
 
 /** Fonction pour se connecter à un chat  */
@@ -100,12 +159,12 @@ export function visit(visitedUserId: number) {
 			clearTimeout(timer);
 			if (response.success) {
 				console.log("Socket visit completed", response.data);
-				us.update((store) => {
-					store.user.visits.push(response.data)
-					return {
-						...store
-					};
-				});
+				// us.update((store) => {
+					// store.user.visits.push(response.data) // user visits are the visits he got not the ones he made, so this one shouldn't be pushed here ?
+				// 	return {
+				// 		...store
+				// 	};
+				// });
 			} else {
 				console.error("Error received:", response.error);
 			}
@@ -126,7 +185,9 @@ export function like(likedUserId: number) {
 			if (response.success) {
 				console.log("Socket like completed", response.data);
 				us.update((store) => {
-					store.user.liking.push(response.data)
+					store.user.liking.push(response.data.newLiking);
+					if (response.data.newChat)
+						store.user.chats.push(response.data.newChat)
 					return {
 						...store
 					};
@@ -151,7 +212,9 @@ export function unlike(unlikedUserId: number) {
 			if (response.success) {
 				console.log("Socket unlike completed");
 				us.update((store) => {
-					store.user.likedBy = store.user.likedBy.filter(item => item.id !== unlikedUserId);
+					store.user.liking = store.user.liking.filter(item => item.likedUserId !== response.data.removedLikeId);
+					if (response.data.newBlock)
+						store.user.blocking.push(response.data.newBlock);
 					return {
 						...store
 					};
@@ -177,7 +240,9 @@ export function block(blockedUserId: number) {
 			if (response.success) {
 				console.log("Socket block completed");
 				us.update((store) => {
-					store.user.blocking.push({date: new Date(), blockedUserId});
+					const blockedUser = store.user.chats.flatMap(e => e.interlocutors).find(user => user.id === blockedUserId)
+					if (blockedUser)
+						store.user.blocking.push({date: new Date(), blockedUser});
 					return {
 						...store
 					};
@@ -202,7 +267,7 @@ export function unblock(unblockUserId: number) {
 			if (response.success) {
 				console.log("Socket unblock completed");
 				us.update((store) => {
-					store.user.blocking = store.user.blocking.filter(item => item.blockedUserId !== unblockUserId);
+					store.user.blocking = store.user.blocking.filter(item => item.blockedUser.id !== unblockUserId);
 					return {
 						...store
 					};
@@ -243,6 +308,28 @@ export function sendVocalMsg(msg: string) {
 		else
 			console.warn("Socket not available. Message not sent.");
 		console.log(`sendVocalMsg`, msg);
+}
+
+export function markNotificationRead(notificationId: number) {
+	try {
+		const socket = getSocketOrThrow();
+		socket.emit('c_read_notif', notificationId, (response: SocketResponse) => {
+			clearTimeout(timer);
+			if (response.success) {
+				console.log("Socket notification read completed");
+				us.update((store) => {
+					store.user.notifications = store.user.notifications.filter(item => item.id !== notificationId);
+					return {
+						...store
+					};
+				});
+			} else {
+				console.error("Error received:", response.error);
+			}
+		})	
+	} catch (err) {
+		printError(err);
+	}
 }
 
 // Fonction pour fermer la connexion

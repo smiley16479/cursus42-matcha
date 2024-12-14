@@ -8,7 +8,7 @@
 	import { us } from "../../../store/userStore";
 	import Msg from "./msg.svelte";
 	import { type MsgInput_t } from "@/type/shared_type/msg";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 
   export let chat: Chat_c; // fakeChat//
   export let matchOrChat: Boolean;
@@ -22,6 +22,9 @@
   onMount(()=> {
     audio = new Audio();
 
+    $app.userViewingChat = chat.id;
+    console.log($app.userViewingChat);
+
     // unsubscribe = soc.subscribe((s) => {
     //   if (s.msg) {
     //     chat.msg = [...chat.msg, s.msg]; // Ajoute le nouveau message à la liste
@@ -32,6 +35,10 @@
     //     unsubscribe(); // Nettoyage de l'abonnement
     // };
   })
+
+  onDestroy(() => {
+    $app.userViewingChat = null;
+  });
 
   function sendMsg(_msg: string) {
     // send_msg(_msg);

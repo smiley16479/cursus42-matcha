@@ -15,7 +15,7 @@
   let movingTab: HTMLElement;
   
 	// NOTIFICATIONS
-	$: chatCount = $us.user.chats.length;
+	// $: chatCount = $us.user.chats.length;
 
   // Positionne le surlignage lors de la première montée du composant
   onMount(() => {
@@ -41,10 +41,22 @@
     movingTab.style.transform = `translate3d(${offsetLeft}px, 0, 0)`;
   }
   
+  function isProfilCompleted() {
+    const u = $us.user;
+    if (u.pictures.length && u.interests.length && u.biography)
+      return true;
+
+    $app.tabIdx = 3;
+    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+    goto("/app/profil");
+    return false;
+  }
+
   function handleTabClick(index: number) {
     const idx = content.findIndex(e => e.href.includes(content[index].href))
     $app.tabIdx = idx //index;
-    goto("/app" + content[index].href);
+    if (isProfilCompleted())
+      goto("/app" + content[index].href);
   }
 </script>
   
@@ -71,11 +83,11 @@
         aria-selected={index === $app.tabIdx}
       >
         <span class="ml-1">{item.title}</span>
-        {#if item.title === "Matcha"} <!-- && $us.user.notifications.length -->
+        {#if item.title === "Matcha" && $us.user.notifications.length}
           <span class="relative bottom-2 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
             aria-label="Notification Count"
           >
-           1<!-- {$us.user.notifications.length} -->
+            {$us.user.notifications.length}
           </span>
         {/if}
       </button>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browse } from '@/service/browse';
+	import { browse, research } from '@/service/browse';
 	import { us } from '@/store/userStore';
   import { writable, type Writable } from 'svelte/store';
   import MapLocation from '@/lib/component/map/mapLocation.svelte';
@@ -49,7 +49,7 @@
 
     try {
       $app.loadingSpinner = true;
-      const result = await browse({...pref});
+      const result = await (swipeFilter ? research({...pref}) : browse({...pref}));
       if (result)
         matches.set(result);
       $app.cardIndex = 0
@@ -154,6 +154,17 @@
     </div>
 
     <button
+      on:click={() => (swipeFilter = !swipeFilter)}
+      title="votre profil sera pris en compte pour la recherche"
+      class={`mt-4 py-2 px-4 rounded-lg font-bold transition-all duration-300 
+        ${swipeFilter 
+          ? 'bg-green-500 hover:bg-green-600 text-white'
+          : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+        }`}
+    >
+      aplliquer la recherche aux swipes ({swipeFilter ? "activés" : "désactivés"})
+    </button>
+    <button
       type="submit"
       class="md:col-span-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
     >
@@ -239,16 +250,6 @@
       class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg"
     >
       Appliquer les filtres
-    </button>
-    <button
-      on:click={() => (swipeFilter = !swipeFilter)}
-      class={`mt-4 py-2 px-4 rounded-lg font-bold transition-all duration-300 
-        ${swipeFilter 
-          ? 'bg-green-500 hover:bg-green-600 text-white'
-          : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
-        }`}
-    >
-      filtres sur les swipes {swipeFilter ? "activés" : "désactivés"}
     </button>
     <!-- <LocationSelector/> -->
   </div>

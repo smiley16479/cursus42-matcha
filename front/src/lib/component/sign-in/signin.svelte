@@ -3,7 +3,7 @@ import Background from "../background/background.svelte";
 import ForgotPWmodal from "./forgotPWmodal.svelte";
 import { goto } from "$app/navigation";
 import { createUser, login } from "@/service/user";
-import { us } from "@/store/userStore";
+import { refreshNotif, us } from "@/store/userStore";
 import { LoggingState } from '@/type/user';
 import { app } from "@/store/appStore";
 import { initializeSocket } from '@/store/socketStore';
@@ -44,19 +44,18 @@ function orderTabs() {
   $us.user.liking.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.likedBy.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.notifications.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
-  $us.user.chats.forEach(e => {
-    e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
-    e.interlocutors.forEach(i => {
-      $us.user.liking.forEach( el => {
-      if (el.likedUserId === i.id)
-        $us.user.liking = $us.user.liking.filter(ele => ele.likedUserId !== i.id)
-      })
-      $us.user.likedBy.forEach( el => {
-      if (el.likerUser.id === i.id)
-        $us.user.likedBy = $us.user.likedBy.filter(ele => ele.likerUser.id !== i.id)
-      })
-    })
-  });
+  refreshNotif();
+}
+
+function isProfilCompleted() {
+  const u = $us.user;
+  if (u.pictures.length && u.interests.length && u.biography)
+    return true;
+
+  $app.tabIdx = 3;
+  alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+  goto("/app/profil");
+  return false;
 }
 
 async function signIn() {
@@ -67,11 +66,12 @@ async function signIn() {
     if (resp?.status === 200) {
       $us.logState = LoggingState.logged;
       $app.footer = true;
-      $us.user = {...resp.data};
+      $us.user = {...resp.data, connectedUser: []};
       // Garde la password sinon on ne peut pas resignIn sur app/accueil
       $us.user.password = pwd;
       $us.avatar = "http://localhost:3000/api/user/picture/" + $us.user.pictures[0]?.filename;
-      goto("/app/accueil");
+      if (isProfilCompleted())
+        goto("/app/accueil");
       orderTabs();
       initializeSocket();
       console.log(`$us.user`, $us.user);

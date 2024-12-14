@@ -3,7 +3,7 @@ import { type IUserSelf, EGender, ESexualPref, type UserPic_t, EGeoPref } from '
 import { LoggingState } from '@/type/user';
 
 export class UserStore {
-	user: IUserSelf & {password: string, prefGeoloc: EGeoPref} = {
+	user: IUserSelf & {password: string, prefGeoloc: EGeoPref, connectedUser: number[]} = {
 		id: 0,
 		userName:  "",
 		firstName:  "",
@@ -32,11 +32,35 @@ export class UserStore {
 		likedBy: [],
 		chats: [],
 		notifications: [],
+		connectedUser: [],
 		pictures: [],
 		isConnected: true
 	}
 	avatar = "";
 	logState: LoggingState = LoggingState.unlogged;
+}
+
+export function refreshNotif() {
+	us.update((store) => {
+		store.user.chats.forEach(e => {
+			e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+			e.interlocutors.forEach(i => {
+				store.user.liking.forEach( el => {
+				if (el.likedUserId === i.id)
+					store.user.liking = store.user.liking.filter(ele => ele.likedUserId !== i.id)
+				})
+				store.user.likedBy.forEach( el => {
+				if (el.likerUser.id === i.id)
+					store.user.likedBy = store.user.likedBy.filter(ele => ele.likerUser.id !== i.id)
+				})
+				store.user.visits.forEach( el => {
+				if (el.visiterUser.id === i.id)
+					store.user.visits = store.user.visits.filter(ele => ele.visiterUser.id !== i.id)
+				})
+			})
+		});
+		return {...store}
+	})
 }
 
 export const us = writable<UserStore>(new UserStore());
