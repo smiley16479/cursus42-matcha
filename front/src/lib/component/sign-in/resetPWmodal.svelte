@@ -7,20 +7,35 @@
 
   let secondPasswordEntry = '';
 
+  let arePasswordsSame = true;
+  let isPasswordStrongEnough = true;
+
+  let passwordStrengthMessage = '';
+  let samePasswordMessage = '';
+  let errorInInputMessage = '';
+
+
   function closeModal() {
     showModalResetPW = false;
   }
 
-  function handleSubmit() {
-    resetUserPassword(resetPasswordToken, $us.user.password);
+  async function handleSubmit() {
+    if (!isPasswordStrongEnough || !arePasswordsSame) {
+      errorInInputMessage = 'Veuillez remplir correctement tous les champs!';
+      return;
+    }
+
+    const response = await resetUserPassword(resetPasswordToken, $us.user.password);
+    if (response.status != 200) {
+      errorInInputMessage = `Le mot de passe entré n'as pas fonctionné : ${response.response.data.message}`;
+      return;
+    }
     passwordChanged = true;
     setTimeout(() => {
       passwordChanged = false;
     }, 5000);
     closeModal();
   }
-
-  let passwordStrengthMessage = '';
 
   function validatePassword() {
     const minLength = 8;
@@ -30,7 +45,7 @@
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test($us.user.password);
     const hasNoSpaces = !/\s/.test($us.user.password);
 
-    const isStrong =
+    isPasswordStrongEnough =
         $us.user.password.length >= minLength &&
         hasUpperCase &&
         hasLowerCase &&
@@ -38,18 +53,16 @@
         hasSpecialChar &&
         hasNoSpaces;
 
-    passwordStrengthMessage = isStrong
+    passwordStrengthMessage = isPasswordStrongEnough
         ? "Mot de passe fort"
         : "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.";
   }
 
-  let samePasswordMessage = '';
-
   function validateSamePassword() {
 
-    const isSamePassword = $us.user.password === secondPasswordEntry;
+    arePasswordsSame = $us.user.password === secondPasswordEntry;
 
-    samePasswordMessage = isSamePassword
+    samePasswordMessage = arePasswordsSame
         ? "Les mots de passe correspondent"
         : "Les mots de passe ne correspondent pas.";
   }
@@ -66,16 +79,19 @@
         </div>
         <div class="mt-2">
           <input bind:value={$us.user.password} on:input={validatePassword} id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-          <p class="mt-2 text-sm {passwordStrengthMessage.includes('fort') ? 'text-green-500' : 'text-red-500'}">
+          <p class="mt-2 text-sm {isPasswordStrongEnough ? 'text-green-500' : 'text-red-500'}">
             {passwordStrengthMessage}
           </p>
         </div>
         <div class="mt-2">
           <input bind:value={secondPasswordEntry} on:input={validateSamePassword} id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-          <p class="mt-2 text-sm {!samePasswordMessage.includes('ne') ? 'text-green-500' : 'text-red-500'}">
+          <p class="mt-2 text-sm {arePasswordsSame ? 'text-green-500' : 'text-red-500'}">
             {samePasswordMessage}
           </p>
         </div>
+        <p class="mt-2 text-sm text-red-500">
+          <b>{errorInInputMessage}</b>
+        </p>
       </div>
       <button 
         class="bg-indigo-600 text-white w-full py-2 rounded mb-4"

@@ -104,6 +104,7 @@ export async function sendResetUserPasswordEmail(email: string) {
 	try {
 		console.log(`resetPw service email`, email);
 		const response = (await axios.get(`user/askresetpassword/${email}`));
+		return response;
 	} catch (error) {
 		console.log('ERROR reset User Password() catch service');
 		throw error;
@@ -112,7 +113,8 @@ export async function sendResetUserPasswordEmail(email: string) {
 
 export async function resetUserPassword(token: string, newPassword: string) {
 	try {
-		await axios.patch(`user/resetPassword/${token}`, {password: newPassword}, {withCredentials: true});
+		const response = await axios.patch(`user/resetPassword/${token}`, {password: newPassword}, {withCredentials: true});
+		return response;
 	} catch (error) {
 		console.log('ERROR reset User Password() catch service');
 		throw error;
