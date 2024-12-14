@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken';
 import { getEnv } from '../util/envvars';
 import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, getNotification, getUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
 import { createMessage, prepareMessageForOutput, prepareUserChatForOutput } from '../services/chats';
-import { Notif_t_E } from '../types/shared_type/notification';
-import { UserLiking_t, UserNotification_t } from '../types/shared_type/user';
+import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
+import { UserLiking_t } from '../types/shared_type/user';
 import { Chat_c } from '../types/shared_type/chat';
 import { deleteNotification } from '../db/users';
 import { retrieveMessageFromId } from '../db/chats';
@@ -40,7 +40,11 @@ export const initSocketEvents = (io: Server) => {
                 "the user joined his id's room", 
                 );
     connectedUser.push(socket.user.id);
-    socket.join(`room_${socket.user.id}`)
+    socket.join(`room_${socket.user.id}`);
+
+    // Notif le nouveau connecté à tous les user déjà connectés
+    socket.emit('s_connected_users', connectedUser );
+    socket.broadcast.emit('s_user_connection', socket.user.id );
 
     socket.on("error", (error) => {
       console.error("Socket error:", error.message);
@@ -195,12 +199,15 @@ export const initSocketEvents = (io: Server) => {
           connectedUser.splice(i, 1);
           break;
         }
+
+      // Notif la déconnexion à tous les user connectés
+      socket.broadcast.emit('s_user_disconnection', socket.user.id);
       console.log(`User ${socket.user.id} disconnected; socket.id: ${socket.id}`);
     });
   });
 };
 
-async function sendNotification(socket: Socket, userId: number, notification: UserNotification_t) {
+async function sendNotification(socket: Socket, userId: number, notification: Notif_T) {
   console.log('sending notif : ', notification);
   if (notification && connectedUser.includes(userId))
     socket.to(`room_${userId}`).emit('s_new_notification', notification);

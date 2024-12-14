@@ -1,5 +1,5 @@
 import { Chat_c } from "./chat"
-import { Notif_t_E } from "./notification"
+import { type Notif_T } from "./notification"
 
 // Enums
 
@@ -95,7 +95,7 @@ export interface IUserSelf extends IUserOutput {
     blocking: UserBlocking_t[],
     liking: UserLiking_t[],
     likedBy: UserLikedBy_t[],
-    notifications: UserNotification_t[],
+    notifications: Notif_T[],
     chats: Chat_c[]
 }
 
@@ -129,13 +129,6 @@ export type UserLikedBy_t = {
 export type UserLiking_t = {
     date: Date,
     likedUserId: number
-}
-
-export type UserNotification_t = {
-    date: Date,
-    type: Notif_t_E,
-    isRead: boolean,
-    involvedUserId: number
 }
 
 export interface IUserPictureInput {
