@@ -6,7 +6,7 @@ export interface IChatDb extends RowDataPacket {
     user1Id: number,
     user2Id: number,
     createdAt: Date,
-    msg: []
+    msg: IMesssageDb[]
 }
 
 export interface IMesssageDb extends RowDataPacket {

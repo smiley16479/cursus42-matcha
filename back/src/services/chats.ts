@@ -45,13 +45,19 @@ export async function prepareUserChatForOutput(chatDb: IChatDb | null) {
     const user1 = await prepareUserForOutput(await retrieveUserFromId(chatDb.user1Id), false);
     const user2 = await prepareUserForOutput(await retrieveUserFromId(chatDb.user2Id), false);
 
-    if (chatDb.msg.id === null)
+    if (chatDb.msg.length && chatDb.msg[0].id === null)
         chatDb.msg = [];
+
+    const outputMessages = await Promise.all(
+        chatDb.msg.map(async (message: IMesssageDb) => {
+            return prepareMessageForOutput(message);
+        })
+    );
 
     const outputChat: Chat_c = {
         id: chatDb.id,
         interlocutors: [user1, user2],
-        msg: chatDb.msg
+        msg: outputMessages
     }
     
     return outputChat;
