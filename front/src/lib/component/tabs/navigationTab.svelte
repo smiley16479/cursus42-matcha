@@ -41,10 +41,22 @@
     movingTab.style.transform = `translate3d(${offsetLeft}px, 0, 0)`;
   }
   
+  function isProfilCompleted() {
+    const u = $us.user;
+    if (u.pictures.length && u.interests.length && u.biography)
+      return true;
+
+    $app.tabIdx = 3;
+    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+    goto("/app/profil");
+    return false;
+  }
+
   function handleTabClick(index: number) {
     const idx = content.findIndex(e => e.href.includes(content[index].href))
     $app.tabIdx = idx //index;
-    goto("/app" + content[index].href);
+    if (isProfilCompleted())
+      goto("/app" + content[index].href);
   }
 </script>
   

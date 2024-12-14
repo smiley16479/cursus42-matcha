@@ -32,6 +32,16 @@
     }
   }
 
+  function isProfilCompleted() {
+    const u = $us.user;
+    if (u.pictures.length && u.interests.length && u.biography)
+      return true;
+
+    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+    goto("/app/profil");
+    return false;
+  }
+
 	beforeNavigate((navigation) => {
 		if (!navigation.to) {
 				// La navigation est annulée ou interne (comme un scroll dans la page)
@@ -40,6 +50,8 @@
 		}
 
 		// Vérifier l'état de l'utilisateur à chaque navigation
+		if (navigation.to.url.pathname !== "/app/profil")
+			isProfilCompleted();
 		console.log('Navigation vers : ', navigation.to.url.pathname);
 	});
 </script>
