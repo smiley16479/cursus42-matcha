@@ -39,8 +39,6 @@
 	function isThereANotificationAboutThis(notifType: Notif_t_E, payloadId: number) {
 		const store = get(us);
 
-		console.log(store);
-
 		const notif = store.user?.notifications?.find((notif: Notif_T) => 
 			notif.type === notifType && notif.payload.id == payloadId
 		);
