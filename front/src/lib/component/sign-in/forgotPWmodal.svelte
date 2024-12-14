@@ -4,15 +4,21 @@
   export let passwordRecovery = false;
   let email = '';
 
+  let errorEmailNotRecognizedMessage = '';
+
   function closeModal() {
     showModalPW = false;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     // Gérer l'envoi de l'e-mail pour la réinitialisation du mot de passe
     console.log("Email pour réinitialiser le mot de passe :", email);
     if (email) {
-      sendResetUserPasswordEmail(email);
+      const response = await sendResetUserPasswordEmail(email);
+      if (response.status != 200) {
+        errorEmailNotRecognizedMessage = "L'email entré n'as pas été reconnu, veuillez réessayer";
+        return;
+      }
       passwordRecovery = true;
       setTimeout(() => {
         passwordRecovery = false;
@@ -35,6 +41,9 @@
         placeholder="Email" 
         class="border rounded-md w-full p-2 mb-4 focus:ring-2 focus:ring-indigo-600"
       />
+      <p class="mt-2 text-sm text-red-500">
+        <b>{errorEmailNotRecognizedMessage}</b>
+      </p>
       <button 
         class="bg-indigo-600 text-white w-full py-2 rounded mb-4"
         on:click={handleSubmit}
