@@ -45,6 +45,6 @@ export function initMsg(msg: MsgOutput_t | null = null): MsgOutput_t {
 		userId: msg?.userId || -1,
 		content: msg?.content || "",
 		status: msg?.status || EChatStatus.UNREAD,
-    createdAt: msg?.createdAt || "",
+    date: msg?.date || "",
 	}
 }
