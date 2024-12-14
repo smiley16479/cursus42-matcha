@@ -31,7 +31,7 @@ current userId: {$us.user.id}
       <div class="grid">
         <div class="flex gap-2.5">
           {#if !index || chat.msg[index -1].userId !== chat.msg[index].userId }
-            {#if pic}
+            {#if pic && !pic.includes('undefined')}
               <img src={pic.includes('localhost') ? pic : "http://localhost:3000/api/user/picture/" + pic } alt="Shanay" class="w-11 h-11 object-cover rounded-full">
             {:else}
               <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 512">
