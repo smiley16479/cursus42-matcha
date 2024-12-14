@@ -4,7 +4,7 @@ import { initMsg } from '@/service/util/sharedFunction';
 import { type MsgInput_t, type MsgOutput_t } from '@/type/shared_type/msg';
 import { parseCookies } from '@/service/util/sharedFunction';
 import type { SocketResponse } from '@/type/event';
-import { us } from './userStore';
+import { refreshNotif, us } from './userStore';
 import { Chat_c } from '@/type/shared_type/chat';
 import type { UserLikedBy_t } from '@/type/shared_type/user';
 import { type Notif_T, Notif_t_E } from '@/type/shared_type/notification';
@@ -82,12 +82,38 @@ export function initializeSocket() {
 					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload.id);
 					break;
 		    	}
+			refreshNotif();
 			return {
 				...store
 			};
 		})
 	});
 
+	store1.socket.on("s_connected_users", (allConnectedUser) => {
+		console.log(`allConnectedUser`, allConnectedUser);
+		us.update((store) => {
+			store.user.connectedUser = allConnectedUser
+			return {...store};
+		})
+	});
+
+	store1.socket.on("s_user_connection", (newConnectedUserId) => {
+		us.update((store) => {
+			store.user.connectedUser.push(newConnectedUserId)
+			return {...store};
+		})
+	});
+
+	store1.socket.on("s_user_disconnection", (newDisconnectedUserId) => {
+		us.update((store) => {
+      for (let i = store.user.connectedUser.length - 1; i >= 0; --i)
+        if (store.user.connectedUser[i] === newDisconnectedUserId) {
+          store.user.connectedUser.splice(i, 1);
+          break;
+        }
+			return {...store};
+		})
+	});
 	
 	// store1.socket.on('s_like', ( like: UserLikedBy_t | Chat_c ) => {
 	// 	console.log(`s_like new Chat`, like);
@@ -186,7 +212,7 @@ export function unlike(unlikedUserId: number) {
 			if (response.success) {
 				console.log("Socket unlike completed");
 				us.update((store) => {
-					store.user.liking = store.user.liking.filter(item => item.id !== response.data.removedLikeId);
+					store.user.liking = store.user.liking.filter(item => item.likedUserId !== response.data.removedLikeId);
 					if (response.data.newBlock)
 						store.user.blocking.push(response.data.newBlock);
 					return {
@@ -214,7 +240,9 @@ export function block(blockedUserId: number) {
 			if (response.success) {
 				console.log("Socket block completed");
 				us.update((store) => {
-					store.user.blocking.push({date: new Date(), blockedUserId});
+					const blockedUser = store.user.chats.flatMap(e => e.interlocutors).find(user => user.id === blockedUserId)
+					if (blockedUser)
+						store.user.blocking.push({date: new Date(), blockedUser});
 					return {
 						...store
 					};
@@ -239,7 +267,7 @@ export function unblock(unblockUserId: number) {
 			if (response.success) {
 				console.log("Socket unblock completed");
 				us.update((store) => {
-					store.user.blocking = store.user.blocking.filter(item => item.blockedUserId !== unblockUserId);
+					store.user.blocking = store.user.blocking.filter(item => item.blockedUser.id !== unblockUserId);
 					return {
 						...store
 					};

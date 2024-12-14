@@ -227,18 +227,21 @@
 		</div>
 		
 
-		<!-- Profil que j'ai liké: Plus Besoin ? -->
-		<!-- <div class="max-w-3xl mx-auto bg-white rounded-lg shadow">
-			<h1 class="text-2xl font-bold text-gray-800 mb-6" title="Profil que j'ai liké">Mes Crushs</h1>
+		<!-- Notifications -->
+		<div class="max-w-3xl mx-auto bg-white rounded-lg shadow">
+			<h1 class="text-2xl font-bold text-gray-800 mb-6" title="Profil que j'ai liké">Mes Notifications</h1>
 			<div class="space-y-4">
-				{#if notifications.length > 0}
-					{#each notifications as notification}
+				{#if $us.user.notifications.length > 0}
+					{#each $us.user.notifications as notification}
 						<div class="flex items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
 							<div class="flex-grow">
-								<h2 class="text-lg font-bold text-gray-900">{notification.title}</h2>
-								<p class="text-gray-600 text-sm">{notification.message}</p>
+								{#if notification.involvedUser.pictures?.[0].filename}
+								<img src={"http://localhost:3000/api/user/picture/" + notification.involvedUser.pictures[0].filename} alt={notification.involvedUser.userName} class="w-16 h-16 rounded-full object-cover mr-4">
+								{/if}
+								<h2 class="text-lg font-bold text-gray-900">{notification.type}</h2>
+								<p class="text-gray-600 text-sm">De {notification.involvedUser.userName}</p>
 							</div>
-							<button on:click={() => markAsRead(notification)} class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							<button on:click={() => markNotificationReadIfExists(notification.type, notification.payload.id)} class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 								Marquer comme lu
 							</button>
 						</div>
@@ -247,7 +250,7 @@
 					<p class="text-gray-500 text-center">Aucune notification pour le moment.</p>
 				{/if}
 			</div>
-		</div> -->
+		</div>
 
 		<div class="mt-4">
 			<Schedule/>
