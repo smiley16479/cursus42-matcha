@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   export let fromSlider = 10;
   export let toSlider = 30;
 </script>
@@ -82,11 +82,11 @@ input[type="range"] {
   height: 0;
   z-index: 1;
 }
-</style>
+</style> -->
 
 
 <!-- AUTRE TENTATIVE COMPATIBLE POUR CHROME -->
-<!-- 
+
 <script lang="ts">
   import { onMount } from "svelte";
 
@@ -96,17 +96,21 @@ input[type="range"] {
   const max = 100; // Limite supérieure
   let minthumb = 0; // Position de la poignée gauche
   let maxthumb = 100; // Position de la poignée droite
+  export let fromSlider = 10;
+  export let toSlider = 30;
 
   // Met à jour la position du curseur gauche
   const mintrigger = () => {
     // minprice = Math.min(minprice, maxprice - 500);
     minthumb = ((minprice - min) / (max - min)) * 100;
+    fromSlider = Math.min(minthumb, maxthumb);
   };
 
   // Met à jour la position du curseur droit
   const maxtrigger = () => {
     // maxprice = Math.max(maxprice, minprice + 500);
-    maxthumb = 100 - ((maxprice - min) / (max - min)) * 100;
+    maxthumb = (maxprice - min) / (max - min) * 100;
+    toSlider = Math.max(minthumb, maxthumb);
   };
 
   // Initialisation
@@ -119,7 +123,8 @@ input[type="range"] {
 <div class="flex justify-center items-center">
   <div class="relative max-w-xl w-full">
     <div>
-      !-- Curseur gauche --
+      <label for="fromSlider" class="block text-sm font-medium text-gray-700 mb-1">Intervale d'age pour les matches</label>
+      <!-- Curseur gauche -->
       <input
         type="range"
         step="1"
@@ -130,7 +135,7 @@ input[type="range"] {
         class="absolute pointer-events-none appearance-none z-20 h-2 w-full opacity-0 cursor-pointer"
       />
 
-      !-- Curseur droit --
+      <!-- Curseur droit -->
       <input
         type="range"
         step="1"
@@ -142,28 +147,28 @@ input[type="range"] {
       />
 
       <div class="relative z-10 h-2">
-        !-- Fond gris --
+        <!-- Fond gris -->
         <div class="absolute z-10 left-0 right-0 bottom-0 top-0 rounded-md bg-gray-300"></div>
-        !-- Plage sélectionnée --
-        !-- <div
+        <!-- Plage sélectionnée -->
+        <!-- <div
           class="absolute z-20 top-0 bottom-0 rounded-md bg-green-300"
           style="right: {maxthumb}%; left: {minthumb}%;"
-        ></div> --
-        !-- Poignée gauche --
+        </div> -->
+        <!-- Poignée gauche -->
         <div
           class="absolute z-30 w-5 h-5 top-0.5 bg-gray-100 border border-gray-400 rounded-full -mt-2 -ml-1"
           style="left: {minthumb}%;"
         ></div>
-        !-- Poignée droite --
+        <!-- Poignée droite -->
         <div
           class="absolute z-30 w-5 h-5 top-0.5 bg-gray-100 border border-gray-400 rounded-full -mt-2 -mr-3"
-          style="right: {maxthumb}%;"
+          style="left: {maxthumb}%;"
         ></div>
       </div>
     </div>
 
-    !-- Entrées pour les valeurs --
-    !--  <div class="flex justify-between items-center py-5">
+    <!-- Entrées pour les valeurs -->
+    <!-- <div class="flex justify-between items-center py-5">
       <div>
         <input
           type="number"
@@ -183,8 +188,10 @@ input[type="range"] {
         />
       </div>
     </div> --
-    De {minthumb} à {maxthumb}
-
+    De {minthumb} à {maxthumb} -->
+    <div class="text-gray-500">
+      De {fromSlider.toFixed(0)} à {toSlider.toFixed(0)}
+    </div>
   </div>
 </div>
 
@@ -231,4 +238,4 @@ input[type="range"] {
   background-color: #ddd; /* Couleur de fond du rail */
 }
 
-</style> -->
+</style>
