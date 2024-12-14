@@ -1,5 +1,4 @@
 import {axios} from '@/service/interceptor/axios'
-import type { UserChPw_ce } from '@/type/user';
 import type { IMinimalUser, IUserOutput, IUserSelf } from '@/type/shared_type/user';
 function deserializeContact(data: any): any {
 	return {
@@ -101,10 +100,19 @@ export async function updateUser(user: IUserOutput) {
 	}
 }
 
-export async function resetUserPassword(email: string) {
+export async function sendResetUserPasswordEmail(email: string) {
 	try {
 		console.log(`resetPw service email`, email);
 		const response = (await axios.get(`user/askresetpassword/${email}`));
+	} catch (error) {
+		console.log('ERROR reset User Password() catch service');
+		throw error;
+	}
+}
+
+export async function resetUserPassword(token: string, newPassword: string) {
+	try {
+		await axios.patch(`user/resetPassword/${token}`, {password: newPassword}, {withCredentials: true});
 	} catch (error) {
 		console.log('ERROR reset User Password() catch service');
 		throw error;

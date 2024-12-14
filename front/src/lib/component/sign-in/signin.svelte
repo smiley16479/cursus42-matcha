@@ -10,12 +10,19 @@ import { initializeSocket } from '@/store/socketStore';
 import { page } from '$app/stores';
 import { onMount } from "svelte";
 import { fly } from "svelte/transition";
+import ResetPWmodal from "./resetPWmodal.svelte";
 
 let signUpMode = false;
 let showModalPW = false;
+let showModalResetPW = false;
 let passwordRecovery = false;
+let passwordChanged = false;
 let showEmailValidatedMessage = true;
 let emailVerified = $page.url.searchParams.get('emailVerified');
+let resetPasswordToken = $page.url.searchParams.get('token');
+
+if ($page.url.searchParams.get('resetPassword') !== null)
+  showModalResetPW = true;
 
 onMount(()=> {
   setTimeout(() => {
@@ -23,9 +30,9 @@ onMount(()=> {
   }, 5000);
 });
 
-function openModal() {
+function openForgotPWModal() {
     showModalPW = true;
-  }
+}
 
 function signUpIn_Toggle() {
   signUpMode = !signUpMode;
@@ -123,6 +130,13 @@ async function signIn() {
     </div>
   </div>
   {/if}
+  {#if passwordChanged}
+  <div class="absolute w-full px-6 py-4 lg:px-8" transition:fly={{ x: 0, y: -200 }}>
+    <div class="flex flex-row justify-center bg-green-400/50 backdrop-blur shadow-lg rounded-lg min-h-12">
+      <p class="flex flex-col justify-center text-gray-900"><b class="align-middle">Your password has been successfully changed 👍</b></p>
+    </div>
+  </div>
+  {/if}
   <div class="flex h-full flex-col justify-center px-6 py-12 lg:px-8 bg">
     <div class="backdrop-blur bg-white/50 shadow-lg rounded-lg">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -167,7 +181,7 @@ async function signIn() {
             <div class="flex items-center justify-between">
               <label for="password" class="block text-md font-bold leading-6 text-gray-900" >Password</label>
               {#if !signUpMode}
-                <button class="text-sm" type="button" on:click={openModal}>
+                <button class="text-sm" type="button" on:click={openForgotPWModal}>
                   <span class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</span>
                 </button>
               {/if}
@@ -207,4 +221,5 @@ async function signIn() {
   </footer>
 
   <ForgotPWmodal bind:showModalPW bind:passwordRecovery/>
+  <ResetPWmodal bind:showModalResetPW bind:resetPasswordToken bind:passwordChanged/>
 </Background>

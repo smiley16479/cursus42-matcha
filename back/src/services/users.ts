@@ -314,8 +314,8 @@ export async function sendResetPasswordEmail(email: string) {
         from: '"Matcha!" <matcha@42l.fr>',
         to: user.email,
         subject: "Reset your password!",
-        text: "Reset your password by using this link : http://localhost:3000/api/user/resetpassword/" + resetPasswordToken,
-        html: "<b>To reset your password, click this <u><a href='http://localhost:3000/api/user/resetpassword/" + resetPasswordToken + "'>link<a></u></b>",
+        text: "Reset your password by using this link : http://localhost:8080?resetPassword&token=" + resetPasswordToken,
+        html: "<b>To reset your password, click this <u><a href='http://localhost:8080?resetPassword&token=" + resetPasswordToken + "'>link<a></u></b>",
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -337,7 +337,7 @@ export async function resetPassword(token: string, rawUser: any) {
 
     const hashedPassword: string = await bcrypt.hash(rawUser.password, 10);
 
-    updateUser(resetPasswordToken.user, { password: hashedPassword });
+    updateUser(resetPasswordToken.userId, { password: hashedPassword });
     deleteResetPasswordToken(resetPasswordToken.id);
 }
 

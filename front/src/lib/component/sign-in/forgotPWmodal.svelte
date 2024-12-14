@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { resetUserPassword } from "@/service/user";
+  import { sendResetUserPasswordEmail } from "@/service/user";
   export let showModalPW = false;
   export let passwordRecovery = false;
   let email = '';
@@ -12,7 +12,7 @@
     // Gérer l'envoi de l'e-mail pour la réinitialisation du mot de passe
     console.log("Email pour réinitialiser le mot de passe :", email);
     if (email) {
-      resetUserPassword(email);
+      sendResetUserPasswordEmail(email);
       passwordRecovery = true;
       setTimeout(() => {
         passwordRecovery = false;
