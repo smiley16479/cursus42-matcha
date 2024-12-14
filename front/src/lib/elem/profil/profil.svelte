@@ -9,7 +9,6 @@
 	import { visit } from '@/store/socketStore';
 	import { us } from '@/store/userStore';
 	import type { IUserOutput } from '@/type/shared_type/user';
-	import { space } from 'postcss/lib/list';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
