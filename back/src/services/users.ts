@@ -274,7 +274,7 @@ async function sendVerificationEmail(id: number) {
 
     try {
         const info = await transporter.sendMail({
-            from: '"Matcha!" <matcha@42l.fr>',
+            from: '"Matcha!" <noreply@matcha.com>',
             to: user.email,
             subject: "Confirm your email!",
             text: "Confirm your email by using this link : http://localhost:3000/api/user/confirmemail/" + confirmToken,
@@ -310,15 +310,19 @@ export async function sendResetPasswordEmail(email: string) {
         },
     });
 
-    const info = await transporter.sendMail({
-        from: '"Matcha!" <matcha@42l.fr>',
-        to: user.email,
-        subject: "Reset your password!",
-        text: "Reset your password by using this link : http://localhost:8080?resetPassword&token=" + resetPasswordToken,
-        html: "<b>To reset your password, click this <u><a href='http://localhost:8080?resetPassword&token=" + resetPasswordToken + "'>link<a></u></b>",
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: '"Matcha!" <noreply@matcha.com>',
+            to: user.email,
+            subject: "Reset your password!",
+            text: "Reset your password by using this link : http://localhost:8080?resetPassword&token=" + resetPasswordToken,
+            html: "<b>To reset your password, click this <u><a href='http://localhost:8080?resetPassword&token=" + resetPasswordToken + "'>link<a></u></b>",
+        });
 
-    console.log("Message sent: %s", info.messageId);
+        console.log("Message sent: %s", info.messageId);
+    } catch (error) {
+        console.log('Error sending password reset email');
+    }
 }
 
 export async function resetPassword(token: string, rawUser: any) {
