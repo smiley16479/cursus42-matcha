@@ -61,6 +61,12 @@
     }
   }
 
+  function setFileUrl(url: string) {
+    if (!url.includes('http://localhost'))
+      return "http://localhost:3000/api/user/picture/" + url;
+    return url;
+  }
+
   /** Nettoyer les URL à la destruction du composant */
   onMount(() => {
     setFileAsUrl();
@@ -81,7 +87,7 @@
   <div class="grid grid-cols-2 gap-4">
     {#each $us.user.pictures as elem, index}
       <div class="relative">
-        <img src={elem.filename} alt="UploadedPic" class="w-32 h-32 object-cover rounded-md" />
+        <img src={setFileUrl(elem.filename)} alt="UploadedPic" class="w-32 h-32 object-cover rounded-md" />
         <button on:click={() => deletePhoto(index, elem.pictureIndex)} class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1">
           &times;
         </button>
