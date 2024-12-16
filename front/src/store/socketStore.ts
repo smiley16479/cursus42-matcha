@@ -39,7 +39,7 @@ export function initializeSocket() {
 
 	const store1 = get(soc);
 	if (!store1.socket) {
-		console.error("!store1.socket");
+		console.log("!store1.socket");
 		return;
 	}
 	store1.socket.on('connect', () => {
@@ -141,7 +141,7 @@ export function send_msg(msg: MsgInput_t) {
 			if (response.success) {
 				console.log("Socket send_msg completed");
 			} else {
-				console.error("Socket not available. Message not sent.", response.error)
+				console.log("Socket not available. Message not sent.", response.error)
 			}
 		});
 	} catch (err) {
@@ -166,7 +166,7 @@ export function visit(visitedUserId: number) {
 				// 	};
 				// });
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -193,7 +193,7 @@ export function like(likedUserId: number) {
 					};
 				});
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -220,7 +220,7 @@ export function unlike(unlikedUserId: number) {
 					};
 				});
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -248,7 +248,7 @@ export function block(blockedUserId: number) {
 					};
 				});
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -273,7 +273,7 @@ export function unblock(unblockUserId: number) {
 					};
 				});
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -293,7 +293,7 @@ export function report(reportedUserId: number) {
 				console.log("Socket report completed");
 				alert("Report completed");
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		});
 	} catch (err) {
@@ -324,7 +324,7 @@ export function markNotificationRead(notificationId: number) {
 					};
 				});
 			} else {
-				console.error("Error received:", response.error);
+				console.log("Error received:", response.error);
 			}
 		})	
 	} catch (err) {
@@ -349,7 +349,7 @@ const timeout = 10000;
 
 /** TimeOut de 10sec */
 const timer = setTimeout(() => {
-  console.error("No response received within the timeout.");
+  console.log("No response received within the timeout.");
 }, timeout);
 
 function getSocketOrThrow() {
@@ -363,9 +363,9 @@ function getSocketOrThrow() {
 
 function printError(err: unknown) {
 	if (err instanceof Error) {
-		console.error(err.message);
+		console.log(err.message);
 	} else {
-		console.error("An unknown error occurred:", err);
+		console.log("An unknown error occurred:", err);
 	}
 }
 

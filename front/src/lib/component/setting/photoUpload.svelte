@@ -33,7 +33,7 @@
           const response = await picUpload(formData);
           console.log('Image uploadée avec succès :', response.data);
         } catch (error) {
-          console.error('Erreur lors de l\'upload de l\'image :', error);
+          console.log('Erreur lors de l\'upload de l\'image :', error);
         }
       }
       // Réinitialiser l'input pour permettre des uploads multiples

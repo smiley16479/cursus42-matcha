@@ -33,7 +33,7 @@
     try {
       profil = await getUser(id);
     } catch (error) {
-      console.error(`recup Profil failed`, error);
+      console.log(`recup Profil failed`, error);
     }
   }
 
@@ -43,7 +43,7 @@
       .then(response => response.json()) // Convertir la réponse en JSON
       .then(data => description.update(currentItems => {return [...currentItems, data]}))
       .catch(error => {
-        console.error('Erreur lors du chargement du JSON:', error);
+        console.log('Erreur lors du chargement du JSON:', error);
       });
     }
   }

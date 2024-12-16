@@ -90,7 +90,7 @@ function successCallback(position : any) {
 
 function errorCallback(err : any) {
   error = "Erreur: Votre navigateur ou vos préférences de sécurités ne permettent pas la géolocalisation précise.\nNous vous géolocalisons par un autre moyen... Veuillez patienter";
-  console.error(`error`, err.message);
+  console.log(`error`, err.message);
   // without permission
   setTimeout( () => {
     getUserLocation().then((result) => {

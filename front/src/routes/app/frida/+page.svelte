@@ -45,7 +45,7 @@
         });
       })
       .catch(error => {
-        console.error('Erreur lors du chargement du JSON:', error);
+        console.log('Erreur lors du chargement du JSON:', error);
       });
     }
   }
@@ -149,7 +149,7 @@ function resfreshProfils() {
           return [...currentItems, ...data!];
         })
     }).catch(error => {
-      console.error('Erreur lors du chargement du JSON:', error);
+      console.log('Erreur lors du chargement du JSON:', error);
     });
   }
 }

@@ -55,7 +55,7 @@
 				console.log("Compte supprimé");
 				alert("Votre compte a été supprimé.");
 			} catch (error) {
-				console.error('Erreur lors de la suppression du compte');
+				console.log('Erreur lors de la suppression du compte');
 				alert("Erreur lors de la suppression du compte");
 			}
 	  }

@@ -40,7 +40,7 @@
     // Capturer l'audio local
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     if (!(peerConnection && localStream))
-      console.error("(!(peerConnection && localStream))")
+      console.log("(!(peerConnection && localStream))")
     localStream.getTracks().forEach(track => {if (peerConnection && localStream) peerConnection.addTrack(track, localStream)});
 
     // Recevoir le flux audio distant

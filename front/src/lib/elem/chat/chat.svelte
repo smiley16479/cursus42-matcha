@@ -80,7 +80,7 @@
       if (audio) {
         audio.src = audioUrl;
         audio.play().catch(err => {
-    console.error("Error during audio playback:", err);
+    console.log("Error during audio playback:", err);
   });
       } else console.log(`Audio is null`);
 
