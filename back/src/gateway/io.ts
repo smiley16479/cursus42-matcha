@@ -3,7 +3,7 @@ import { Server, Socket } from 'socket.io';
 import { retrieveMessageFromId } from '../db/chats';
 import { deleteNotification } from '../db/users';
 import { createMessage, prepareMessageForOutput, prepareUserChatForOutput } from '../services/chats';
-import { createMatchEvent, prepareMatchEventForOutput, removeMatchEvent } from '../services/matchEvents';
+import { createMatchEvent, getMatchEvent, prepareMatchEventForOutput, removeMatchEvent } from '../services/matchEvents';
 import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike } from '../services/users';
 import { IUserMatchEventDb } from '../types/matchEvents';
 import { Chat_c } from '../types/shared_type/chat';
@@ -161,7 +161,7 @@ export const initSocketEvents = (io: Server) => {
     });
 
     socket.on('c_new_match_event', async (matchEvent, callback) => {
-      console.log(`C_new_match_event: matchEvent ${matchEvent}`);
+      console.log(`C_new_match_event: matchEvent ${JSON.stringify(matchEvent)}`);
       try {
         const matchEventDb: IUserMatchEventDb = await createMatchEvent(socket.user.id, matchEvent);
 
@@ -172,19 +172,30 @@ export const initSocketEvents = (io: Server) => {
 
         callback({ success: true, data: outputMatchEvent});
       } catch (error) {
-        console.log(error);
         callback({ success: false, error: error.message});
       }
     });
 
-    socket.on('c_remove_match_event', async (matchEventId, callback) => {
-      console.log(`C_new_match_event: matchEvent ${matchEventId}`);
+    socket.on('c_remove_match_event', async (matchEventId) => {
+      console.log(`C_remove_match_event: ${matchEventId}`);
       try {
+        const matchEventToRemove = await getMatchEvent(matchEventId);
         await removeMatchEvent(matchEventId);
-      } catch (error) {
-        
-      }
 
+        let otherUserId: number;
+
+        if (matchEventToRemove.user1Id == socket.user.id)
+          otherUserId = matchEventToRemove.user2Id;
+        else
+          otherUserId = matchEventToRemove.user1Id;
+
+        const notification = await addNewNotification(otherUserId, socket.user.id, Notif_t_E.REMOVEEVENT, matchEventId)
+        sendNotification(socket, otherUserId, notification);
+
+        // callback({ success: true });
+      } catch (error) {
+        // callback({ success: false, error: error.message });
+      }
     });
 
     // 👌

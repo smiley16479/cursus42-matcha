@@ -35,23 +35,23 @@ export async function insertMatchEvent(userId: number, matchEvent: matchEventInp
 
 export async function retrieveMatchEvent(matchEventId: number) {
     const sqlQuery = sql`
-    SELECT 
-        JSON_OBJECT("id", ume.id, "user1Id", ume.user1Id, "user2Id", ume.user2Id, "title", ume.title, "eventDate", ume.eventDate, "eventLocation", ume.eventLocation, "description", ume.description) AS matchEvent
-    FROM userMatchEvents ume
-    WHERE ume.id = ${matchEventId};
-`;
+        SELECT 
+            JSON_OBJECT("id", ume.id, "user1Id", ume.user1Id, "user2Id", ume.user2Id, "title", ume.title, "eventDate", ume.eventDate, "eventLocation", ume.eventLocation, "description", ume.description) AS matchEvent
+        FROM userMatchEvents ume
+        WHERE ume.id = ${matchEventId};
+    `;
 
-const connection = await pool.getConnection();
-const [rows] = await connection.query<IUserMatchEventDb[]>(sqlQuery);
-connection.release();
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query<IUserMatchEventDb[]>(sqlQuery);
+    connection.release();
 
-if (rows[0]) {
-    rows[0] = {
-        ...rows[0].matchEvent
+    if (rows[0]) {
+        rows[0] = {
+            ...rows[0].matchEvent
+        }
     }
-}
 
-return rows[0];
+    return rows[0];
 }
 
 export async function deleteMatchEvent(matchEventId: number) {

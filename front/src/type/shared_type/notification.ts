@@ -8,6 +8,7 @@ export enum Notif_t_E {
   LIKE = "LIKE",
   UNLIKE = "UNLIKE",
   EVENT = "EVENT",
+  REMOVEEVENT ="REMOVEEVENT",
 }
 
 export type Notif_T = {

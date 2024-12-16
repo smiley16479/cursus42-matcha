@@ -84,6 +84,10 @@ export function initializeSocket() {
 					break;
 				case Notif_t_E.EVENT:
 					store.user?.matchEvents?.push(notif.payload);
+					break;
+				case Notif_t_E.REMOVEEVENT:
+					store.user.matchEvents = store.user.matchEvents.filter(item => item.id !== notif.payload.id);
+					break;
 		    	}
 			refreshNotif();
 			return {

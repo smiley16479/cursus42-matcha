@@ -647,6 +647,8 @@ async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
         case Notif_t_E.EVENT:
             payload = await prepareMatchEventForOutput(await retrieveMatchEvent(notificationDb.payloadId));
             break;
+        case Notif_t_E.REMOVEEVENT:
+            payload = {id: notificationDb.payloadId};
     }
 
     const outputNotif : Notif_T = {
