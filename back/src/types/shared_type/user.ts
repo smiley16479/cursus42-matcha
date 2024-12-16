@@ -1,4 +1,5 @@
 import { Chat_c } from "./chat"
+import type { MatchEventOutput_t } from "./matchEvents"
 import { type Notif_T } from "./notification"
 
 // Enums
@@ -96,7 +97,8 @@ export interface IUserSelf extends IUserOutput {
     liking: UserLiking_t[],
     likedBy: UserLikedBy_t[],
     notifications: Notif_T[],
-    chats: Chat_c[]
+    chats: Chat_c[],
+    matchEvents: MatchEventOutput_t[]
 }
 
 export interface IUserCredentials {

@@ -52,6 +52,7 @@ function orderTabs() {
   $us.user.liking.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.likedBy.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.notifications.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+  $us.user.matchEvents.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   refreshNotif();
 }
 

@@ -1,20 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
-
-  type Event = {
-    title: string;
-    date: string;
-    time: string;
-    location: string;
-    description: string;
-  };
-
-  // Liste des événements planifiés
-  const events = writable<Event[]>([]);
+	import { us } from '@/store/userStore';
+	import type { IUserOutput } from '@/type/shared_type/user';
+	import { goto } from "$app/navigation";
+	import { createMatchEvent } from '@/store/socketStore';
+	import type { matchEventInput_t } from '@/type/shared_type/matchEvents';
+	import { removeMatchEvent } from '@/store/socketStore';
 
   // Modèle pour un nouvel événement
-  const newEvent: Event = {
+  const newEvent = {
+    guest: null,
     title: '',
     date: '',
     time: '',
@@ -22,10 +16,45 @@
     description: '',
   };
 
+  function getInterlocutorFromInterlocutors(interlocutors: [IUserOutput, IUserOutput], userId: number) {
+    if (interlocutors[0].id == userId)
+      return interlocutors[1];
+    else
+      return interlocutors[0];
+  }
+
+  function getOtherUserFromMatchEventUsers(users: [IUserOutput, IUserOutput], userId: number) {
+    if (users[0].id == userId)
+      return users[1];
+    else
+      return users[0];
+  }
+
+  function getLocalTime(date: string) {
+    if(date.indexOf('T') == -1)
+      date = date.replace(' ', 'T') + 'Z';
+    return new Date(date).toLocaleTimeString("fr-FR")
+  }
+
+  function getLocalDate(date: Date) {
+    return new Date(date).toLocaleDateString("fr-FR")
+  }
+
+  function viewMatchProfil(profilId: number) {
+		goto(`/app/frida/${profilId}`)
+	}
+
   // Fonction pour ajouter un événement
   const addEvent = () => {
-    if (newEvent.title && newEvent.date && newEvent.time) {
-      events.update((current) => [...current, { ...newEvent }]);
+      if (newEvent.title && newEvent.date && newEvent.time && newEvent.guest != null) {
+      const event: matchEventInput_t = {
+        guestId: newEvent.guest.id,
+        title: newEvent.title,
+        location: newEvent.location,
+        description: newEvent.description,
+        date: new Date(newEvent.date + " " + newEvent.time).toISOString().slice(0, 19).replace("T", " ")
+      }
+      createMatchEvent(event);
       resetForm();
     } else {
       alert('Veuillez remplir tous les champs obligatoires.');
@@ -34,6 +63,7 @@
 
   // Réinitialisation du formulaire
   const resetForm = () => {
+    newEvent.guest = null;
     newEvent.title = '';
     newEvent.date = '';
     newEvent.time = '';
@@ -42,8 +72,14 @@
   };
 
   // Suppression d'un événement
-  const removeEvent = (index: number) => {
-    events.update((current) => current.filter((_, i) => i !== index));
+  const removeEvent = (matchEventToDeleteId: number) => {
+    removeMatchEvent(matchEventToDeleteId);
+    us.update((store) => {
+				store.user.matchEvents = store.user.matchEvents.filter((matchEvent) => matchEvent.id !== matchEventToDeleteId);
+				return {
+					...store
+				};
+			});
   };
 </script>
 
@@ -104,6 +140,15 @@
       ></textarea>
     </div>
 
+    <div class="mb-4">
+      <label for="guest" class="block text-sm font-medium text-gray-700">Invité(e)</label>
+      <select bind:value={newEvent.guest} id="guest" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        {#each $us.user.chats as chat}
+          <option value={getInterlocutorFromInterlocutors(chat.interlocutors, $us.user.id)}>{getInterlocutorFromInterlocutors(chat.interlocutors, $us.user.id).userName}</option>
+        {/each}
+    </select>
+    </div>
+
     <button
       on:click={addEvent}
       class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -116,20 +161,25 @@
   <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto">
     <h2 class="text-2xl font-bold mb-4">Événements planifiés</h2>
 
-    {#if $events.length > 0}
+    {#if $us.user.matchEvents}
       <ul>
-        {#each $events as event, index}
-          <li class="p-4 border-b border-gray-200 flex justify-between items-center">
+        {#each $us.user.matchEvents as event}
+        <li class="p-4 border-b border-gray-200 flex justify-between items-center">
             <div>
+              <button type="button" title="Voir profil" on:click={() => viewMatchProfil(getOtherUserFromMatchEventUsers(event.users, $us.user.id).id)}>
+                <img src={"http://localhost:3000/api/user/picture/" + getOtherUserFromMatchEventUsers(event.users, $us.user.id).pictures[0].filename} alt={getOtherUserFromMatchEventUsers(event.users, $us.user.id).userName} class="w-16 h-16 rounded-full object-cover mr-4">
+              </button>
+            </div>
+            <div class="flex-auto">
               <h3 class="font-semibold text-lg">{event.title}</h3>
               <p class="text-sm text-gray-500">
-                {event.date} à {event.time}
+                Le {getLocalDate(event.date)} à {getLocalTime(event.date)}
               </p>
               <p class="text-sm text-gray-700">{event.location}</p>
               <p class="text-sm text-gray-600">{event.description}</p>
             </div>
             <button
-              on:click={() => removeEvent(index)}
+              on:click={() => removeEvent(event.id)}
               class="text-red-600 hover:underline"
             >
               Supprimer

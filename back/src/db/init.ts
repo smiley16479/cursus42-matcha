@@ -148,13 +148,30 @@ export default async function initDb() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         userId INT NOT NULL,
         involvedUserId INT NOT NULL,
-        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH', 'UNLIKE') NOT NULL,
+        type ENUM('LIKE', 'VISIT', 'MSG', 'MATCH', 'UNLIKE', 'EVENT') NOT NULL,
         payloadId INT NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
 
     await connection.query(notificationsTableQuery);
+
+    // Create userMatchEvents table
+
+    const userMatchEventsTableQuery = `
+        CREATE TABLE IF NOT EXISTS userMatchEvents (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user1Id INT NOT NULL,
+        user2Id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        eventDate DATETIME NOT NULL,
+        eventLocation VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+    await connection.query(userMatchEventsTableQuery);
 
     // Create userChats table
 
@@ -205,6 +222,28 @@ export default async function initDb() {
     `;
 
     await connection.query(uniformizedChatViewQuery);
+
+    // Create uniformized match events view
+
+    const uniformizedMatchEventsViewQuery = `
+        CREATE OR REPLACE VIEW uniformizedMatchEvents AS (
+            SELECT
+                ume.*,
+                ume.user1Id AS userId,
+                ume.user2Id AS otherUserId
+            FROM
+                userMatchEvents ume
+            UNION
+            SELECT
+                ume.*,
+                ume.user2Id AS userId,
+                ume.user1Id AS otherUserId
+            FROM
+                userMatchEvents ume
+        );
+    `;
+
+    await connection.query(uniformizedMatchEventsViewQuery);
 
     // Create full users view
 
@@ -301,8 +340,16 @@ export default async function initDb() {
                         LEFT JOIN chat_messages cm ON cm.chatId = uc.id
                     GROUP BY
                         uc.userId
+                ),
+                user_match_events AS (
+                    SELECT
+                        ume.userId,
+                        JSON_ARRAYAGG(JSON_OBJECT("id", ume.id, "user1Id", ume.userId, "user2Id", ume.otherUserId, "title", ume.title, "eventDate", ume.eventDate, "eventLocation", ume.eventLocation, "description", ume.description)) AS matchEvent
+                    FROM
+                        uniformizedMatchEvents AS ume
+                    GROUP BY
+                        ume.userId
                 )
-
             SELECT
                 u.*,
                 ui.interests AS interests,
@@ -313,7 +360,8 @@ export default async function initDb() {
                 n.notifications AS notifications,
                 ubd.blockedBy AS blockedBy,
                 ubr.blocking AS blocking,
-                uc.chats AS chats
+                uc.chats AS chats,
+                ume.matchEvent AS matchEvents
 
             FROM users u
                 LEFT JOIN user_interests ui ON ui.userId = u.id
@@ -325,6 +373,7 @@ export default async function initDb() {
                 LEFT JOIN user_blocked ubd ON ubd.blockedUserId = u.id
                 LEFT JOIN user_blocker ubr ON ubr.blockerUserId = u.id
                 LEFT JOIN user_chats uc ON uc.userId = u.id
+                LEFT JOIN user_match_events ume ON ume.userId = u.id
         );
     `;
 
