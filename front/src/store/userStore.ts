@@ -59,6 +59,12 @@ export function refreshNotif() {
 				})
 			})
 		});
+		store.user.likedBy.forEach( i => {
+			store.user.visits.forEach( el => {
+			if (el.visiterUser.id === i.likerUser.id)
+				store.user.visits = store.user.visits.filter(ele => ele.visiterUser.id !== i.likerUser.id)
+			})
+		})
 		return {...store}
 	})
 }

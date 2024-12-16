@@ -4,7 +4,7 @@
 	import '../../app.css';
 	import { app } from '../../store/appStore';
 	import { onMount } from 'svelte';
-	import { us } from '@/store/userStore';
+	import { refreshNotif, us } from '@/store/userStore';
 	import { goto } from '$app/navigation';
 	import { beforeNavigate } from '$app/navigation';
 	import Spinner from '@/lib/component/animation/spinner.svelte';
@@ -50,8 +50,10 @@
 		}
 
 		// Vérifier l'état de l'utilisateur à chaque navigation
-		if (navigation.to.url.pathname !== "/app/profil")
+		if (navigation.to.url.pathname !== "/app/profil") {
 			isProfilCompleted();
+			refreshNotif();
+		}
 		console.log('Navigation vers : ', navigation.to.url.pathname);
 	});
 </script>
