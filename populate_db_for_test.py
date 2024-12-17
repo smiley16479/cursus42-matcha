@@ -95,7 +95,8 @@ for userNb in tqdm (range(16), desc="Populating database with GPT profiles...   
     password = "tesT123!!!"
     age = data["age"]
     fameRate = 100
-    sexualPref = random.choice(list(ESexualPref)).value
+    # sexualPref = random.choice(list(ESexualPref)).value # For random or nest ligne for staright
+    sexualPref = ESexualPref.Female.value if gender == EGender.Male.value else ESexualPref.Male.value
     biography = data["description"]
     [latitude, longitude, *_] = fake.local_latlng(country_code='FR')
     lastConnection = str(datetime.now() - timedelta(days=random.uniform(0, 365)))
