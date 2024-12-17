@@ -11,4 +11,4 @@ onMount(()=> {
 </script>
 
 <!-- Consultation d'un profil -->
-<Profil userNum={parseInt($page.params.id)}/>
+<Profil profil={undefined} userNum={parseInt($page.params.id)}/>

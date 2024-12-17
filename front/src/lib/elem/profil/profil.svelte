@@ -13,10 +13,11 @@
 	import { writable } from 'svelte/store';
 
   export let userNum = 0;
+  export let profil : IUserOutput | undefined;
+
   let description=  writable<any[]>([]);
   let showBox = false;
   let showNopeBox = false;
-  export let profil : IUserOutput;
   let isConnected;
   $: isConnected = $us.user.connectedUser.includes(profil?.id || +$page.params.id);
 
@@ -54,22 +55,22 @@
   }
 
 function areUsersConnected(): string {
-  if ($us.user.likedBy.some(e => e.likerUser.id === profil.id))
+  if ($us.user.likedBy.some(e => e.likerUser.id === profil?.id || +$page.params.id))
    return "green"
-  else if ($us.user.chats.some(e => e.interlocutors.some(e => e.id === profil.id)))
+  else if ($us.user.chats.some(e => e.interlocutors.some(e => e.id === profil?.id || +$page.params.id)))
     return "red"
   return ""
 }
 
 function isUserCOnnected() {
-  return $us.user.connectedUser.includes(profil.id);
+  return $us.user.connectedUser.includes(profil?.id || +$page.params.id);
 }
 
 function formatDate() {
   return new Intl.DateTimeFormat('fr-FR', {
                   dateStyle: 'long',
                   // timeStyle: 'short',
-                }).format(new Date(profil.lastConnection))
+                }).format(new Date(profil!.lastConnection))
 }
 </script>
 
