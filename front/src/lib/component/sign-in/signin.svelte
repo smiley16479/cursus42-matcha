@@ -52,6 +52,7 @@ function orderTabs() {
   $us.user.liking.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.likedBy.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   $us.user.notifications.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+  $us.user.matchEvents.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
   refreshNotif();
 }
 
@@ -188,9 +189,11 @@ async function signIn() {
             </div>
             <div class="mt-2">
               <input bind:value={$us.user.password} on:input={validatePassword} id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              <p class="mt-2 text-sm {passwordStrengthMessage.includes('fort') ? 'text-green-500' : 'text-red-500'}">
-                {passwordStrengthMessage}
-              </p>
+              {#if signUpMode}
+                <p class="mt-2 text-sm {passwordStrengthMessage.includes('fort') ? 'text-green-500' : 'text-red-500'}">
+                  {passwordStrengthMessage}
+                </p>
+              {/if}
             </div>
           </div>
 

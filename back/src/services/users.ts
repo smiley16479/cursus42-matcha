@@ -7,7 +7,10 @@ import moment from 'moment';
 import * as crypto from "node:crypto";
 import path from "node:path";
 import nodemailer from 'nodemailer';
+import { retrieveChatFromId, retrieveMessageFromId } from '../db/chats';
+import { retrieveMatchEvent } from '../db/matchEvents';
 import { deleteEmailConfirmationToken, deleteNotification, deleteResetPasswordToken, deleteUser, deleteUserBlock, deleteUserInterests, deleteUserLike, deleteUserPictureById, deleteUserPictures, insertEmailConfirmToken, insertNotification, insertResetPasswordToken, insertUser, insertUserBlock, insertUserLike, insertUserPicture, insertUserReport, insertUserVisit, retrieveEmailConfirmationTokenFromToken, retrieveNotificationFromId, retrieveResetPasswordTokenFromToken, retrieveUserBlockFromId, retrieveUserBlockFromUsers, retrieveUserFromEmail, retrieveUserFromId, retrieveUserFromUserName, retrieveUserLikeFromId, retrieveUserLikeFromUsers, retrieveUserPicture, retrieveUserPictures, retrieveUserReportFromUsers, retrieveUserVisitFromId, retrieveUserVisitFromUsers, updateUser, updateUserInterests } from "../db/users";
+import { IChatDb } from '../types/chats';
 import { AppError, InternalError, PictureNotFoundError, RessourceAlreadyExistsError, TokenExpiredError, TokenNotFoundError, UserNotFoundError } from '../types/error';
 import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
 import { EGender, ESexualPref, IUserCredentials, IUserInput, IUserOutput, IUserPictureInput, IUserSelf, string2EGender, string2ESexualPref, UserBlocking_t, UserLikedBy_t, UserLiking_t, UserVisit_t } from "../types/shared_type/user";
@@ -16,9 +19,8 @@ import { getEnv } from '../util/envvars';
 import { createChat, getChat, prepareMessageForOutput, prepareUserChatForOutput } from './chats';
 import { ConnectedUsers } from './connectedUsers';
 import { updateUserFameRate } from './fameRating';
-import { Chat_c } from '../types/shared_type/chat';
-import { IChatDb } from '../types/chats';
-import { retrieveChatFromId, retrieveMessageFromId } from '../db/chats';
+import { prepareMatchEventForOutput } from './matchEvents';
+import { IUserMatchEventDb } from '../types/matchEvents';
 
 
 /*********************************************************
@@ -151,6 +153,7 @@ export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Prom
         delete outputUser['likedBy'];
         delete outputUser['liking'];
         delete outputUser['chats'];
+        delete outputUser['matchEvents'];
     } else {
         outputUser.visits = await Promise.all(
             outputUser.visits.map(async (visit: IUserVisitDb) => {
@@ -173,6 +176,12 @@ export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Prom
         outputUser.notifications = await Promise.all(
             outputUser.notifications.map(async (notification: IUserNotifDb) => {
                 return await prepareNotifForOutput(notification);
+            })
+        );
+
+        outputUser.matchEvents = await Promise.all(
+            outputUser.matchEvents.map(async (matchEvent: IUserMatchEventDb) => {
+                return await prepareMatchEventForOutput(matchEvent);
             })
         );
     }
@@ -635,6 +644,11 @@ async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
         case Notif_t_E.UNLIKE:
             payload = {id: notificationDb.payloadId};
             break;
+        case Notif_t_E.EVENT:
+            payload = await prepareMatchEventForOutput(await retrieveMatchEvent(notificationDb.payloadId));
+            break;
+        case Notif_t_E.REMOVEEVENT:
+            payload = {id: notificationDb.payloadId};
     }
 
     const outputNotif : Notif_T = {

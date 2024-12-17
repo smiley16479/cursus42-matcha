@@ -9,6 +9,7 @@ import { Chat_c } from '@/type/shared_type/chat';
 import type { UserLikedBy_t } from '@/type/shared_type/user';
 import { type Notif_T, Notif_t_E } from '@/type/shared_type/notification';
 import { app } from "@/store/appStore";
+import type { matchEventInput_t } from '../type/shared_type/matchEvents';
 
 
 export const soc = writable<{socket: Socket | null, msg: MsgOutput_t | null, notif: Notif_T | null}>({
@@ -80,6 +81,12 @@ export function initializeSocket() {
 					break;
 				case Notif_t_E.UNLIKE:
 					store.user.likedBy = store.user.likedBy.filter(item => item.id !== notif.payload.id);
+					break;
+				case Notif_t_E.EVENT:
+					store.user?.matchEvents?.push(notif.payload);
+					break;
+				case Notif_t_E.REMOVEEVENT:
+					store.user.matchEvents = store.user.matchEvents.filter(item => item.id !== notif.payload.id);
 					break;
 		    	}
 			refreshNotif();
@@ -299,6 +306,31 @@ export function report(reportedUserId: number) {
 	} catch (err) {
 		printError(err);
 	}
+}
+
+export function createMatchEvent(matchEvent: matchEventInput_t) {
+	const socket = getSocketOrThrow();
+
+	socket.emit('c_new_match_event', matchEvent, (response: SocketResponse) => {
+		clearTimeout(timer);
+		if (response.success) {
+			us.update((store) => {
+				store.user?.matchEvents?.push(response.data);
+				return {
+					...store
+				};
+			});
+			console.log("socket create match event completed");
+		} else {
+			console.error("Error received: ", response.error);
+		}
+	});
+}
+
+export function removeMatchEvent(matchEventId: number) {
+	const socket = getSocketOrThrow();
+
+	socket.emit('c_remove_match_event', matchEventId);
 }
 
 export function sendVocalMsg(msg: string) {

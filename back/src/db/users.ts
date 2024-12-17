@@ -1,7 +1,6 @@
 import pool, { cleanUserDb, sql } from './dbUtils';
 import { EInterest, string2EInterest, IUserPictureInput } from '../types/shared_type/user';
 import { IEmailConfirmToken, IUserInterest, IResetPasswordToken, IUserDb, IUserPicture, IUserVisitDb, IUserInputInternal, IUserLikeDb, IUserBlockDb, IUserReportDb, IUserNotifDb } from '../types/user'
-import { QueryResult, FieldPacket } from 'mysql2';
 import { Notif_t_E } from '../types/shared_type/notification';
 import { UserNotFoundError } from '../types/error';
 

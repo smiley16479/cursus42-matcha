@@ -1,15 +1,18 @@
-import { Server, Socket } from 'socket.io';
-import type { MsgInput_t } from '../types/shared_type/msg';
-import { connectedUser } from '../util/io.utils';
 import jwt from 'jsonwebtoken';
-import { getEnv } from '../util/envvars';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, getNotification, getUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike, toggleBlock } from '../services/users';
+import { Server, Socket } from 'socket.io';
+import { retrieveMessageFromId } from '../db/chats';
+import { deleteNotification } from '../db/users';
 import { createMessage, prepareMessageForOutput, prepareUserChatForOutput } from '../services/chats';
+import { createMatchEvent, getMatchEvent, prepareMatchEventForOutput, removeMatchEvent } from '../services/matchEvents';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike } from '../services/users';
+import { IUserMatchEventDb } from '../types/matchEvents';
+import { Chat_c } from '../types/shared_type/chat';
+import { MatchEventOutput_t } from '../types/shared_type/matchEvents';
+import type { MsgInput_t } from '../types/shared_type/msg';
 import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
 import { UserLiking_t } from '../types/shared_type/user';
-import { Chat_c } from '../types/shared_type/chat';
-import { deleteNotification } from '../db/users';
-import { retrieveMessageFromId } from '../db/chats';
+import { getEnv } from '../util/envvars';
+import { connectedUser } from '../util/io.utils';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -157,6 +160,44 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
+    socket.on('c_new_match_event', async (matchEvent, callback) => {
+      console.log(`C_new_match_event: matchEvent ${JSON.stringify(matchEvent)}`);
+      try {
+        const matchEventDb: IUserMatchEventDb = await createMatchEvent(socket.user.id, matchEvent);
+
+        const notification = await addNewNotification(matchEvent.guestId, socket.user.id, Notif_t_E.EVENT, matchEventDb.id);
+        sendNotification(socket, matchEvent.guestId, notification);
+
+        const outputMatchEvent: MatchEventOutput_t = await prepareMatchEventForOutput(matchEventDb);
+
+        callback({ success: true, data: outputMatchEvent});
+      } catch (error) {
+        callback({ success: false, error: error.message});
+      }
+    });
+
+    socket.on('c_remove_match_event', async (matchEventId) => {
+      console.log(`C_remove_match_event: ${matchEventId}`);
+      try {
+        const matchEventToRemove = await getMatchEvent(matchEventId);
+        await removeMatchEvent(matchEventId);
+
+        let otherUserId: number;
+
+        if (matchEventToRemove.user1Id == socket.user.id)
+          otherUserId = matchEventToRemove.user2Id;
+        else
+          otherUserId = matchEventToRemove.user1Id;
+
+        const notification = await addNewNotification(otherUserId, socket.user.id, Notif_t_E.REMOVEEVENT, matchEventId)
+        sendNotification(socket, otherUserId, notification);
+
+        // callback({ success: true });
+      } catch (error) {
+        // callback({ success: false, error: error.message });
+      }
+    });
+
     // 👌
     socket.on('c_send_msg', async (msg: MsgInput_t, callback) => {
       console.log(`c_send_msg received`, msg);
@@ -208,7 +249,6 @@ export const initSocketEvents = (io: Server) => {
 };
 
 async function sendNotification(socket: Socket, userId: number, notification: Notif_T) {
-  console.log('sending notif : ', notification);
   if (notification && connectedUser.includes(userId))
     socket.to(`room_${userId}`).emit('s_new_notification', notification);
 }

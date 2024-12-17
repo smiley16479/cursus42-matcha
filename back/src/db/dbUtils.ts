@@ -49,6 +49,8 @@ export function cleanUserDb(user: IUserDb) {
         user.blockedBy = [];
     if (user.blocking === null)
         user.blocking = [];
+    if (user.matchEvents === null)
+        user.matchEvents = [];
 
     if (user.chats === null)
         user.chats = [];

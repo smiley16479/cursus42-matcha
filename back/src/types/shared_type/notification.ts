@@ -7,6 +7,8 @@ export enum Notif_t_E {
     VISIT = "VISIT",
     LIKE = "LIKE",
     UNLIKE = "UNLIKE",
+    EVENT = "EVENT",
+    REMOVEEVENT = "REMOVEEVENT"
 }
 
 export type Notif_T = {
@@ -34,6 +36,10 @@ export function string2Notif_t_E(notifTypeString: string): Notif_t_E {
             return Notif_t_E.LIKE;
         case "UNLIKE":
             return Notif_t_E.UNLIKE;
+        case "EVENT":
+            return Notif_t_E.EVENT;
+        case "REMOVEEVENT":
+            return Notif_t_E.REMOVEEVENT;
         default:
             throw new TypeError;
     }
