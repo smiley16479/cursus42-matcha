@@ -48,38 +48,43 @@
     }
   } */
 
-  function getLocation() {
-  if (navigator.permissions) {
-    console.log(`ask Permision`, );
-    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-      console.log(`result`, result, navigator.geolocation);
-      if (result.state === 'granted') {
-        navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        });
-      } else if (result.state === 'prompt') {
-        navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        });
-      } else {
-        error = "L'utilisateur a refusé la géolocalisation.";
-        // without permission
-        getUserLocation().then((result) => {
-          const loc: string = result.loc;
-          console.log(`loc`, loc);
-          $us.user.latitude = parseFloat(loc.split(',')[0]);
-          $us.user.longitude = parseFloat(loc.split(',')[1]);
-        });
-      }
-    });
-  } else {
-    console.log(`GetPOsition`);
-    navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+function getLocation() {
+  try {
+    if (navigator.permissions) {
+      console.log(`ask Permision`, );
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        console.log(`result`, result, navigator.geolocation);
+        if (result.state === 'granted') {
+          navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          });
+        } else if (result.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          });
+        } else {
+          error = "L'utilisateur a refusé la géolocalisation.";
+          // without permission
+          getUserLocation().then((result) => {
+            const loc: string = result.loc;
+            console.log(`loc`, loc);
+            $us.user.latitude = parseFloat(loc.split(',')[0]);
+            $us.user.longitude = parseFloat(loc.split(',')[1]);
+          });
+        }
+      });
+    } else {
+      console.log(`GetPOsition`);
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+    }
+  } catch (error) {
+    console.log(`GPS localisation`, error);
   }
+
 }
 
 function successCallback(position : any) {
