@@ -282,18 +282,23 @@ async function sendVerificationEmail(id: number) {
         },
     });
 
-    try {
-        const info = await transporter.sendMail({
-            from: '"Matcha!" <noreply@matcha.com>',
-            to: user.email,
-            subject: "Confirm your email!",
-            text: "Confirm your email by using this link : http://localhost:3000/api/user/confirmemail/" + confirmToken,
-            html: "<b>To confirm your email, click this <u><a href='http://localhost:3000/api/user/confirmemail/" + confirmToken + "'>link<a></u></b>",
-        });
+    let email_sent = false;
+    while (!email_sent) {
+        try {
+            const info = await transporter.sendMail({
+                from: '"Matcha!" <noreply@matcha.com>',
+                to: user.email,
+                subject: "Confirm your email!",
+                text: "Confirm your email by using this link : http://localhost:3000/api/user/confirmemail/" + confirmToken,
+                html: "<b>To confirm your email, click this <u><a href='http://localhost:3000/api/user/confirmemail/" + confirmToken + "'>link<a></u></b>",
+            });
 
-        console.log("Message sent: %s", info.messageId);
-    } catch (error) {
-        console.log('Error sending validation email');
+            console.log("Message sent: %s", info.messageId);
+            email_sent = true;
+        } catch (error) {
+            console.log('Error sending validation email, retrying in 1s ...');
+            await new Promise(f => setTimeout(f, 1000));
+        }
     }
 }
 
@@ -320,18 +325,23 @@ export async function sendResetPasswordEmail(email: string) {
         },
     });
 
-    try {
-        const info = await transporter.sendMail({
-            from: '"Matcha!" <noreply@matcha.com>',
-            to: user.email,
-            subject: "Reset your password!",
-            text: "Reset your password by using this link : http://localhost:8080?resetPassword&token=" + resetPasswordToken,
-            html: "<b>To reset your password, click this <u><a href='http://localhost:8080?resetPassword&token=" + resetPasswordToken + "'>link<a></u></b>",
-        });
+    let email_sent = false;
+    while (!email_sent) {
+        try {
+            const info = await transporter.sendMail({
+                from: '"Matcha!" <noreply@matcha.com>',
+                to: user.email,
+                subject: "Reset your password!",
+                text: "Reset your password by using this link : http://localhost:8080?resetPassword&token=" + resetPasswordToken,
+                html: "<b>To reset your password, click this <u><a href='http://localhost:8080?resetPassword&token=" + resetPasswordToken + "'>link<a></u></b>",
+            });
 
-        console.log("Message sent: %s", info.messageId);
-    } catch (error) {
-        console.log('Error sending password reset email');
+            console.log("Message sent: %s", info.messageId);
+            email_sent = true;
+        } catch (error) {
+            console.log('Error sending password reset email, retrying in 1s');
+            await new Promise(f => setTimeout(f, 1000));
+        }
     }
 }
 
