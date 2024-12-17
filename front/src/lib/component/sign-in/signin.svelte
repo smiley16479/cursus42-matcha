@@ -63,7 +63,8 @@ function isProfilCompleted() {
     return true;
 
   $app.tabIdx = 3;
-  alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+  if ($us.logState === LoggingState.logged)
+    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
   goto("/app/profil");
   return false;
 }
@@ -76,6 +77,7 @@ async function signIn() {
     if (resp?.status === 200) {
       $us.logState = LoggingState.logged;
       $app.footer = true;
+      $app.tabIdx = 0;
       $us.user = {...resp.data, connectedUser: []};
       // Garde la password sinon on ne peut pas resignIn sur app/accueil
       $us.user.password = pwd;

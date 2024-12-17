@@ -12,10 +12,10 @@
 	import { closeSocket } from '@/store/socketStore';
 	import { LoggingState } from '@/type/user';
 
-	onMount(()=> {
+	onMount(async ()=> {
 		if (!$us.user.id) {
+			await signOut();
 			alert("Vous avez été déconnecté");
-			signOut();
 		}
 	})
 
@@ -37,7 +37,8 @@
     if (u.pictures.length && u.interests.length && u.biography)
       return true;
 
-    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+		if ($us.logState === LoggingState.logged)
+    	alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
     goto("/app/profil");
     return false;
   }

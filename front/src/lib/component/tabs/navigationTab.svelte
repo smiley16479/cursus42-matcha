@@ -3,6 +3,7 @@
 	import { app } from "../../../store/appStore";
   import { onMount, afterUpdate } from "svelte";
   import { us } from "@/store/userStore";
+	import { LoggingState } from "@/type/user";
   // Propriétés du composant
   export let content: { title: string, icon: string, href: string }[] = [
     { title: "Acceuil", icon: "" , href: "/accueil"},
@@ -47,7 +48,8 @@
       return true;
 
     $app.tabIdx = 3;
-    alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
+    if ($us.logState === LoggingState.logged)
+      alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
     goto("/app/profil");
     return false;
   }
