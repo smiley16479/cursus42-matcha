@@ -71,8 +71,6 @@ export async function loginUser(credentials: IUserCredentials) {
 
     if (!user)
         throw new UserNotFoundError();
-    if (user.emailVerified == false)
-        throw new AppError(403, 'Email Not Verified');
 
     const result = await bcrypt.compare(credentials.password, user.password);
     if (result == false)
@@ -88,7 +86,10 @@ export async function loginUser(credentials: IUserCredentials) {
     patchUser(user.id, { lastConnection: new Date() });
     ConnectedUsers.instance.addConnectedUser(user.id);
 
-    return [token, outputUser];
+    if (user.emailVerified == true)
+        return [token, outputUser];
+    else
+        return [null, outputUser];
 }
 
 export async function logoutUser(userId: number) {

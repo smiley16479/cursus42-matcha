@@ -200,12 +200,15 @@ router.post('/login', loginValidator, errorHandler(async (req: Request, res: Res
 
     const [token, user] = await loginUser(req.body);
 
-    const exp = getEnv("JWT_EXP")
-    res.cookie("token", token, {
-        httpOnly: false,
-        sameSite: 'lax',
-        maxAge: parseInt(exp) * 60 *60 * 1000,
-    }).status(200).json(user);
+    if (token) {
+        const exp = getEnv("JWT_EXP")
+        res.cookie("token", token, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: parseInt(exp) * 60 *60 * 1000,
+        });
+    }
+    res.status(200).json(user);
 }));
 
 router.get('/logout', jwtAuthCheck, async (req: Request, res: Response) => {
