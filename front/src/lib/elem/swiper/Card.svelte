@@ -6,7 +6,6 @@
 	const dispatch = createEventDispatcher();
 
 	export let element: HTMLElement;
-	export let id: number = 0;
 	export let color: string = '';
 	export let title: string = '';
 	export let description: string = '';

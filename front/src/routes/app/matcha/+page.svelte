@@ -136,7 +136,7 @@
 						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewChat(match)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}</h2>
-								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography)}</p>
+								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography || "")}</p>
 							</div>
 						</button>
 							<div class="hidden sm:block text-right">
