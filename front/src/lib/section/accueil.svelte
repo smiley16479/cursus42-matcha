@@ -131,9 +131,9 @@ async function isEmailVerified() {
     <div class="container mx-auto px-4 text-center text-gray-600">
       <p>&copy; 2024 MatchaFrida. Tous droits réservés.</p>
       <nav>
-        <a href="#" class="text-blue-500 font-semibold px-3">À propos</a>
-        <a href="#" class="text-blue-500 font-semibold px-3">Conditions</a>
-        <a href="#" class="text-blue-500 font-semibold px-3">Politique de confidentialité</a>
+        <button on:click={()=> alert('© 2024 MatchaFrida. Tous droits réservés.')} class="text-blue-500 font-semibold px-3">À propos</button>
+        <button on:click={()=> alert("License MIT")} class="text-blue-500 font-semibold px-3">Conditions</button>
+        <button on:click={()=> alert("Application de test, vos données de géolocalisations sont connues d'un service tierce (ipinfo.io)")} class="text-blue-500 font-semibold px-3">Politique de confidentialité</button>
       </nav>
     </div>
   </footer>

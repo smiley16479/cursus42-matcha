@@ -71,7 +71,7 @@
 	<main class="pb-6"> <!-- Mise de margin pour éviter le contenu rogné par le footer -->
 		<slot />
 	</main>
-	<div class="w-full fixed bottom-0 backdrop-blur"> <!-- class:hidden={!$app.footer} -->
+	<div class="w-full fixed bottom-0 backdrop-blur" class:hidden={!$us.user.emailVerified}> <!-- class:hidden={!$app.footer} -->
 		<footer>
 			<NavigationTab/>
 		</footer>
