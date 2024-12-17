@@ -13,6 +13,7 @@ import { Notif_T, Notif_t_E } from '../types/shared_type/notification';
 import { UserLiking_t } from '../types/shared_type/user';
 import { getEnv } from '../util/envvars';
 import { connectedUser } from '../util/io.utils';
+import { validateBlockInput, validateLikeInput, validateMatchEventInput, validateMsgInput, validateReadNotifInput, validateRemoveMatchEventInput, validateReportInput, validateUnblockInput, validateUnlikeInput, validateVisitInput } from '../validators/sockets';
 
 export const initSocketEvents = (io: Server) => {
 
@@ -58,8 +59,15 @@ export const initSocketEvents = (io: Server) => {
       console.log(`Socket ${socket.id} a rejoint la room ${roomId}`);
     });
 
-    socket.on('c_visit', async (visitedUserId, callback) => {
-      console.log(`C_VISIT: visiterUserId ${socket.user.id}, visitedUserId ${visitedUserId}`);
+    socket.on('c_visit', async (input, callback) => {
+      console.log(`C_VISIT: visiterUserId ${socket.user.id}, visitedUserId ${input}`);
+
+      const [error, visitedUserId] = validateVisitInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
 
         if (!visitedUserId)
@@ -76,15 +84,20 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_like', async (likedUserId, callback) => {
-      console.log(`C_LIKE: likedUserId ${likedUserId}, likerUserId ${socket.user.id}`);
+    socket.on('c_like', async (input, callback) => {
+      console.log(`C_LIKE: likedUserId ${input}, likerUserId ${socket.user.id}`);
+
+      const [error, likedUserId] = validateLikeInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         if (!likedUserId)
           throw Error(`likedUserId: ${likedUserId}`);
 
         const [chat, like] = await addNewUserLike(likedUserId, socket.user.id);
-        console.log(`chat : `, chat);
-        console.log(`like : `, like);
 
         const notification = await addNewNotification(likedUserId, socket.user.id, Notif_t_E.LIKE, like.id);
         sendNotification(socket, likedUserId, notification);
@@ -103,8 +116,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_unlike', async (unlikedUserId, callback) => {
-      console.log(`C_UNLIKE: unlikedUserId ${unlikedUserId}, unlikerUserId ${unlikedUserId}`); // twice unlikedUserId ?
+    socket.on('c_unlike', async (input, callback) => {
+      console.log(`C_UNLIKE: unlikedUserId ${input}, unlikerUserId ${socket.user.id}`);
+
+      const [error, unlikedUserId] = validateUnlikeInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         const [removedLikeId, blockDb] = await removeUserLike(unlikedUserId, socket.user.id);
 
@@ -120,8 +140,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_block', async (blockedUserId, callback) => {
-      console.log(`C_BLOCK: blockedUserId ${blockedUserId}, blockerUserId ${socket.user.id}`);
+    socket.on('c_block', async (input, callback) => {
+      console.log(`C_BLOCK: blockedUserId ${input}, blockerUserId ${socket.user.id}`);
+
+      const [error, blockedUserId] = validateBlockInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         await addNewBlock(blockedUserId, socket.user.id);
         callback({ success: true });
@@ -130,8 +157,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_unblock', async (unblockedUserId, callback) => {
-      console.log(`C_unBLOCK: unblockedUserId ${unblockedUserId}, unblockerUserId ${socket.user.id}`);
+    socket.on('c_unblock', async (input, callback) => {
+      console.log(`C_unBLOCK: unblockedUserId ${input}, unblockerUserId ${socket.user.id}`);
+
+      const [error, unblockedUserId] = validateUnblockInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         await removeUserBlock(unblockedUserId, socket.user.id);
         callback({ success: true });
@@ -140,8 +174,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_report', async (reportedUserId, callback) => {
-      console.log(`C_report: reportedUserId ${reportedUserId}, reporterUserId ${socket.user.id}`);
+    socket.on('c_report', async (input, callback) => {
+      console.log(`C_report: reportedUserId ${input}, reporterUserId ${socket.user.id}`);
+
+      const [error, reportedUserId] = validateReportInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         await addNewReport(reportedUserId, socket.user.id)
         callback({ success: true });
@@ -150,8 +191,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_read_notif', async (notifId, callback) => {
-      console.log(`C_read_notif_id: read_notifId ${notifId}`);
+    socket.on('c_read_notif', async (input, callback) => {
+      console.log(`C_read_notif_id: read_notifId ${input}`);
+
+      const [error, notifId] = validateReadNotifInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         deleteNotification(notifId);
         callback({ success: true });
@@ -160,8 +208,15 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_new_match_event', async (matchEvent, callback) => {
-      console.log(`C_new_match_event: matchEvent ${JSON.stringify(matchEvent)}`);
+    socket.on('c_new_match_event', async (input, callback) => {
+      console.log(`C_new_match_event: matchEvent ${JSON.stringify(input)}`);
+
+      const [error, matchEvent] = validateMatchEventInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       try {
         const matchEventDb: IUserMatchEventDb = await createMatchEvent(socket.user.id, matchEvent);
 
@@ -176,8 +231,13 @@ export const initSocketEvents = (io: Server) => {
       }
     });
 
-    socket.on('c_remove_match_event', async (matchEventId) => {
-      console.log(`C_remove_match_event: ${matchEventId}`);
+    socket.on('c_remove_match_event', async (input) => {
+      console.log(`C_remove_match_event: ${input}`);
+
+      const [error, matchEventId] = validateRemoveMatchEventInput(input);
+      if (error)
+        return;
+
       try {
         const matchEventToRemove = await getMatchEvent(matchEventId);
         await removeMatchEvent(matchEventId);
@@ -199,8 +259,15 @@ export const initSocketEvents = (io: Server) => {
     });
 
     // 👌
-    socket.on('c_send_msg', async (msg: MsgInput_t, callback) => {
-      console.log(`c_send_msg received`, msg);
+    socket.on('c_send_msg', async (input: MsgInput_t, callback) => {
+      console.log(`c_send_msg received`, input);
+
+      const [error, msg] = validateMsgInput(input);
+      if (error) {
+        callback({success: false, error: error.message});
+        return;
+      }
+
       // Émettre le message à la room appropriée s'il y a l'autre user connecté
       try {
 
