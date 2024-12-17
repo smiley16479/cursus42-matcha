@@ -10,6 +10,7 @@
 	import { markNotificationRead } from "@/store/socketStore";
 	import type { UserLikedBy_t, UserVisit_t } from "@/type/shared_type/user";
 	import { get } from "svelte/store";
+	import { decodeHtmlEntities } from "../../../service/util/sharedFunction";
 
 	// Données simulées pour les matchs
 	let matchOrChat = true;
@@ -135,7 +136,7 @@
 						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewChat(match)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}</h2>
-								<p class="hidden md:block text-gray-600 text-sm">{match.interlocutors.find(e => (e.id !== $us.user.id))?.biography}</p>
+								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography)}</p>
 							</div>
 						</button>
 							<div class="hidden sm:block text-right">

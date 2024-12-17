@@ -11,6 +11,7 @@ import { page } from '$app/stores';
 import { onMount } from "svelte";
 import { fly } from "svelte/transition";
 import ResetPWmodal from "./resetPWmodal.svelte";
+	import { decodeHtmlEntities } from "../../../service/util/sharedFunction";
 
 let signUpMode = false;
 let showModalPW = false;
@@ -82,6 +83,7 @@ async function signIn() {
       if (isProfilCompleted())
         goto("/app/accueil");
       orderTabs();
+      $us.user.biography = decodeHtmlEntities($us.user.biography);
       initializeSocket();
       console.log(`$us.user`, $us.user);
     } else
