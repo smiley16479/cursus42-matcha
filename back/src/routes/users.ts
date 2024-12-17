@@ -113,8 +113,6 @@ if (getEnv("DEBUG") == "true") {
         try {
             await createUser(req.body);
         } catch (error) {
-            console.log(error);
-            // This Catches 42l rate limiting error
         }
         const user = await retrieveUserFromUserName(req.body.userName);
         delete req.body.password;

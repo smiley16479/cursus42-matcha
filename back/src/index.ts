@@ -49,9 +49,6 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
 
 /* centralized error management */
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
-    console.log('catched error :');
-    console.log(err);
-
     if (!(err instanceof AppError))
         err = new InternalError();
     if (err.error)

@@ -14,8 +14,6 @@ export async function UpdateAllUsersFameRate() {
             updateUserFameRate(user.id);
         })
     } catch (error) {
-        console.log('catched error :');
-        console.log(error);
     }
 }
 

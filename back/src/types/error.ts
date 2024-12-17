@@ -14,7 +14,7 @@ export class AppError extends Error {
 
 export class InternalError extends AppError {
     constructor() {
-        super(500, 'Internal Server Error');
+        super(418, 'I\'m a teapot');
     }
 }
 
