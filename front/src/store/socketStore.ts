@@ -166,12 +166,6 @@ export function visit(visitedUserId: number) {
 			clearTimeout(timer);
 			if (response.success) {
 				console.log("Socket visit completed", response.data);
-				// us.update((store) => {
-					// store.user.visits.push(response.data) // user visits are the visits he got not the ones he made, so this one shouldn't be pushed here ?
-				// 	return {
-				// 		...store
-				// 	};
-				// });
 			} else {
 				console.log("Error received:", response.error);
 			}
