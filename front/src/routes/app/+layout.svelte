@@ -49,6 +49,11 @@
 				return;
 		}
 
+		const tab = ["/accueil", "/matcha", "/frida", "/profil"]
+		const pathname = navigation.to.url.pathname;
+		const index = tab.findIndex(item => pathname.includes(item));
+		$app.tabIdx = index;
+
 		// Vérifier l'état de l'utilisateur à chaque navigation
 		if (navigation.to.url.pathname !== "/app/profil") {
 			isProfilCompleted();
