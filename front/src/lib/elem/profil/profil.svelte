@@ -6,7 +6,7 @@
 	import { getUser } from '@/service/user';
 	import { decodeHtmlEntities, haversine } from '@/service/util/sharedFunction';
 	import { app } from '@/store/appStore';
-	import { visit } from '@/store/socketStore';
+	import { unlike, visit } from '@/store/socketStore';
 	import { us } from '@/store/userStore';
 	import type { IUserOutput } from '@/type/shared_type/user';
 	import { onMount } from 'svelte';
@@ -106,11 +106,14 @@ function formatDate() {
             </div>
             <div class="text-gray-500 text-sm">{computeDistance()} km <span>(fameRate: {profil.fameRate})</span></div>
           </div>
-          <button 
-            class="bg-blue-500 text-white text-sm px-4 py-2 rounded-md h-auto flex items-center justify-center"
-            style="height: auto;">
-            Unmatch
-          </button>
+          {#if areUsersConnected() !== ""}
+            <button 
+              on:click={() => {unlike(profil?.id || +$page.params.id)}}
+              class="bg-blue-500 text-white text-sm px-4 py-2 rounded-md h-auto flex items-center justify-center"
+              style="height: auto;">
+              Unmatch
+            </button>
+          {/if}
         </div>
       </div>
 

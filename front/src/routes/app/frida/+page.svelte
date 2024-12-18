@@ -155,7 +155,9 @@ function resfreshProfils() {
 }
 </script>
 
-{$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName}  <!-- data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
+{#if import.meta.env.VITE_ENV == "dev"}
+  {$app.cardIndex}/{$browseItems.length} - {$browseItems?.[$app.cardIndex]?.userName}  <!-- data: {JSON.stringify(data1($app.cardIndex), null, 2)} -->
+{/if}
 <section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
 
   {#if $browseItems.length <= $app.cardIndex && swipingSearch}
