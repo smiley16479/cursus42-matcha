@@ -141,13 +141,13 @@
 							<p class="text-sm text-gray-500">Compatibilité</p>
 							<p class="text-lg font-bold text-indigo-600">{100}%</p>
 						</div>
-						<button on:click={() => reportProfil(match)} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+						<button on:click={(event) => {event.stopPropagation(); reportProfil(match)}} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
-						<button on:click={() => blockProfil(match)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+						<button on:click={(event) => {event.stopPropagation(); blockProfil(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Block
 						</button>
-						<button on:click={() => deleteMatch(match)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+						<button on:click={(event) => {event.stopPropagation(); deleteMatch(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Delete
 						</button>
 					</button>
