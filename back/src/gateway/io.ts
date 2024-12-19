@@ -273,6 +273,9 @@ export const initSocketEvents = (io: Server) => {
 
         const msgDb = await createMessage(msg);
 
+        if (msgDb)
+          callback({ success: false, error: 'User Blocked' });
+
         const notification = await addNewNotification(msg.destId, socket.user.id, Notif_t_E.MSG, msgDb.id);
         sendNotification(socket, msg.destId, notification);
 
