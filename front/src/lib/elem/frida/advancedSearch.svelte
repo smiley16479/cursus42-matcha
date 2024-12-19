@@ -49,7 +49,7 @@
 
     try {
       $app.loadingSpinner = true;
-      const result = await (swipeFilter ? research({...pref}) : browse({...pref}));
+      const result = await (swipeFilter ? browse({...pref}) : research({...pref}));
       if (result)
         matches.set(result);
       $app.cardIndex = 0
