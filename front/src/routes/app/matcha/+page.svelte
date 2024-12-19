@@ -123,8 +123,8 @@
 			<h1 class="text-2xl font-bold text-gray-800 mb-6">Mes Matchs</h1>
 			<div class="space-y-4">
 				{#each $us.user.chats as match, index}
-					<div class={`flex items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${isThereANotificationAboutThis(Notif_t_E.MATCH, match.id) ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
-						<button class="flex flex-grow min-w-20" type="button" title="Voir profil" on:click={() => viewMatchProfil(match.interlocutors[0].id === $us.user.id ? match.interlocutors[1].id : match.interlocutors[0].id)} >
+					<button type="button" title="Chatter" on:click={() => viewChat(match)} class={`flex w-full items-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 ${isThereANotificationAboutThis(Notif_t_E.MATCH, match.id) ? 'border border-black bg-gray-200': 'bg-gray-50'}`}>
+						<button class="flex min-w-20" type="button" title="Voir profil" on:click={() => viewMatchProfil(match.interlocutors[0].id === $us.user.id ? match.interlocutors[1].id : match.interlocutors[0].id)} >
 							{#if match.interlocutors.find(e => (e.id !== $us.user.id))?.pictures?.[0].filename}
 								<img src={"http://localhost:3000/api/user/picture/" + match.interlocutors.find(e => (e.id !== $us.user.id))?.pictures[0].filename} alt={match.interlocutors.find(e => (e.id !== $us.user.id))?.userName} class="w-16 h-16 rounded-full object-cover mr-4">
 							{:else}
@@ -133,16 +133,14 @@
 								</svg>
 							{/if}
 						</button>
-						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewChat(match)} >
-							<div class="flex-grow">
-								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}</h2>
-								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography || "")}</p>
-							</div>
-						</button>
-							<div class="hidden sm:block text-right">
-								<p class="text-sm text-gray-500">Compatibilité</p>
-								<p class="text-lg font-bold text-indigo-600">{100}%</p>
-							</div>
+						<div class="flex-grow">
+							<h2 class="hidden sm:block text-lg font-bold text-gray-900">{match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}</h2>
+							<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography || "")}</p>
+						</div>
+						<div class="hidden sm:block text-right">
+							<p class="text-sm text-gray-500">Compatibilité</p>
+							<p class="text-lg font-bold text-indigo-600">{100}%</p>
+						</div>
 						<button on:click={() => reportProfil(match)} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
@@ -152,7 +150,7 @@
 						<button on:click={() => deleteMatch(match)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Delete
 						</button>
-					</div>
+					</button>
 				{/each}
 			</div>
 		</div>

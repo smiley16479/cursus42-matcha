@@ -44,7 +44,7 @@ export async function createUser(inputUser: IUserInput) {
         password: hashedPassword,
         gender: gender,
         sexualPref: sexualPref,
-        age: 0,
+        age: 18,
         biography: biography,
         fameRate: 0,
         latitude: latitude,
