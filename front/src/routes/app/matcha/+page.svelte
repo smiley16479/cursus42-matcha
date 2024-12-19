@@ -108,10 +108,14 @@
 
 	function blockProfil(match: Chat_c) {
 		const id = match.interlocutors.find(e => (e.id !== $us.user.id))?.id;
-		if ($us.user.blocking.some(e => e.blockedUserId === id))
+		if ($us.user.blocking.some(e => e.blockedUser.id === id)){
 			unblock(id);
-		else
+			console.log("UNBLOCK", $us.user.blocking)
+		}
+		else {
+			console.log("BLOCK", $us.user.blocking)
 			block(id);
+		}
 	}
 
 </script>
@@ -146,8 +150,8 @@
 						<button on:click={(event) => {event.stopPropagation(); reportProfil(match)}} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
-						<button on:click={() => blockProfil(match)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-							{$us.user.blocking.some(e => match.interlocutors.some(i => e.blockedUserId === i.id)) ? "Unblock" : "Block"}
+						<button on:click={(event) => {event.stopPropagation(); blockProfil(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							{$us.user.blocking.some(e => match.interlocutors.some(i => e.blockedUser.id === i.id)) ? "Unblock" : "Block"}
 						</button>
 						<button on:click={(event) => {event.stopPropagation(); deleteMatch(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Delete

@@ -40,10 +40,11 @@ export class UserStore {
 	logState: LoggingState = LoggingState.unlogged;
 }
 
-export function refreshNotif() {
+export function refreshNotif(refreshMsg = true) {
 	us.update((store) => {
 		store.user.chats.forEach(e => {
-			e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
+			if (refreshMsg)
+				e.msg.sort((a, b) => new Date((a as  any).date).getTime() - new Date((b as any).date).getTime());
 			e.interlocutors.forEach(i => {
 				store.user.liking.forEach( el => {
 				if (el.likedUserId === i.id)

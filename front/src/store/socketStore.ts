@@ -59,6 +59,7 @@ export function initializeSocket() {
 	// });
 
 	store1.socket.on('s_new_notification', (notif: Notif_T) => {
+		console.log("S_NEW_NOTIFICATION")
 		us.update((store) => {
 			store.user?.notifications?.push(notif);
 		    switch(notif.type) {
@@ -70,6 +71,7 @@ export function initializeSocket() {
 					break;
 				case Notif_t_E.MSG:
 					const chat = store.user?.chats?.find(e => e.id === notif.payload.chatId)
+					console.log("notif.payload", notif.payload)
 		        	chat?.msg?.push(notif.payload);
 					const appStore = get(app);
 					if (appStore.userViewingChat == notif.payload.chatId) {
@@ -89,7 +91,7 @@ export function initializeSocket() {
 					store.user.matchEvents = store.user.matchEvents.filter(item => item.id !== notif.payload.id);
 					break;
 		    	}
-			refreshNotif();
+			refreshNotif(false);
 			return {
 				...store
 			};
@@ -268,7 +270,8 @@ export function unblock(unblockUserId: number) {
 			if (response.success) {
 				console.log("Socket unblock completed");
 				us.update((store) => {
-					store.user.blocking = store.user.blocking.filter(item => item.blockedUser.id !== unblockUserId);
+					if (store.user.blocking.length)
+						store.user.blocking = store.user.blocking.filter(item => item.blockedUser.id !== unblockUserId);
 					return {
 						...store
 					};
