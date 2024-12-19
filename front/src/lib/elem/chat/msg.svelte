@@ -24,7 +24,7 @@
 </script>
 
 {#if import.meta.env.VITE_ENV == "dev"}
-  <!-- current userId: {$us.user.id} -->
+  current userId: {$us.user.id}
 {/if}
 
 <div  class="max-h-[70vh] overflow-y-auto" bind:this={msgContainer}>
