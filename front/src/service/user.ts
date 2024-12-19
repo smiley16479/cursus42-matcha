@@ -93,8 +93,8 @@ export async function deleteUser() {
 export async function updateUser(user: IUserOutput) {
 	try {
 		const response = await axios.patch(`user/patch`, user, {withCredentials: true});
-		console.log(`updateUser service`, user, response, "msg", response.response.data.error?.[0].msg);
-		if (response.response.status !== 200)
+		console.log(`updateUser service`, user, response);
+		if (response?.response?.status && response?.response?.status !== 200)
 			throw new Error(response.response.data.error?.[0].msg);
 	} catch (error) {
 		console.log('ERROR updateUser() catch service');
