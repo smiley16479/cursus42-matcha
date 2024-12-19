@@ -153,8 +153,10 @@
   </div>
 </div>
 
+{#if import.meta.env.VITE_ENV == "dev"}
 <!-- <audio bind:this={audio}></audio> -->
 <button on:click={()=>{if (audio){ audio.play(); console.log(`Lecture`, );}
   else
     console.log(`Lecture failed audio null`)}}>Play</button>
 <RtCcall/>
+{/if}

@@ -23,8 +23,11 @@
   afterUpdate(scrollToBottom);
 </script>
 
-current userId: {$us.user.id}
-<div  class="max-h-[80vh] overflow-y-auto" bind:this={msgContainer}>
+{#if import.meta.env.VITE_ENV == "dev"}
+  <!-- current userId: {$us.user.id} -->
+{/if}
+
+<div  class="max-h-[70vh] overflow-y-auto" bind:this={msgContainer}>
   {#each chat.msg as msg, index}
     <!-- msg Received -->
     {#if $us.user.id !== msg.userId}
