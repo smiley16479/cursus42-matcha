@@ -1,10 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 import { retrieveMessageFromId } from '../db/chats';
-import { deleteNotification } from '../db/users';
 import { createMessage, prepareMessageForOutput, prepareUserChatForOutput } from '../services/chats';
 import { createMatchEvent, getMatchEvent, prepareMatchEventForOutput, removeMatchEvent } from '../services/matchEvents';
-import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeUserBlock, removeUserLike } from '../services/users';
+import { addNewBlock, addNewNotification, addNewReport, addNewUserLike, addNewUserVisit, prepareBlockForOutput, prepareLikeForOutputForLiker, removeNotification, removeUserBlock, removeUserLike } from '../services/users';
 import { IUserMatchEventDb } from '../types/matchEvents';
 import { Chat_c } from '../types/shared_type/chat';
 import { MatchEventOutput_t } from '../types/shared_type/matchEvents';
@@ -201,7 +200,7 @@ export const initSocketEvents = (io: Server) => {
       }
 
       try {
-        deleteNotification(notifId);
+        removeNotification(notifId);
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });

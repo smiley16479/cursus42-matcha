@@ -180,6 +180,11 @@ export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Prom
             })
         );
 
+        outputUser.notifications = outputUser.notifications.filter(e => {
+            if (e)
+                return e;
+        });
+
         outputUser.matchEvents = await Promise.all(
             outputUser.matchEvents.map(async (matchEvent: IUserMatchEventDb) => {
                 return await prepareMatchEventForOutput(matchEvent);
@@ -669,6 +674,9 @@ async function prepareNotifForOutput(notificationDb: IUserNotifDb) {
         date: notificationDb.createdAt,
         payload
     }
+
+    if (!outputNotif.payload)
+        return null;
 
     return outputNotif;
 }
