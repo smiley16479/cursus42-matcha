@@ -160,15 +160,7 @@ function resfreshProfils() {
 {/if}
 <section class="flex min-h-full flex-col items-center justify-center px-6 lg:px-8 bg">
 
-  {#if $browseItems.length <= $app.cardIndex && swipingSearch}
-    <div class="flex h-[80vh] w-[80vw] items-center justify-center">
-      <span class="text-gray-500 text-lg font-semibold">
-        Il n'y a plus de Match à proximité
-      </span>
-    </div>
-  {:else if $app.profilConsult}
-    <Profil profil={$browseItems?.[$app.cardIndex]}/> <!--  userNum={parseInt($page.params.id)} -->
-  {:else}
+  {#if !$app.profilConsult}
     <div class="absolute top-8">
       <button
         on:click={()=> swipingSearch = !swipingSearch}
@@ -199,6 +191,16 @@ function resfreshProfils() {
         </div>
       </button>
     </div>
+  {/if}
+  {#if $browseItems.length <= $app.cardIndex && swipingSearch}
+    <div class="flex h-[80vh] w-[80vw] items-center justify-center">
+      <span class="text-gray-500 text-lg font-semibold">
+        Il n'y a plus de Match à proximité
+      </span>
+    </div>
+  {:else if $app.profilConsult}
+    <Profil profil={$browseItems?.[$app.cardIndex]}/> <!--  userNum={parseInt($page.params.id)} -->
+  {:else}
     <div class={`flex h-[80vh] w-[80vw] items-center justify-center ${$us.user.pictures.length ? "hidden": ""}`}>
       <span class="text-gray-500 text-lg font-semibold">
         Uploader au moins une image pour pouvoir liker
