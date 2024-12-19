@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { block, report, unlike } from "@/store/socketStore";
+	import { block, unblock, report, unlike } from "@/store/socketStore";
 	import { Chat_c } from "@/type/shared_type/chat";
 	import { app } from "../../../store/appStore";
 	import { us } from "@/store/userStore";
@@ -108,7 +108,9 @@
 
 	function blockProfil(match: Chat_c) {
 		const id = match.interlocutors.find(e => (e.id !== $us.user.id))?.id;
-		if (id)
+		if ($us.user.blocking.some(e => e.blockedUserId === id))
+			unblock(id);
+		else
 			block(id);
 	}
 
@@ -144,8 +146,8 @@
 						<button on:click={(event) => {event.stopPropagation(); reportProfil(match)}} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
-						<button on:click={(event) => {event.stopPropagation(); blockProfil(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-							Block
+						<button on:click={() => blockProfil(match)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							{$us.user.blocking.some(e => match.interlocutors.some(i => e.blockedUserId === i.id)) ? "Unblock" : "Block"}
 						</button>
 						<button on:click={(event) => {event.stopPropagation(); deleteMatch(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Delete
