@@ -18,8 +18,8 @@
 			await updateUser($us.user);
 			alert("Modifications enregistrées avec succès !");
 		} catch (error) {
-			alert("Echec informations non modifiées");
-			console.warn(`error`, error);
+			alert(error);
+			console.log(`error`, error);
 		}
 	}
 
@@ -31,7 +31,7 @@
 			$app.tabIdx = 0;
 			goto('/')
 		} catch (error) {
-			console.warn(`error`, error);
+			console.log(`error`, error);
 		}
 	}
 
@@ -62,7 +62,7 @@
 	}
   </script>
 
-	<!-- <pre>{JSON.stringify($us, null, 2)}</pre> -->
+	<pre>{JSON.stringify($us, null, 2)}</pre>
 
 <div class="h-full flex flex-col items-center justify-center pb-12 px-6 lg:px-8 bg-custom">
 	<div class="max-w-md w-full space-y-8">
