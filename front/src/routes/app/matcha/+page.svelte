@@ -173,7 +173,7 @@
 						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewLikeProfil(like)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{like.likerUser.userName}</h2>
-								<p class="hidden md:block text-gray-600 text-sm">{like.likerUser.biography}</p>
+								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(like.likerUser.biography)}</p>
 							</div>
 						</button>
 							<div class="hidden sm:block text-right">
@@ -207,7 +207,7 @@
 						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewVisitProfil(visit)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{visit.visiterUser.userName}</h2>
-								<p class="hidden md:block text-gray-600 text-sm">{visit.visiterUser.biography}</p>
+								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(visit.visiterUser.biography)}</p>
 							</div>
 						</button>
 							<div class="hidden sm:block text-right">
