@@ -82,35 +82,35 @@
 			<div>
 				<label for="famerate" class="sr-only">fameRate</label>
 				<input value={"fameRate " + $us.user.fameRate} id="famerate" name="famerate" type="text" autocomplete="name" disabled
-				  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-				  placeholder="Votre Famerate n'est pas encore déterminé">
-		  </div>
-		  <div>
+					class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+					placeholder="Votre Famerate n'est pas encore déterminé">
+			</div>
+			<div>
 				<label for="first-name" class="sr-only">Prénom</label>
 				<input bind:value={$us.user.firstName} id="first-name" name="first-name" type="text" autocomplete="name" required
-				  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-				  placeholder="Nom complet">
-		  </div>
-		  <div>
+					class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+					placeholder="Nom complet">
+			</div>
+			<div>
 				<label for="last-name" class="sr-only">Nom</label>
 				<input bind:value={$us.user.lastName} id="last-name" name="last-name" type="text" autocomplete="name" required
 					class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
 					placeholder="Nom complet">
-		  </div>
-		  <div>
+			</div>
+			<div>
 				<label for="email" class="sr-only">Adresse e-mail</label>
 				<input bind:value={$us.user.email} id="email" name="email" type="email" autocomplete="email" required
-				  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-				  placeholder="Adresse e-mail">
-		  </div>
-		  <div>
+					class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+					placeholder="Adresse e-mail">
+			</div>
+			<!-- <div>
 				<label for="password" class="sr-only">Mot de passe</label>
 				<input bind:value={$us.user.password} id="password" name="password" type="password" autocomplete="new-password"
-				  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-				  placeholder="Mot de passe">
-		  </div>
+					class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+					placeholder="Mot de passe">
+			</div> -->
 		</div>
-  
+
 		<div>
 			<label for="age" class="block text-sm font-medium text-gray-700">Age</label>
 			<input type="range" id="age" min="1" max="200" bind:value={$us.user.age}
@@ -124,8 +124,8 @@
 		
 		<!-- Bio -->
 		<div class="mt-6">
-		  <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
-		  <textarea bind:value={$us.user.biography} id="bio" name="bio" rows="3"
+			<label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+			<textarea bind:value={$us.user.biography} id="bio" name="bio" rows="3"
 			class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 			placeholder="Parlez-nous de vous..."></textarea>
 		</div>
@@ -133,17 +133,17 @@
 		<!-- Paramètres de Confidentialité -->
 		<div class="rounded-md shadow-sm -space-y-px">
 			<h1 class="text-2xl font-bold mb-4">Mes Préférences</h1>
-		  <div class="mt-6">
+			<div class="mt-6">
 				<label for="profile-gender" class="block text-sm font-medium text-gray-700">Genre</label>
 				<select bind:value={$us.user.gender} id="profile-gender" name="profile-gender"
-				  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-				  <option value={EGender.Female}>Femme</option>
-				  <option value={EGender.Male}>Homme</option>
-				  <option value={EGender.Unknown}>Unkown</option>
+					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+					<option value={EGender.Female}>Femme</option>
+					<option value={EGender.Male}>Homme</option>
+					<option value={EGender.Unknown}>Unkown</option>
 				</select>
 				<label for="profile-sex-orientation" class="block text-sm font-medium text-gray-700">Orientation</label>
 				<select bind:value={$us.user.sexualPref} id="profile-sex-orientation" name="profile-sex-orientation"
-				  class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
 					<option value={ESexualPref.Female}>Femme</option>
 					<option value={ESexualPref.Male}>Homme</option>
 					<option value={ESexualPref.Both}>Bisexual</option>
