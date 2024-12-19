@@ -113,7 +113,7 @@
 
 		<div>
 			<label for="age" class="block text-sm font-medium text-gray-700">Age</label>
-			<input type="range" id="age" min="1" max="200" bind:value={$us.user.age}
+			<input type="range" id="age" min="18" max="100" bind:value={$us.user.age}
 			class="slider mt-1 block w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer">
 			<div class="flex justify-between text-sm text-gray-500">
 				<span>18 ans</span>
