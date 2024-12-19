@@ -63,9 +63,11 @@ function isProfilCompleted() {
     return true;
 
   $app.tabIdx = 3;
-  if ($us.logState === LoggingState.logged)
+  if ($us.logState === LoggingState.logged && $us.user.emailVerified) {
     alert("Vous devez renseigner au moins votre bio un intéret et mettre une photo pour utiliser l'application");
-  goto("/app/profil");
+    goto("/app/profil");
+  } else if (!$us.user.emailVerified)
+    goto("/app/accueil");
   return false;
 }
 
