@@ -141,8 +141,6 @@ export async function picUpload(formData: FormData) {
 export async function delAvatar(pictureId:number) {
 	try {
 		const response = (await axios.delete(`user/picture/delete/${+pictureId}`, {withCredentials: true}));
-		// console.log('response', response);
-		// IMPORTANT PROBLEM : TJRS a faire la partie qui va modifier les info correspondant au user ds la db
 		return response;
 	} catch (error) {
 		console.log('ERROR Dans le catch service');
