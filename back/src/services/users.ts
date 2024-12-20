@@ -190,6 +190,12 @@ export async function prepareUserForOutput(user: IUserDb, isSelf: boolean): Prom
                 return await prepareMatchEventForOutput(matchEvent);
             })
         );
+
+        outputUser.blocking = await Promise.all(
+            outputUser.blocking.map(async (block: IUserBlockDb) => {
+                return await prepareBlockForOutput(block);
+            })
+        );
     }
     delete outputUser['password'];
     delete outputUser['createdAt'];
