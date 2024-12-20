@@ -23,31 +23,36 @@
   let setLocMode = false;
 
   onMount(async () => {
-    L = await import('leaflet');
-    // Initialiser la carte
-    if (!map)
-      map = L.map('map').setView([51.505, -0.09], 2); // Vue initiale
+    try {
+      L = await import('leaflet');
+      // Initialiser la carte
+      if (!map)
+        map = L.map('map').setView([51.505, -0.09], 2); // Vue initiale
 
-    // Ajouter une couche de tuile
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+      // Ajouter une couche de tuile
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
 
-    // Ajouter des marqueurs pour chaque utilisateur
-    users.forEach(user => {
-      marker = L.marker([user.latitude, user.longitude])
-        .addTo(map!)
-        .bindPopup(`<b>${user.name}</b><br />${user.latitude}, ${user.longitude}`)
-        .openPopup();
-    });
+      // Ajouter des marqueurs pour chaque utilisateur
+      users.forEach(user => {
+        marker = L.marker([user.latitude, user.longitude])
+          .addTo(map!)
+          .bindPopup(`<b>${user.name}</b><br />${user.latitude}, ${user.longitude}`)
+          .openPopup();
+      });
 
-    marker = L.marker([$us.user.latitude, $us.user.longitude])
-        .addTo(map!)
-        .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
-        .openPopup();
-    if (searchMode)
-      setLocation();
+      marker = L.marker([$us.user.latitude, $us.user.longitude])
+          .addTo(map!)
+          .bindPopup(`<b>${$us.user.userName}</b><br />${$us.user.latitude}, ${$us.user.longitude}`)
+          .openPopup();
+      if (searchMode)
+        setLocation();
+    } catch (error) {
+      
+    }
+
   });
 
   function setLocation() {
