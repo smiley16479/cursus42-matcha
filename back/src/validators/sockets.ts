@@ -54,8 +54,8 @@ const match_event_schema = Joi.object({
     guestId: Joi.number().integer().greater(0).required(),
     title: Joi.string().normalize().required(),
     date: Joi.date().required(),
-    location: Joi.string().normalize().required(),
-    description: Joi.string().normalize().required()
+    location: Joi.string().normalize().allow(''),
+    description: Joi.string().normalize().allow('')
 });
 
 export function validateMatchEventInput(input: any) {
