@@ -174,7 +174,7 @@
 								</svg>
 							{/if}
 						</button>
-						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewLikeProfil(like)} >
+						<button class="flex flex-grow text-left w-full" type="button" title="Voir profil" on:click={() => viewLikeProfil(like)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{like.likerUser.userName}</h2>
 								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(like.likerUser.biography)}</p>
@@ -208,7 +208,7 @@
 								</svg>
 							{/if}
 						</button>
-						<button class="flex flex-grow text-left w-full" type="button" title="Chatter" on:click={() => viewVisitProfil(visit)} >
+						<button class="flex flex-grow text-left w-full" type="button" title="Voir profil" on:click={() => viewVisitProfil(visit)} >
 							<div class="flex-grow">
 								<h2 class="hidden sm:block text-lg font-bold text-gray-900">{visit.visiterUser.userName}</h2>
 								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(visit.visiterUser.biography)}</p>
@@ -232,7 +232,7 @@
 
 		<!-- Notifications -->
 		<div class="max-w-3xl mx-auto bg-white rounded-lg shadow">
-			<h1 class="text-2xl font-bold text-gray-800 mb-6" title="Profil que j'ai liké">Mes Notifications</h1>
+			<h1 class="text-2xl font-bold text-gray-800 mb-6">Mes Notifications</h1>
 			<div class="space-y-4">
 				{#if $us.user.notifications.length > 0}
 					{#each $us.user.notifications as notification}
