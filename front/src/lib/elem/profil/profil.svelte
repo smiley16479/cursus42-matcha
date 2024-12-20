@@ -55,9 +55,9 @@
   }
 
 function areUsersConnected(): string {
-  if ($us.user.likedBy.some(e => e.likerUser.id === profil?.id || +$page.params.id))
-   return "green"
-  else if ($us.user.chats.some(e => e.interlocutors.some(e => e.id === profil?.id || +$page.params.id)))
+  if ($us.user.likedBy.some(e => e.likerUser.id === (profil?.id || +$page.params.id)))
+    return "green"
+  else if ($us.user.chats.some(e => e.interlocutors.some(e => e.id === (profil?.id || +$page.params.id))))
     return "red"
   return ""
 }
@@ -106,7 +106,7 @@ function formatDate() {
             </div>
             <div class="text-gray-500 text-sm">{computeDistance()} km <span>(fameRate: {profil.fameRate})</span></div>
           </div>
-          {#if areUsersConnected() !== ""}
+          {#if areUsersConnected() === "red"}
             <button 
               on:click={() => {unlike(profil?.id || +$page.params.id)}}
               class="bg-blue-500 text-white text-sm px-4 py-2 rounded-md h-auto flex items-center justify-center"
