@@ -94,7 +94,7 @@ function successCallback(position : any) {
 }
 
 function errorCallback(err : any) {
-  error = "Erreur: Votre navigateur ou vos préférences de sécurités ne permettent pas la géolocalisation précise.\nNous vous géolocalisons par un autre moyen... Veuillez patienter";
+  error = "Votre navigateur ou vos préférences de sécurités ne permettent pas la géolocalisation précise.\nNous vous géolocalisons par un autre moyen... Veuillez patienter";
   console.log(`error`, err.message);
   // without permission
   setTimeout( () => {
@@ -116,7 +116,7 @@ function errorCallback(err : any) {
 <div class="flex flex-col items-center justify-center p-4">
   <h1 class="text-2xl font-bold mb-4">Ma Position</h1>
   {#if error}
-    <p class="text-red-500">{error}</p>
+    <p >{error}</p>
   {:else if $us.user.latitude && $us.user.longitude}
     <p class="text-lg">Latitude: {$us.user.latitude}</p>
     <p class="text-lg">Longitude: {$us.user.longitude}</p>
