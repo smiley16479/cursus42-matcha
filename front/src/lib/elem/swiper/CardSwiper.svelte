@@ -149,11 +149,11 @@
 
 <svelte:body on:keydown={(e) => {
 	if(!arrowKeys) return;
-	if (e.key === 'ArrowLeft') {
-		swipe('left');
-	} else if (e.key === 'ArrowRight') {
-		swipe('right');
-	}
+	// if (e.key === 'ArrowLeft') {
+	// 	swipe('left');
+	// } else if (e.key === 'ArrowRight') {
+	// 	swipe('right');
+	// }
 }} />
 
 <div class="w-full h-full">
