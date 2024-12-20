@@ -150,10 +150,6 @@
 							<h2 class="hidden sm:block text-lg font-bold text-gray-900">{match.interlocutors.find(e => (e.id !== $us.user.id))?.userName}</h2>
 							<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(match.interlocutors.find(e => (e.id !== $us.user.id))?.biography || "")}</p>
 						</div>
-						<div class="hidden sm:block text-right">
-							<p class="text-sm text-gray-500">Compatibilité</p>
-							<p class="text-lg font-bold text-indigo-600">{100}%</p>
-						</div>
 						<button on:click={(event) => {event.stopPropagation(); reportProfil(match)}} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
@@ -187,10 +183,6 @@
 								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(like.likerUser.biography)}</p>
 							</div>
 						</button>
-							<div class="hidden sm:block text-right">
-								<p class="text-sm text-gray-500">Compatibilité</p>
-								<p class="text-lg font-bold text-indigo-600">{100}%</p>
-							</div>
 						<button on:click={() => report(like.likerUser.id)} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
@@ -221,10 +213,6 @@
 								<p class="hidden md:block text-gray-600 text-sm">{decodeHtmlEntities(visit.visiterUser.biography)}</p>
 							</div>
 						</button>
-							<div class="hidden sm:block text-right">
-								<p class="text-sm text-gray-500">Compatibilité</p>
-								<p class="text-lg font-bold text-indigo-600">{100}%</p>
-							</div>
 						<button on:click={() => report(visit.visiterUser.id)} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
