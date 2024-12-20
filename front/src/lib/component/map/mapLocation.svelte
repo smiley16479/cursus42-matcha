@@ -16,7 +16,7 @@
   // export let users = []; // Liste des utilisateurs avec latitude et longitude
 
   export let searchMode = false;
-  export const pos: {lng: number, lat: number} = {lng: 0, lat: 0};
+  export let pos: {lng: number, lat: number} = {lng: 0, lat: 0};
   let L: any;
   let map: L.Map | null = null;
   let marker: L.Marker | null = null;
