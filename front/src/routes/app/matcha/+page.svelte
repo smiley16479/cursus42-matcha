@@ -106,14 +106,21 @@
 			report(id);
 	}
 
+	function blockOrUnblock(userId: number) {
+		if ($us.user.blocking.some(e =>  e.blockedUser.id === userId))
+			unblock(userId);
+		else
+			block(userId);
+	}
+
 	function blockProfil(match: Chat_c) {
 		const id = match.interlocutors.find(e => (e.id !== $us.user.id))?.id;
 		if ($us.user.blocking.some(e => e.blockedUser.id === id)){
 			unblock(id);
-			console.log("UNBLOCK", $us.user.blocking)
+			console.log("UNBLOCK", $us.user.blocking);
 		}
 		else {
-			console.log("BLOCK", $us.user.blocking)
+			console.log("BLOCK", $us.user.blocking);
 			block(id);
 		}
 	}
@@ -187,8 +194,8 @@
 						<button on:click={() => report(like.likerUser.id)} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
-						<button on:click={() => block(like.likerUser.id)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-							Delete
+						<button on:click={() => blockOrUnblock(like.likerUser.id)} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							{$us.user.blocking.some(e =>  e.blockedUser.id === like.likerUser.id) ? "Unblock" : "Block"}
 						</button>
 					</div>
 				{/each}

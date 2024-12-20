@@ -243,9 +243,7 @@ export function block(blockedUserId: number) {
 			if (response.success) {
 				console.log("Socket block completed");
 				us.update((store) => {
-					const blockedUser = store.user.chats.flatMap(e => e.interlocutors).find(user => user.id === blockedUserId)
-					if (blockedUser)
-						store.user.blocking.push({date: new Date(), blockedUser});
+						store.user.blocking.push(response.data);
 					return {
 						...store
 					};

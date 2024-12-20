@@ -149,8 +149,8 @@ export const initSocketEvents = (io: Server) => {
       }
 
       try {
-        await addNewBlock(blockedUserId, socket.user.id);
-        callback({ success: true });
+        const outputBlock = await prepareBlockForOutput(await addNewBlock(blockedUserId, socket.user.id));
+        callback({ success: true, data: outputBlock });
       } catch (error) {
         callback({ success: false, error: error.message });
       }
