@@ -43,7 +43,7 @@
       longitude: pos.lng,
       nbRequiredProfiles: 1000,
       offset: 0,
-      sortingOn: swipeFilter ? "fameRate" : "score",
+      sortingOn: swipeFilter ? "score" : "fameRate",
       sortingType:  "desc",
     }
 
