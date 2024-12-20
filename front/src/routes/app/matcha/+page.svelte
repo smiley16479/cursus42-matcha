@@ -150,10 +150,10 @@
 						<button on:click={(event) => {event.stopPropagation(); reportProfil(match)}} title="fake account" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Report
 						</button>
-						<button on:click={(event) => {event.stopPropagation(); blockProfil(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+						<button on:click={(event) => {event.stopPropagation(); blockProfil(match)}} title='{$us.user.blocking.some(e => match.interlocutors.some(i => e.blockedUser.id === i.id)) ? "Unblock" : "Block"}' class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							{$us.user.blocking.some(e => match.interlocutors.some(i => e.blockedUser.id === i.id)) ? "Unblock" : "Block"}
 						</button>
-						<button on:click={(event) => {event.stopPropagation(); deleteMatch(match)}} class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+						<button on:click={(event) => {event.stopPropagation(); deleteMatch(match)}} title="delete" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							Delete
 						</button>
 					</button>
